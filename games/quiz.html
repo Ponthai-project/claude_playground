@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>戦国クイズ ～天下への問答～</title>
+  <style>
+    /* ===== リセット・基本 ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a0a00;
+      min-height: 100vh;
+      font-family: 'MS Gothic', 'Hiragino Kaku Gothic Pro', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #f5c518;
+      user-select: none;
+      padding: 20px;
+    }
+
+    /* ===== 画面共通 ===== */
+    .screen {
+      display: none;
+      width: 100%;
+      max-width: 640px;
+      animation: fadeIn 0.4s ease;
+    }
+    .screen.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== 装飾ボーダー ===== */
+    .panel {
+      background: rgba(0, 0, 0, 0.75);
+      border: 2px solid #8b0000;
+      border-radius: 4px;
+      padding: 28px 32px;
+    }
+
+    /* ===== タイトル文字 ===== */
+    .game-title {
+      color: #f5c518;
+      font-size: 2rem;
+      letter-spacing: 0.3em;
+      text-align: center;
+      text-shadow: 0 0 16px #f5c51888;
+      margin-bottom: 4px;
+    }
+    .game-subtitle {
+      color: #aaa;
+      font-size: 0.85rem;
+      text-align: center;
+      letter-spacing: 0.2em;
+      margin-bottom: 28px;
+    }
+
+    /* ===== スタートボタン ===== */
+    #btn-start {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #8b0000;
+      color: #f5c518;
+      border: 2px solid #f5c518;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 1.2rem;
+      letter-spacing: 0.3em;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      margin-top: 12px;
+    }
+    #btn-start:hover {
+      background: #a00000;
+      box-shadow: 0 0 14px #f5c51866;
+    }
+
+    /* ===== 説明テキスト ===== */
+    .start-desc {
+      color: #ccc;
+      font-size: 0.88rem;
+      line-height: 1.9;
+      margin-bottom: 20px;
+      border-left: 3px solid #8b0000;
+      padding-left: 12px;
+    }
+
+    /* ===== 進捗・タイマー ===== */
+    #progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+    }
+    #progress-label { color: #f5c518; }
+    #score-label    { color: #aaa; }
+
+    #timer-wrap {
+      width: 100%;
+      height: 10px;
+      background: #2a1000;
+      border: 1px solid #8b0000;
+      border-radius: 2px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    #timer-bar {
+      height: 100%;
+      width: 100%;
+      background: #f5c518;
+      border-radius: 2px;
+      transition: background 0.3s;
+    }
+    /* 残り5秒以下で点滅 */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+    #timer-bar.danger {
+      background: #ff2222;
+      animation: blink 0.5s infinite;
+    }
+
+    /* ===== 問題文 ===== */
+    #question-text {
+      color: #f5c518;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      letter-spacing: 0.05em;
+      margin-bottom: 20px;
+      min-height: 60px;
+    }
+
+    /* ===== 選択肢 ===== */
+    #choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .choice-btn {
+      padding: 14px 10px;
+      background: #2a1000;
+      color: #f0e0b0;
+      border: 2px solid #5a2a00;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      letter-spacing: 0.05em;
+      line-height: 1.4;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      text-align: left;
+    }
+    .choice-btn:hover:not(:disabled) {
+      background: #3d1500;
+      border-color: #f5c518;
+    }
+    .choice-btn:disabled { cursor: default; }
+
+    /* 正解・不正解ハイライト */
+    .choice-btn.correct {
+      background: #1a4a1a;
+      border-color: #44cc44;
+      color: #88ff88;
+      box-shadow: 0 0 10px #44cc4466;
+    }
+    .choice-btn.wrong {
+      background: #4a1a1a;
+      border-color: #cc4444;
+      color: #ff8888;
+    }
+
+    /* ===== フィードバック欄 ===== */
+    #feedback {
+      display: none;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid #5a2a00;
+      border-radius: 4px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    #feedback.show { display: block; animation: fadeIn 0.3s ease; }
+    #feedback-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      letter-spacing: 0.15em;
+    }
+    #feedback-title.correct { color: #44cc44; }
+    #feedback-title.wrong   { color: #cc4444; }
+    #feedback-points {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+    #feedback-explanation {
+      font-size: 0.88rem;
+      color: #ccc;
+      line-height: 1.8;
+      border-left: 3px solid #f5c518;
+      padding-left: 10px;
+    }
+    #btn-next {
+      display: block;
+      width: 100%;
+      padding: 11px;
+      background: #5a2a00;
+      color: #f5c518;
+      border: 2px solid #8b0000;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    #btn-next:hover { background: #7a3a00; }
+
+    /* ===== 結果画面 ===== */
+    #result-title {
+      font-size: 1.6rem;
+      text-align: center;
+      letter-spacing: 0.3em;
+      text-shadow: 0 0 14px #f5c51888;
+      margin-bottom: 6px;
+    }
+    #result-rank {
+      text-align: center;
+      font-size: 2.2rem;
+      color: #f5c518;
+      letter-spacing: 0.4em;
+      margin: 8px 0;
+      text-shadow: 0 0 20px #f5c518aa;
+    }
+    #result-score {
+      text-align: center;
+      font-size: 1rem;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+
+    /* 結果一覧 */
+    #result-list {
+      max-height: 260px;
+      overflow-y: auto;
+      border: 1px solid #5a2a00;
+      border-radius: 4px;
+      margin-bottom: 18px;
+    }
+    #result-list::-webkit-scrollbar { width: 6px; }
+    #result-list::-webkit-scrollbar-track { background: #1a0a00; }
+    #result-list::-webkit-scrollbar-thumb { background: #8b0000; border-radius: 3px; }
+
+    .result-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid #2a1000;
+      font-size: 0.85rem;
+    }
+    .result-item:last-child { border-bottom: none; }
+    .result-mark {
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      margin-top: 1px;
+    }
+    .result-mark.correct { color: #44cc44; }
+    .result-mark.wrong   { color: #cc4444; }
+    .result-q   { color: #e0c880; flex: 1; line-height: 1.5; }
+    .result-pts { flex-shrink: 0; color: #aaa; font-size: 0.8rem; margin-top: 2px; }
+
+    /* リトライボタン */
+    #btn-retry {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: #8b0000;
+      color: #f5c518;
+      border: 2px solid #f5c518;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 1.1rem;
+      letter-spacing: 0.3em;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #btn-retry:hover {
+      background: #a00000;
+      box-shadow: 0 0 14px #f5c51866;
+    }
+
+    /* ===== フッター ===== */
+    footer {
+      margin-top: 20px;
+      color: #555;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== スタート画面 ===== -->
+  <div id="screen-start" class="screen active">
+    <div class="panel">
+      <h1 class="game-title">戦国クイズ</h1>
+      <p class="game-subtitle">～ 天下への問答 ～</p>
+      <p class="start-desc">
+        戦国の世を生き抜くには知恵が必要じゃ。<br>
+        全10問、1問20秒で答えよ。<br>
+        早く正解するほど高得点を得られる。<br>
+        最高点は2000点。天下人を目指せ！
+      </p>
+      <table style="width:100%;color:#aaa;font-size:0.82rem;margin-bottom:16px;border-collapse:collapse;">
+        <tr>
+          <td style="padding:3px 8px;color:#f5c518;">天下人</td><td>1800点以上</td>
+          <td style="padding:3px 8px;color:#f5c518;">知将</td><td>1400点以上</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 8px;color:#f5c518;">武士</td><td>1000点以上</td>
+          <td style="padding:3px 8px;color:#f5c518;">足軽</td><td>600点以上</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 8px;color:#f5c518;">百姓</td><td>599点以下</td>
+          <td colspan="2"></td>
+        </tr>
+      </table>
+      <button id="btn-start" onclick="startGame()">出 陣</button>
+    </div>
+  </div>
+
+  <!-- ===== クイズ画面 ===== -->
+  <div id="screen-quiz" class="screen">
+    <div class="panel">
+      <!-- 進捗 -->
+      <div id="progress">
+        <span id="progress-label">Q 1 / 10</span>
+        <span id="score-label">score: 0</span>
+      </div>
+
+      <!-- タイマーバー -->
+      <div id="timer-wrap">
+        <div id="timer-bar"></div>
+      </div>
+
+      <!-- 問題文 -->
+      <p id="question-text"></p>
+
+      <!-- 選択肢 -->
+      <div id="choices"></div>
+
+      <!-- フィードバック -->
+      <div id="feedback">
+        <div id="feedback-title"></div>
+        <div id="feedback-points"></div>
+        <div id="feedback-explanation"></div>
+        <button id="btn-next" onclick="nextQuestion()">次の問いへ ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 結果画面 ===== -->
+  <div id="screen-result" class="screen">
+    <div class="panel">
+      <h2 id="result-title">戦 終 了</h2>
+      <div id="result-rank"></div>
+      <div id="result-score"></div>
+      <div id="result-list"></div>
+      <button id="btn-retry" onclick="startGame()">再 挑 戦</button>
+    </div>
+  </div>
+
+  <footer>羽柴秀吉制作 ／ 戦国クイズ</footer>
+
+<script>
+  /* ===== クイズデータ ===== */
+  const QUIZ_DATA = [
+    {
+      q: "本能寺の変が起きた年は？",
+      choices: ["1582年", "1575年", "1600年", "1615年"],
+      answer: 0,
+      explanation: "天正10年（1582年）6月2日、明智光秀が信長を討った歴史的事件。"
+    },
+    {
+      q: "「鳴かぬなら 殺してしまえ ほととぎす」と詠まれる武将は？",
+      choices: ["豊臣秀吉", "徳川家康", "織田信長", "武田信玄"],
+      answer: 2,
+      explanation: "信長の苛烈な性格を表す句。秀吉は「鳴かせてみよう」、家康は「鳴くまで待とう」。"
+    },
+    {
+      q: "長篠の戦いで織田・徳川連合軍が用いた戦術は？",
+      choices: ["騎馬隊の突撃", "鉄砲の三段撃ち", "水攻め", "兵糧攻め"],
+      answer: 1,
+      explanation: "1575年、武田の騎馬隊に対し鉄砲隊を柵の後ろに配置し三段撃ちで壊滅させた。"
+    },
+    {
+      q: "豊臣秀吉が生まれた国（現在の都道府県）は？",
+      choices: ["近江（滋賀県）", "摂津（大阪府）", "尾張（愛知県）", "美濃（岐阜県）"],
+      answer: 2,
+      explanation: "秀吉は尾張国中村（現・名古屋市中村区）の生まれ。農民の出身とされる。"
+    },
+    {
+      q: "関ヶ原の戦いが起きた年は？",
+      choices: ["1592年", "1598年", "1600年", "1603年"],
+      answer: 2,
+      explanation: "慶長5年（1600年）、石田三成率いる西軍と徳川家康率いる東軍が激突。東軍が勝利した。"
+    },
+    {
+      q: "「天下布武」の印判を使い始めたのは誰か？",
+      choices: ["徳川家康", "織田信長", "豊臣秀吉", "今川義元"],
+      answer: 1,
+      explanation: "信長が使用した印判。「武力をもって天下を治める」という意志を示したとされる。"
+    },
+    {
+      q: "武田信玄の旗印「風林火山」の出典となった書物は？",
+      choices: ["論語", "孫子", "韓非子", "三国志"],
+      answer: 1,
+      explanation: "孫子の「其疾如風、其徐如林、侵掠如火、不動如山」が出典。"
+    },
+    {
+      q: "徳川家康が江戸幕府を開いた年は？",
+      choices: ["1598年", "1600年", "1603年", "1615年"],
+      answer: 2,
+      explanation: "慶長8年（1603年）、家康が征夷大将軍に任命され江戸幕府を開いた。"
+    },
+    {
+      q: "上杉謙信が信仰し、自らをその化身と称した神は？",
+      choices: ["不動明王", "毘沙門天", "弁財天", "大黒天"],
+      answer: 1,
+      explanation: "謙信は毘沙門天の化身と自称し、「毘」の旗印を用いた。義の武将として名高い。"
+    },
+    {
+      q: "桶狭間の戦い（1560年）で今川義元を討ち取ったのは誰？",
+      choices: ["柴田勝家", "羽柴秀吉", "徳川家康", "織田信長"],
+      answer: 3,
+      explanation: "信長が少数の軍で大軍の今川義元を奇襲し討ち取った。信長躍進のきっかけとなった戦い。"
+    }
+  ];
+
+  /* ===== 状態変数 ===== */
+  let phase;              // 'start' | 'quiz' | 'feedback' | 'result'
+  let currentIndex;       // 現在の問題番号（0〜9）
+  let score;              // 累計スコア
+  let timeLeft;           // 残り秒数（0〜20）
+  let timerId = null;     // setIntervalのID（null で初期化し stopTimer の判定を確実に）
+  let results;            // 各問の結果 [{correct, earned}, ...]
+  let selectedChoice;     // 選択した選択肢インデックス
+
+  const TIMER_MAX = 20; // 1問あたりの制限時間（秒）
+
+  /* ===== 画面切替 ===== */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  /* ===== ゲーム開始・初期化 ===== */
+  function startGame() {
+    stopTimer();          // 念のため残存タイマーを確実に停止
+    phase          = 'quiz';
+    currentIndex   = 0;
+    score          = 0;
+    results        = [];
+    selectedChoice = null;
+
+    showScreen('screen-quiz');
+    renderQuestion();
+  }
+
+  /* ===== 問題描画 ===== */
+  function renderQuestion() {
+    const data = QUIZ_DATA[currentIndex];
+
+    // 進捗・スコア更新
+    document.getElementById('progress-label').textContent =
+      `Q ${currentIndex + 1} / ${QUIZ_DATA.length}`;
+    document.getElementById('score-label').textContent =
+      `score: ${score}`;
+
+    // 問題文
+    document.getElementById('question-text').textContent = data.q;
+
+    // フィードバック欄を隠す
+    const feedback = document.getElementById('feedback');
+    feedback.classList.remove('show');
+
+    // 選択肢ボタン生成
+    const choicesEl = document.getElementById('choices');
+    choicesEl.innerHTML = '';
+    data.choices.forEach((text, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = `${['ア','イ','ウ','エ'][i]}．${text}`;
+      btn.onclick = () => selectChoice(i);
+      choicesEl.appendChild(btn);
+    });
+
+    // 次へボタンのテキスト（最終問か否か）
+    document.getElementById('btn-next').textContent =
+      currentIndex === QUIZ_DATA.length - 1 ? '結果を見る ▶' : '次の問いへ ▶';
+
+    // タイマー開始
+    startTimer();
+  }
+
+  /* ===== タイマー開始 ===== */
+  function startTimer() {
+    stopTimer(); // 二重起動防止
+    timeLeft = TIMER_MAX;
+    updateTimerBar();
+
+    timerId = setInterval(() => {
+      timeLeft--;
+      updateTimerBar();
+
+      if (timeLeft <= 0) {
+        // 時間切れ → 自動的に不正解処理
+        stopTimer();
+        selectChoice(-1); // -1 = 時間切れ
+      }
+    }, 1000);
+  }
+
+  /* ===== タイマー停止 ===== */
+  function stopTimer() {
+    if (timerId !== null) {
+      clearInterval(timerId);
+      timerId = null;
+    }
+  }
+
+  /* ===== タイマーバー更新 ===== */
+  function updateTimerBar() {
+    const bar = document.getElementById('timer-bar');
+    const pct = Math.max(0, (timeLeft / TIMER_MAX) * 100);
+    bar.style.width = pct + '%';
+
+    // 残り5秒以下で赤く点滅
+    if (timeLeft <= 5) {
+      bar.classList.add('danger');
+    } else {
+      bar.classList.remove('danger');
+    }
+  }
+
+  /* ===== 選択肢クリック処理 ===== */
+  function selectChoice(i) {
+    // feedback・result中は無効
+    if (phase !== 'quiz') return;
+    phase = 'feedback';
+
+    stopTimer();
+    selectedChoice = i;
+
+    const data    = QUIZ_DATA[currentIndex];
+    const correct = (i === data.answer);
+    // スコア計算：正解なら100 + 残り秒×5（最大200）
+    const earned  = correct ? (100 + timeLeft * 5) : 0;
+    score += earned;
+
+    // 結果に記録
+    results.push({ correct, earned, questionIndex: currentIndex });
+
+    // 選択肢ボタンのハイライト
+    const buttons = document.querySelectorAll('.choice-btn');
+    buttons.forEach((btn, idx) => {
+      btn.disabled = true;
+      if (idx === data.answer) {
+        btn.classList.add('correct'); // 正解ボタンを緑
+      } else if (idx === i && !correct) {
+        btn.classList.add('wrong');   // 誤答ボタンを赤
+      }
+    });
+
+    showFeedback(correct, earned);
+  }
+
+  /* ===== フィードバック表示 ===== */
+  function showFeedback(isCorrect, earned) {
+    const data     = QUIZ_DATA[currentIndex];
+    const titleEl  = document.getElementById('feedback-title');
+    const pointsEl = document.getElementById('feedback-points');
+    const expEl    = document.getElementById('feedback-explanation');
+    const feedback = document.getElementById('feedback');
+
+    if (isCorrect) {
+      titleEl.textContent  = '◎ 正解じゃ！';
+      titleEl.className    = 'correct';
+      pointsEl.textContent = `＋${earned}点（残り${timeLeft}秒ボーナス込み）`;
+    } else if (selectedChoice === -1) {
+      titleEl.textContent  = '⌛ 時間切れ…';
+      titleEl.className    = 'wrong';
+      pointsEl.textContent = '＋0点';
+    } else {
+      titleEl.textContent  = '✕ 不正解…';
+      titleEl.className    = 'wrong';
+      pointsEl.textContent = '＋0点';
+    }
+
+    expEl.textContent = data.explanation;
+
+    // スコア表示も更新
+    document.getElementById('score-label').textContent = `score: ${score}`;
+
+    feedback.classList.add('show');
+  }
+
+  /* ===== 次の問題へ ===== */
+  function nextQuestion() {
+    // feedback フェーズ以外では呼び出しを無効にする
+    if (phase !== 'feedback') return;
+
+    currentIndex++;
+    if (currentIndex >= QUIZ_DATA.length) {
+      showResult();
+    } else {
+      phase = 'quiz';
+      renderQuestion();
+    }
+  }
+
+  /* ===== 結果画面 ===== */
+  function showResult() {
+    phase = 'result';
+    stopTimer();
+
+    const rank = getRank(score);
+
+    document.getElementById('result-rank').textContent  = rank;
+    document.getElementById('result-score').textContent =
+      `最終スコア：${score} / 2000点`;
+
+    // 各問の○×一覧
+    const listEl = document.getElementById('result-list');
+    listEl.innerHTML = '';
+    results.forEach((r, idx) => {
+      const q    = QUIZ_DATA[r.questionIndex];
+      const item = document.createElement('div');
+      item.className = 'result-item';
+
+      const mark = document.createElement('span');
+      mark.className = `result-mark ${r.correct ? 'correct' : 'wrong'}`;
+      mark.textContent = r.correct ? '○' : '✕';
+
+      const qText = document.createElement('span');
+      qText.className = 'result-q';
+      qText.textContent = `Q${r.questionIndex + 1}. ${q.q}`;
+
+      const pts = document.createElement('span');
+      pts.className = 'result-pts';
+      pts.textContent = `+${r.earned}`;
+
+      item.appendChild(mark);
+      item.appendChild(qText);
+      item.appendChild(pts);
+      listEl.appendChild(item);
+    });
+
+    showScreen('screen-result');
+  }
+
+  /* ===== 称号判定 ===== */
+  function getRank(s) {
+    if (s >= 1800) return '天　下　人';
+    if (s >= 1400) return '知　　　将';
+    if (s >= 1000) return '武　　　士';
+    if (s >=  600) return '足　　　軽';
+    return '百　　　姓';
+  }
+
+  /* ===== 初期フェーズ ===== */
+  phase = 'start';
+</script>
+</body>
+</html>
