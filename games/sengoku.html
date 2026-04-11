@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>城守り ～羽柴秀吉の防衛戦～</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a0a00;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'MS Gothic', 'Hiragino Kaku Gothic Pro', monospace;
+      user-select: none;
+    }
+    h1 {
+      color: #f5c518;
+      font-size: 1.4rem;
+      letter-spacing: 0.2em;
+      margin-bottom: 8px;
+      text-shadow: 0 0 10px #f5c51888;
+    }
+    /* HUD */
+    #hud {
+      width: 640px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 16px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid #8b0000;
+      border-bottom: none;
+      color: #f5c518;
+      font-size: 0.95rem;
+    }
+    #hud span { letter-spacing: 0.1em; }
+    .hp-bar { display: flex; gap: 4px; align-items: center; }
+    .hp-heart { color: #ff3333; font-size: 1.1rem; }
+    .hp-heart.empty { color: #333; }
+    /* Canvas */
+    #canvas {
+      display: block;
+      cursor: none;
+      border: 2px solid #8b0000;
+    }
+    #footer {
+      width: 640px;
+      text-align: center;
+      color: #8b4513;
+      font-size: 0.75rem;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>城守り ～羽柴秀吉の防衛戦～</h1>
+  <div id="hud">
+    <div class="hp-bar" id="hpBar">城耐久：</div>
+    <span id="waveText">第1波</span>
+    <span id="scoreText">功績：0</span>
+  </div>
+  <canvas id="canvas" width="640" height="400"></canvas>
+  <div id="footer">マウスで照準を合わせ、クリックで矢を放て！</div>
+
+<script>
+// =============================================
+// 定数・設定
+// =============================================
+const W = 640, H = 400;
+const CASTLE_X = 40;          // 城のX座標
+const CASTLE_W = 50, CASTLE_H = 120; // 城の描画サイズ
+const ARROW_SPEED = 10;       // 矢の速度
+const ARROW_COOLDOWN = 600;   // 発射間隔(ms)
+const ENEMY_Y_BASE = 290;     // 敵の足元Y座標
+const ENEMY_HP_DEFAULT = 2;   // 敵の基本HP
+
+// =============================================
+// ゲーム状態
+// =============================================
+let state = 'start'; // 'start' | 'play' | 'over' | 'clear'
+let castle = { hp: 3, maxHp: 3 };
+let enemies = [];
+let arrows = [];
+let wave = 1;
+let score = 0;
+let mouse = { x: 320, y: 200 };
+
+// スポーン管理
+let spawnTimer = 0;
+let spawnInterval = 120; // フレーム数
+let spawnCount = 0;      // 今ウェーブで出現済みの敵数
+let spawnMax = 0;        // 今ウェーブで出現させる敵数
+let waveCooldown = false; // ウェーブ間インターバル中フラグ（二重トリガー防止）
+
+// クールタイム
+let lastShot = 0;
+
+// パーティクル（撃破エフェクト）
+let particles = [];
+
+// アニメーション管理
+let lastTime = 0;
+let frameCount = 0;
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// =============================================
+// ウェーブ設定
+// =============================================
+function waveConfig(w) {
+  // ウェーブが上がるほど敵が速く・多くなる
+  return {
+    count: 7 + (w - 1) * 3,          // 出現数（旧: 4+(w-1)*2 → 約+3〜5体増）
+    speed: 1.2 + (w - 1) * 0.55,     // 移動速度（旧: 0.8+(w-1)*0.35 → 約1.5倍）
+    hp: w >= 4 ? 3 : ENEMY_HP_DEFAULT, // 後半は固め
+    spawnInterval: Math.max(60, 120 - (w - 1) * 15), // 出現間隔(フレーム)
+  };
+}
+
+// =============================================
+// ウェーブ開始
+// =============================================
+function startWave(w) {
+  const cfg = waveConfig(w);
+  spawnCount = 0;
+  spawnMax = cfg.count;
+  spawnInterval = cfg.spawnInterval;
+  spawnTimer = 0;
+  waveCooldown = false;
+  enemies = [];
+  arrows = [];
+  particles = [];
+  updateHUD();
+}
+
+// =============================================
+// 敵のスポーン
+// =============================================
+function spawnEnemy() {
+  const cfg = waveConfig(wave);
+  // 縦位置を少しランダムにして自然に見せる
+  const yOff = (Math.random() - 0.5) * 20;
+
+  // 3波以降は一定確率（30%）で重装足軽を出現させる
+  const isHeavy = wave >= 3 && Math.random() < 0.30;
+
+  if (isHeavy) {
+    // 重装足軽：HP3、速度は通常の0.6倍
+    enemies.push({
+      x: W + 20,
+      y: ENEMY_Y_BASE + yOff,
+      speed: (cfg.speed + (Math.random() - 0.5) * 0.2) * 0.6,
+      hp: 3,
+      maxHp: 3,
+      type: 'heavy',
+      animTick: Math.random() * Math.PI * 2,
+    });
+  } else {
+    // 通常足軽
+    enemies.push({
+      x: W + 20,
+      y: ENEMY_Y_BASE + yOff,
+      speed: cfg.speed + (Math.random() - 0.5) * 0.2,
+      hp: cfg.hp,
+      maxHp: cfg.hp,
+      type: 'normal',
+      animTick: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+// =============================================
+// パーティクル生成（撃破エフェクト）
+// =============================================
+function spawnParticles(x, y) {
+  for (let i = 0; i < 8; i++) {
+    const angle = (Math.PI * 2 / 8) * i + Math.random() * 0.5;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * (2 + Math.random() * 2),
+      vy: Math.sin(angle) * (2 + Math.random() * 2) - 2,
+      life: 1.0,
+      color: Math.random() > 0.5 ? '#ff4400' : '#f5c518',
+    });
+  }
+}
+
+// =============================================
+// HUD更新
+// =============================================
+function updateHUD() {
+  // 城HP（ハート表示）
+  let hp = '';
+  for (let i = 0; i < castle.maxHp; i++) {
+    hp += `<span class="hp-heart${i < castle.hp ? '' : ' empty'}">&#9679;</span>`;
+  }
+  document.getElementById('hpBar').innerHTML = '城耐久：' + hp;
+  document.getElementById('waveText').textContent = `第${wave}波`;
+  document.getElementById('scoreText').textContent = `功績：${score}`;
+}
+
+// =============================================
+// ゲーム開始
+// =============================================
+function startGame() {
+  state = 'play';
+  castle = { hp: 3, maxHp: 3 };
+  wave = 1;
+  score = 0;
+  lastShot = 0;
+  startWave(wave);
+}
+
+// =============================================
+// update: 毎フレーム呼ばれるロジック更新
+// =============================================
+function update() {
+  if (state !== 'play') return;
+
+  frameCount++;
+
+  // --- 敵のスポーン ---
+  if (spawnCount < spawnMax) {
+    spawnTimer++;
+    if (spawnTimer >= spawnInterval) {
+      spawnEnemy();
+      spawnCount++;
+      spawnTimer = 0;
+    }
+  }
+
+  // --- 敵の移動 ---
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    const e = enemies[i];
+    e.x -= e.speed;
+    e.animTick += 0.15; // 歩行アニメ進行
+
+    // 城に到達した場合
+    if (e.x <= CASTLE_X + CASTLE_W) {
+      castle.hp--;
+      enemies.splice(i, 1);
+      updateHUD();
+
+      // 城HP=0でゲームオーバー
+      if (castle.hp <= 0) {
+        state = 'over';
+        return;
+      }
+    }
+  }
+
+  // --- 矢の移動 ---
+  for (let i = arrows.length - 1; i >= 0; i--) {
+    const a = arrows[i];
+    a.x += a.dx * a.speed;
+    a.y += a.dy * a.speed;
+
+    // 画面外に出た矢を削除
+    if (a.x < 0 || a.x > W || a.y < 0 || a.y > H) {
+      arrows.splice(i, 1);
+      continue;
+    }
+
+    // 敵との当たり判定
+    let hit = false;
+    for (let j = enemies.length - 1; j >= 0; j--) {
+      const e = enemies[j];
+      if (Math.abs(a.x - e.x) < 18 && Math.abs(a.y - (e.y - 20)) < 28) {
+        e.hp--;
+        hit = true;
+        if (e.hp <= 0) {
+          // 撃破（重装足軽は300点固定、通常は10×波数）
+          score += e.type === 'heavy' ? 300 : 10 * wave;
+          spawnParticles(e.x, e.y - 20);
+          enemies.splice(j, 1);
+          updateHUD();
+        }
+        break;
+      }
+    }
+    if (hit) {
+      arrows.splice(i, 1);
+    }
+  }
+
+  // --- パーティクル更新 ---
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.15; // 重力
+    p.life -= 0.05;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+
+  // --- ウェーブクリア判定 ---
+  // waveCooldown が true の間は判定しない（二重トリガー防止）
+  if (!waveCooldown && spawnCount >= spawnMax && spawnMax > 0 && enemies.length === 0) {
+    waveCooldown = true;
+    wave++;
+    if (wave > 5) {
+      // 全ウェーブクリア
+      state = 'clear';
+    } else {
+      // 次ウェーブへ（少し間を置いてから開始）
+      setTimeout(() => {
+        if (state === 'play') startWave(wave);
+      }, 1500);
+    }
+  }
+}
+
+// =============================================
+// 矢の発射
+// =============================================
+function shoot(tx, ty) {
+  if (state !== 'play') return;
+  const now = Date.now();
+  if (now - lastShot < ARROW_COOLDOWN) return;
+  lastShot = now;
+
+  // 城の中央（城本体上段付近）から発射
+  // ENEMY_Y_BASE(290) - 10(baseY補正) - 90(城本体中央) = 190
+  const sx = CASTLE_X + CASTLE_W;
+  const sy = ENEMY_Y_BASE - 100;
+  const dx = tx - sx;
+  const dy = ty - sy;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  if (len < 1) return;
+
+  arrows.push({
+    x: sx, y: sy,
+    dx: dx / len,
+    dy: dy / len,
+    speed: ARROW_SPEED,
+  });
+}
+
+// =============================================
+// draw: 毎フレーム呼ばれる描画
+// =============================================
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // --- 背景：夕焼けグラデーション ---
+  const sky = ctx.createLinearGradient(0, 0, 0, H * 0.7);
+  sky.addColorStop(0, '#1a0020');
+  sky.addColorStop(0.3, '#8b1a00');
+  sky.addColorStop(0.7, '#d45800');
+  sky.addColorStop(1, '#f0a000');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H * 0.7);
+
+  // --- 地面 ---
+  const ground = ctx.createLinearGradient(0, H * 0.68, 0, H);
+  ground.addColorStop(0, '#3d2000');
+  ground.addColorStop(1, '#1a0d00');
+  ctx.fillStyle = ground;
+  ctx.fillRect(0, H * 0.68, W, H * 0.32);
+
+  // 地平線の草ライン
+  ctx.strokeStyle = '#4a2800';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(0, H * 0.7);
+  ctx.lineTo(W, H * 0.7);
+  ctx.stroke();
+
+  // --- 遠景：山シルエット ---
+  drawMountains();
+
+  if (state === 'start') {
+    drawCastle(); // スタート画面でも城を表示
+    drawStart();
+    drawCrosshair();
+    return;
+  }
+
+  // --- 城を描画 ---
+  drawCastle();
+
+  // --- 敵を描画 ---
+  for (const e of enemies) drawEnemy(e);
+
+  // --- 矢を描画 ---
+  for (const a of arrows) drawArrow(a);
+
+  // --- パーティクルを描画 ---
+  for (const p of particles) {
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // --- 照準カーソル ---
+  drawCrosshair();
+
+  // --- オーバーレイ（ゲームオーバー・クリア）---
+  if (state === 'over') drawOverlay('over');
+  if (state === 'clear') drawOverlay('clear');
+}
+
+// =============================================
+// 山シルエット描画
+// =============================================
+function drawMountains() {
+  ctx.fillStyle = '#2d0a00';
+  ctx.beginPath();
+  ctx.moveTo(0, H * 0.7);
+  const pts = [
+    [0, 0.5], [80, 0.3], [160, 0.55], [240, 0.25],
+    [350, 0.45], [440, 0.2], [550, 0.4], [640, 0.35], [640, 0.7]
+  ];
+  for (const [x, yR] of pts) ctx.lineTo(x, H * yR);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// =============================================
+// 城の描画（天守閣風）
+// =============================================
+function drawCastle() {
+  const cx = CASTLE_X;
+  const baseY = ENEMY_Y_BASE - 10;
+
+  // 城壁（土台）
+  ctx.fillStyle = '#5a3a00';
+  ctx.fillRect(cx - 10, baseY - 70, CASTLE_W + 10, 70);
+
+  // 城本体
+  ctx.fillStyle = '#e8e0c8';
+  ctx.fillRect(cx, baseY - 110, CASTLE_W, 45);
+
+  // 屋根（1段目）
+  ctx.fillStyle = '#222';
+  ctx.beginPath();
+  ctx.moveTo(cx - 8, baseY - 110);
+  ctx.lineTo(cx + CASTLE_W / 2, baseY - 140);
+  ctx.lineTo(cx + CASTLE_W + 8, baseY - 110);
+  ctx.closePath();
+  ctx.fill();
+
+  // 天守（上段）
+  ctx.fillStyle = '#d0c8a8';
+  ctx.fillRect(cx + 8, baseY - 148, CASTLE_W - 16, 40);
+
+  // 天守屋根
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.moveTo(cx + 2, baseY - 148);
+  ctx.lineTo(cx + CASTLE_W / 2, baseY - 178);
+  ctx.lineTo(cx + CASTLE_W - 2, baseY - 148);
+  ctx.closePath();
+  ctx.fill();
+
+  // 旗（赤と金）
+  ctx.fillStyle = '#cc0000';
+  ctx.fillRect(cx + CASTLE_W / 2 - 1, baseY - 200, 2, 25);
+  ctx.fillStyle = '#f5c518';
+  ctx.fillRect(cx + CASTLE_W / 2 + 1, baseY - 200, 14, 10);
+
+  // 城ダメージ表示（赤く点滅）
+  if (castle.hp <= 1) {
+    const alpha = 0.3 + 0.3 * Math.sin(frameCount * 0.2);
+    ctx.fillStyle = `rgba(255,0,0,${alpha})`;
+    ctx.fillRect(cx - 10, baseY - 200, CASTLE_W + 20, 200);
+  }
+
+  // HP バー
+  const barW = 60, barH = 6;
+  const barX = cx - 5, barY = baseY + 5;
+  ctx.fillStyle = '#333';
+  ctx.fillRect(barX, barY, barW, barH);
+  ctx.fillStyle = castle.hp > 1 ? '#44cc44' : '#cc2222';
+  ctx.fillRect(barX, barY, barW * (castle.hp / castle.maxHp), barH);
+  ctx.strokeStyle = '#888';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(barX, barY, barW, barH);
+}
+
+// =============================================
+// 敵（足軽）の描画　※typeで通常/重装を分岐
+// =============================================
+function drawEnemy(e) {
+  if (e.type === 'heavy') {
+    drawHeavyEnemy(e);
+  } else {
+    drawNormalEnemy(e);
+  }
+}
+
+// 通常足軽の描画
+function drawNormalEnemy(e) {
+  const x = e.x, y = e.y;
+  const legSwing = Math.sin(e.animTick) * 6; // 歩行アニメ
+
+  // 影
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2, 12, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 足（2本）
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x - 4, y - 10);
+  ctx.lineTo(x - 4 + legSwing, y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 4, y - 10);
+  ctx.lineTo(x + 4 - legSwing, y);
+  ctx.stroke();
+
+  // 胴体（鎧）
+  ctx.fillStyle = '#1a1a4a';
+  ctx.fillRect(x - 9, y - 38, 18, 28);
+
+  // 鎧の金装飾
+  ctx.strokeStyle = '#b8860b';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(x - 9, y - 38, 18, 28);
+
+  // 腕（槍を持つ）
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x - 9, y - 28);
+  ctx.lineTo(x - 20 + legSwing * 0.5, y - 20);
+  ctx.stroke();
+  // 槍
+  ctx.strokeStyle = '#8b5e00';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x - 20 + legSwing * 0.5, y - 45);
+  ctx.lineTo(x - 20 + legSwing * 0.5, y - 20);
+  ctx.stroke();
+  // 槍先
+  ctx.fillStyle = '#aaa';
+  ctx.beginPath();
+  ctx.moveTo(x - 23 + legSwing * 0.5, y - 50);
+  ctx.lineTo(x - 17 + legSwing * 0.5, y - 50);
+  ctx.lineTo(x - 20 + legSwing * 0.5, y - 45);
+  ctx.fill();
+
+  // 頭（兜）
+  ctx.fillStyle = '#1a1a4a';
+  ctx.beginPath();
+  ctx.arc(x, y - 44, 10, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 兜の飾り
+  ctx.strokeStyle = '#b8860b';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x, y - 54);
+  ctx.lineTo(x, y - 62);
+  ctx.stroke();
+
+  // 顔
+  ctx.fillStyle = '#c8a060';
+  ctx.beginPath();
+  ctx.arc(x, y - 44, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 目（怒り顔）
+  ctx.fillStyle = '#ff2200';
+  ctx.fillRect(x - 5, y - 46, 3, 2);
+  ctx.fillRect(x + 2, y - 46, 3, 2);
+
+  // HPバー（ダメージ受けた場合のみ表示）
+  if (e.hp < e.maxHp) {
+    const bw = 24, bh = 4;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(x - bw / 2, y - 68, bw, bh);
+    ctx.fillStyle = '#ff4400';
+    ctx.fillRect(x - bw / 2, y - 68, bw * (e.hp / e.maxHp), bh);
+  }
+}
+
+// =============================================
+// 重装足軽の描画（大型・濃い配色）
+// =============================================
+function drawHeavyEnemy(e) {
+  const x = e.x, y = e.y;
+  const legSwing = Math.sin(e.animTick) * 5; // 重いので歩幅小さめ
+
+  // 影（大きめ）
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2, 18, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 足（2本・太く）
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(x - 6, y - 12);
+  ctx.lineTo(x - 6 + legSwing, y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 6, y - 12);
+  ctx.lineTo(x + 6 - legSwing, y);
+  ctx.stroke();
+
+  // 胴体（重装鎧・幅広・黒鉄色）
+  ctx.fillStyle = '#1a0a0a';
+  ctx.fillRect(x - 14, y - 46, 28, 34);
+
+  // 鎧の赤金装飾
+  ctx.strokeStyle = '#8b0000';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x - 14, y - 46, 28, 34);
+  // 縦筋（鎧プレート）
+  ctx.strokeStyle = '#4a0000';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x, y - 46); ctx.lineTo(x, y - 12);
+  ctx.stroke();
+
+  // 腕（大きな金棒 or 大薙刀を持つ）
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(x - 14, y - 34);
+  ctx.lineTo(x - 26 + legSwing * 0.4, y - 22);
+  ctx.stroke();
+  // 大薙刀の柄
+  ctx.strokeStyle = '#5a3000';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x - 26 + legSwing * 0.4, y - 56);
+  ctx.lineTo(x - 26 + legSwing * 0.4, y - 22);
+  ctx.stroke();
+  // 薙刀の刃（大きめ）
+  ctx.fillStyle = '#cccccc';
+  ctx.beginPath();
+  ctx.moveTo(x - 32 + legSwing * 0.4, y - 62);
+  ctx.lineTo(x - 20 + legSwing * 0.4, y - 62);
+  ctx.lineTo(x - 26 + legSwing * 0.4, y - 52);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#888';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // 頭（大型兜・黒鉄）
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.arc(x, y - 54, 14, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 兜の鍬形（大きく左右に張り出す角飾り）
+  ctx.fillStyle = '#8b0000';
+  // 左鍬形
+  ctx.beginPath();
+  ctx.moveTo(x - 12, y - 60);
+  ctx.lineTo(x - 26, y - 78);
+  ctx.lineTo(x - 20, y - 60);
+  ctx.closePath();
+  ctx.fill();
+  // 右鍬形
+  ctx.beginPath();
+  ctx.moveTo(x + 12, y - 60);
+  ctx.lineTo(x + 26, y - 78);
+  ctx.lineTo(x + 20, y - 60);
+  ctx.closePath();
+  ctx.fill();
+  // 兜の縁（金色）
+  ctx.strokeStyle = '#8b0000';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x, y - 54, 14, Math.PI, Math.PI * 2);
+  ctx.stroke();
+  // 中央飾り（天辺の突起）
+  ctx.fillStyle = '#cc0000';
+  ctx.fillRect(x - 2, y - 70, 4, 16);
+
+  // 顔（面頬で口元まで覆う・暗め）
+  ctx.fillStyle = '#8a6040';
+  ctx.beginPath();
+  ctx.arc(x, y - 54, 9, 0, Math.PI * 2);
+  ctx.fill();
+  // 面頬（下半分を黒く）
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.arc(x, y - 50, 9, 0, Math.PI);
+  ctx.fill();
+
+  // 目（細く鋭く）
+  ctx.fillStyle = '#ff0000';
+  ctx.fillRect(x - 7, y - 58, 5, 2);
+  ctx.fillRect(x + 2, y - 58, 5, 2);
+
+  // 重装ラベル「重」（頭上に小さく）
+  ctx.fillStyle = 'rgba(180,0,0,0.85)';
+  ctx.font = 'bold 10px MS Gothic, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('重', x, y - 82);
+  ctx.textAlign = 'left'; // 他の描画に影響しないようリセット
+
+  // HPバー（常時表示・赤黒）
+  const bw = 30, bh = 5;
+  ctx.fillStyle = '#1a0000';
+  ctx.fillRect(x - bw / 2, y - 92, bw, bh);
+  ctx.fillStyle = '#cc0000';
+  ctx.fillRect(x - bw / 2, y - 92, bw * (e.hp / e.maxHp), bh);
+  ctx.strokeStyle = '#666';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x - bw / 2, y - 92, bw, bh);
+}
+
+// =============================================
+// 矢の描画
+// =============================================
+function drawArrow(a) {
+  const angle = Math.atan2(a.dy, a.dx);
+  ctx.save();
+  ctx.translate(a.x, a.y);
+  ctx.rotate(angle);
+
+  // 矢本体
+  ctx.strokeStyle = '#8b5e00';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-12, 0);
+  ctx.lineTo(10, 0);
+  ctx.stroke();
+
+  // 矢尻
+  ctx.fillStyle = '#ccc';
+  ctx.beginPath();
+  ctx.moveTo(10, 0);
+  ctx.lineTo(5, -3);
+  ctx.lineTo(5, 3);
+  ctx.closePath();
+  ctx.fill();
+
+  // 羽根
+  ctx.fillStyle = '#cc4400';
+  ctx.beginPath();
+  ctx.moveTo(-12, 0);
+  ctx.lineTo(-18, -4);
+  ctx.lineTo(-15, 0);
+  ctx.lineTo(-18, 4);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// =============================================
+// 照準（十字）の描画
+// =============================================
+function drawCrosshair() {
+  const x = mouse.x, y = mouse.y;
+  const r = 14;
+
+  ctx.strokeStyle = '#f5c518';
+  ctx.lineWidth = 1.5;
+
+  // 外円
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // 十字線（中心は開ける）
+  const gap = 5;
+  ctx.beginPath();
+  ctx.moveTo(x - r - 4, y);
+  ctx.lineTo(x - gap, y);
+  ctx.moveTo(x + gap, y);
+  ctx.lineTo(x + r + 4, y);
+  ctx.moveTo(x, y - r - 4);
+  ctx.lineTo(x, y - gap);
+  ctx.moveTo(x, y + gap);
+  ctx.lineTo(x, y + r + 4);
+  ctx.stroke();
+}
+
+// =============================================
+// スタート画面
+// =============================================
+function drawStart() {
+  // 半透明オーバーレイ
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'center';
+
+  ctx.fillStyle = '#f5c518';
+  ctx.font = 'bold 42px MS Gothic, monospace';
+  ctx.fillText('城守り', W / 2, 150);
+
+  ctx.fillStyle = '#e0c88a';
+  ctx.font = '18px MS Gothic, monospace';
+  ctx.fillText('右から押し寄せる足軽を矢で迎え撃て！', W / 2, 210);
+  ctx.fillText('マウスで照準、クリックで矢を放つ', W / 2, 240);
+
+  ctx.fillStyle = '#ff4400';
+  ctx.font = 'bold 22px MS Gothic, monospace';
+  const pulse = 0.7 + 0.3 * Math.sin(frameCount * 0.08);
+  ctx.globalAlpha = pulse;
+  ctx.fillText('クリックして開始', W / 2, 310);
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'left'; // 他の描画に影響しないようリセット
+}
+
+// =============================================
+// ゲームオーバー・クリアオーバーレイ
+// =============================================
+function drawOverlay(type) {
+  ctx.fillStyle = type === 'over' ? 'rgba(80,0,0,0.75)' : 'rgba(0,40,0,0.75)';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'center';
+
+  if (type === 'over') {
+    ctx.fillStyle = '#ff2200';
+    ctx.font = 'bold 52px MS Gothic, monospace';
+    ctx.fillText('城陥落', W / 2, 160);
+    ctx.fillStyle = '#e0c88a';
+    ctx.font = '20px MS Gothic, monospace';
+    ctx.fillText('城が落ちてしまった…', W / 2, 220);
+  } else {
+    ctx.fillStyle = '#f5c518';
+    ctx.font = 'bold 52px MS Gothic, monospace';
+    ctx.fillText('城守り成功！', W / 2, 160);
+    ctx.fillStyle = '#aaffaa';
+    ctx.font = '20px MS Gothic, monospace';
+    ctx.fillText('全5波を見事守り切った！', W / 2, 220);
+  }
+
+  ctx.fillStyle = '#f0e0a0';
+  ctx.font = '22px MS Gothic, monospace';
+  ctx.fillText(`功績：${score} 点`, W / 2, 270);
+
+  ctx.fillStyle = '#f5c518';
+  ctx.font = 'bold 18px MS Gothic, monospace';
+  const pulse = 0.6 + 0.4 * Math.sin(frameCount * 0.08);
+  ctx.globalAlpha = pulse;
+  ctx.fillText('クリックでもう一度', W / 2, 330);
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'left'; // 他の描画に影響しないようリセット
+}
+
+// =============================================
+// ゲームループ
+// =============================================
+function loop(time) {
+  // frameCount は update() 内でインクリメントするためここでは行わない
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// =============================================
+// イベント登録
+// =============================================
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
+});
+
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  if (state === 'start') {
+    startGame();
+    return;
+  }
+  if (state === 'over' || state === 'clear') {
+    startGame();
+    return;
+  }
+  // ゲーム中は矢を発射
+  shoot(mx, my);
+});
+
+// =============================================
+// ゲーム起動
+// =============================================
+updateHUD();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
