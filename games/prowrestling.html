@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IRON DOME WRESTLING</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080303;--surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.07);
+  --border:rgba(255,160,40,.15);--accent:#ff3a00;--gold:#ffc200;--blue:#00c2ff;
+  --green:#00e676;--text:#f5ede0;--muted:#8a7060;--red:#ff4422;
+}
+body{
+  font-family:"Yu Gothic","游ゴシック",Meiryo,sans-serif;
+  background:var(--bg);color:var(--text);font-size:13px;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 55% 35% at 50% 0%,rgba(255,200,80,.10) 0%,transparent 70%),
+    radial-gradient(ellipse 80% 30% at 50% 110%,rgba(180,20,0,.20) 0%,transparent 60%),
+    radial-gradient(ellipse 30% 60% at 0% 40%,rgba(200,30,0,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 30% 60% at 100% 40%,rgba(200,30,0,.07) 0%,transparent 60%);
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,180,50,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,180,50,.025) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+
+/* ===== NAV ===== */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(8,3,3,.93);backdrop-filter:blur(20px);
+  border-bottom:2px solid rgba(255,100,0,.30);
+  box-shadow:0 2px 30px rgba(200,50,0,.18);
+  display:flex;align-items:center;padding:0 20px;height:56px;gap:2px;
+  position:relative;z-index:100;
+}
+.nav-brand{
+  font-size:16px;font-weight:900;margin-right:16px;letter-spacing:2px;white-space:nowrap;
+  background:linear-gradient(90deg,var(--gold),#ff6a00,var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 8px rgba(255,150,0,.4));
+}
+.nav-btn{
+  padding:6px 13px;border:none;border-radius:6px;background:transparent;
+  color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;
+  transition:all .2s;white-space:nowrap;
+}
+.nav-btn:hover{background:var(--surface2);color:var(--text);}
+.nav-btn.active{background:linear-gradient(135deg,#ff3a00,#aa1500);color:#fff;box-shadow:0 0 14px rgba(255,58,0,.5);}
+.nav-right{margin-left:auto;display:flex;gap:12px;align-items:center;}
+.chip{
+  display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;
+  background:var(--surface);border:1px solid var(--border);font-size:12px;
+}
+.chip .lbl{color:var(--muted);}
+.chip .val{font-weight:700;}
+.chip .val.g{color:var(--gold);}
+.chip .val.b{color:var(--blue);}
+.chip .val.r{color:var(--accent);}
+
+/* ===== SCREENS ===== */
+.screen{display:none;padding:24px;max-width:1100px;margin:0 auto;position:relative;z-index:1;}
+.screen.active{display:block;}
+
+/* ===== TITLE SCREEN ===== */
+#s-title{
+  flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100vh - 56px);text-align:center;
+}
+#s-title.active{ display:flex; }
+#s-title h1{
+  font-size:52px;font-weight:900;letter-spacing:6px;margin-bottom:8px;
+  background:linear-gradient(135deg,var(--gold),#ff6a00,var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(255,150,0,.5));
+}
+#s-title .sub{font-size:16px;color:var(--muted);letter-spacing:4px;margin-bottom:50px;}
+.start-form{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:380px;}
+.start-form label{font-size:13px;color:var(--muted);letter-spacing:1px;align-self:flex-start;}
+.start-form input{
+  width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:16px;font-family:inherit;outline:none;
+}
+.start-form input:focus{border-color:var(--gold);}
+
+/* ===== SECTION HEADER ===== */
+.sec{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.sec h2{
+  font-size:18px;font-weight:800;letter-spacing:1px;
+  background:linear-gradient(90deg,var(--gold),#ff8c00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 5px rgba(255,180,0,.3));
+}
+.sec-badge{
+  padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;
+  background:var(--surface2);color:var(--muted);border:1px solid var(--border);
+}
+
+/* ===== GRID ===== */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px;}
+@media(max-width:800px){.g4{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:1fr 1fr;}}
+
+/* ===== KPI ===== */
+.kpi{
+  padding:16px;border-radius:12px;border:1px solid var(--border);
+  background:var(--surface);position:relative;overflow:hidden;
+}
+.kpi::before{
+  content:'';position:absolute;inset:0;
+  background:var(--kbg,transparent);opacity:.08;pointer-events:none;
+}
+.kpi .kl{font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:7px;}
+.kpi .kv{font-size:26px;font-weight:900;}
+.kpi .ks{font-size:11px;margin-top:4px;}
+.up{color:var(--green);}.dn{color:var(--accent);}
+
+/* ===== CARD ===== */
+.card{padding:16px;border-radius:12px;background:var(--surface);border:1px solid var(--border);}
+.ct{font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:12px;}
+
+/* ===== TABLE ===== */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{padding:9px 12px;text-align:left;font-size:11px;color:var(--muted);
+  letter-spacing:1px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);}
+.tbl td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+.tbl tr:hover td{background:rgba(255,255,255,.03);}
+
+/* ===== STAT BAR ===== */
+.sb{display:flex;align-items:center;gap:7px;}
+.sb-bg{flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;}
+.sb-f{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--gold));}
+.sb-v{font-size:11px;color:var(--muted);width:22px;text-align:right;}
+
+/* ===== POP BAR ===== */
+.pop{height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;}
+.pop-f{height:100%;border-radius:4px;background:linear-gradient(90deg,#cc1500,#ff5500,var(--gold));}
+
+/* ===== TAGS ===== */
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.t-heel{background:rgba(255,58,0,.15);color:var(--accent);border:1px solid rgba(255,58,0,.3);}
+.t-face{background:rgba(0,194,255,.15);color:var(--blue);border:1px solid rgba(0,194,255,.3);}
+.t-champ{background:rgba(255,194,0,.15);color:var(--gold);border:1px solid rgba(255,194,0,.4);}
+.t-inj{background:rgba(255,68,34,.15);color:var(--red);border:1px solid rgba(255,68,34,.3);}
+
+/* ===== BUTTONS ===== */
+.btn{
+  padding:8px 18px;border:none;border-radius:8px;cursor:pointer;
+  font-size:12px;font-family:inherit;font-weight:700;transition:all .2s;letter-spacing:.5px;
+}
+.btn:hover{transform:translateY(-1px);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.btn-r{background:linear-gradient(135deg,#ff3a00,#aa1500);color:#fff;box-shadow:0 0 18px rgba(255,58,0,.5);}
+.btn-g{background:linear-gradient(135deg,#ffc200,#e07800);color:#000;box-shadow:0 0 18px rgba(255,180,0,.45);font-weight:900;}
+.btn-o{background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+.btn-sm{padding:4px 11px;font-size:11px;}
+.btn-lg{padding:14px 36px;font-size:15px;border-radius:10px;}
+
+/* ===== WRESTLER CARD ===== */
+.wc{
+  padding:14px;border-radius:12px;background:var(--surface);border:1px solid var(--border);
+  cursor:pointer;transition:all .22s;
+}
+.wc:hover{border-color:rgba(255,58,0,.4);transform:translateY(-2px);box-shadow:0 4px 20px rgba(255,58,0,.2);}
+.wc.sel{border-color:var(--gold);box-shadow:0 0 16px rgba(255,194,0,.3);}
+.wc.incard{border-color:rgba(0,194,255,.4);}
+.w-av{
+  width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:9px;border:2px solid var(--border);
+}
+.w-nm{font-size:13px;font-weight:800;margin-bottom:3px;}
+.w-ty{font-size:11px;color:var(--muted);margin-bottom:8px;}
+
+/* ===== MATCH SLOT ===== */
+.mslot{
+  display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border);margin-bottom:8px;
+}
+.mslot.main{border-color:rgba(255,194,0,.35);background:rgba(255,194,0,.04);}
+.mslot .mn{font-size:10px;color:var(--muted);width:46px;text-align:center;}
+.mslot .mv{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;}
+.mslot .mw{font-size:13px;font-weight:700;}
+.mslot .mvs{color:var(--accent);font-size:12px;font-weight:900;}
+
+/* ===== EVENT LOG ===== */
+.evlog{display:flex;flex-direction:column;gap:7px;}
+.evitem{
+  display:flex;align-items:flex-start;gap:9px;padding:10px 12px;
+  border-radius:9px;background:rgba(255,255,255,.03);border-left:3px solid var(--border);
+}
+.evitem.good{border-left-color:var(--green);}
+.evitem.bad{border-left-color:var(--accent);}
+.evitem.info{border-left-color:var(--blue);}
+.evitem.gold{border-left-color:var(--gold);}
+.evicon{font-size:15px;line-height:1.4;}
+.evtxt{font-size:12px;line-height:1.5;}
+.evtime{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* ===== RESULT ===== */
+.rmatch{
+  padding:13px 15px;border-radius:10px;margin-bottom:8px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border);
+}
+.rmatch.mvp{border-color:rgba(255,194,0,.4);background:rgba(255,194,0,.04);}
+.stars{color:var(--gold);letter-spacing:2px;}
+
+/* ===== MODAL ===== */
+.overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;
+}
+.overlay.show{display:flex;}
+.modal{
+  background:#110505;border:1px solid var(--border);border-radius:16px;
+  padding:30px;max-width:420px;width:90%;text-align:center;
+  box-shadow:0 0 60px rgba(255,58,0,.2);
+}
+.modal .mi{font-size:44px;margin-bottom:12px;}
+.modal .mt{font-size:17px;font-weight:800;margin-bottom:8px;color:var(--gold);}
+.modal .mb{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:20px;}
+.modal .mbtns{display:flex;gap:10px;justify-content:center;}
+
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#1a0a00;border:1px solid var(--gold);border-radius:8px;
+  padding:10px 20px;font-size:13px;color:var(--gold);
+  opacity:0;transition:all .3s;pointer-events:none;z-index:600;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ===== TURN BTN ===== */
+#turn-btn-wrap{position:fixed;bottom:24px;right:24px;z-index:200;}
+#turn-btn{
+  padding:13px 28px;background:linear-gradient(135deg,#ff3a00,#aa1500);
+  border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:900;
+  cursor:pointer;font-family:inherit;letter-spacing:1px;transition:all .2s;
+  box-shadow:0 4px 28px rgba(255,58,0,.6),0 0 0 1px rgba(255,150,0,.25);
+}
+#turn-btn:hover{transform:translateY(-2px);box-shadow:0 6px 36px rgba(255,58,0,.85);}
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav id="main-nav" style="display:none">
+  <div class="nav-brand">⚡IRON DOME</div>
+  <button class="nav-btn active" onclick="nav('dashboard',this)">ダッシュボード</button>
+  <button class="nav-btn" onclick="nav('roster',this)">選手管理</button>
+  <button class="nav-btn" onclick="nav('event',this)">興行</button>
+  <button class="nav-btn" onclick="nav('titles',this)">タイトル</button>
+  <div class="nav-right">
+    <div class="chip"><span class="lbl">💰</span><span class="val g" id="hd-money">-</span></div>
+    <div class="chip"><span class="lbl">❤️</span><span class="val b" id="hd-pop">-</span></div>
+    <div class="chip"><span class="lbl">📅</span><span class="val" id="hd-turn">-</span></div>
+  </div>
+</nav>
+
+<!-- ===== TITLE SCREEN ===== -->
+<div id="s-title" class="screen active">
+  <h1>⚡ IRON DOME</h1>
+  <p class="sub">WRESTLING MANAGEMENT</p>
+  <div class="start-form">
+    <label>団体名を入力してください</label>
+    <input type="text" id="team-name-input" placeholder="例：新日本プロレス" maxlength="20">
+    <button class="btn btn-g btn-lg" onclick="startGame()">▶ ゲームスタート</button>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="s-dashboard" class="screen">
+  <div class="sec"><h2 id="db-teamname">⚡ ダッシュボード</h2><span class="sec-badge" id="db-turn">-</span></div>
+  <div class="g4">
+    <div class="kpi" style="--kbg:linear-gradient(135deg,var(--gold),transparent)">
+      <div class="kl">💰 資金</div>
+      <div class="kv" style="color:var(--gold)" id="db-money">-</div>
+      <div class="ks" id="db-money-sub"></div>
+    </div>
+    <div class="kpi" style="--kbg:linear-gradient(135deg,var(--accent),transparent)">
+      <div class="kl">❤️ 人気度</div>
+      <div class="kv" style="color:var(--accent)" id="db-pop">-</div>
+      <div class="pop" style="margin-top:7px"><div class="pop-f" id="db-pop-bar" style="width:0%"></div></div>
+    </div>
+    <div class="kpi" style="--kbg:linear-gradient(135deg,var(--blue),transparent)">
+      <div class="kl">🤼 所属選手</div>
+      <div class="kv" style="color:var(--blue)" id="db-wrestlers">-</div>
+      <div class="ks" id="db-inj-sub"></div>
+    </div>
+    <div class="kpi" style="--kbg:linear-gradient(135deg,#b44aff,transparent)">
+      <div class="kl">🏆 保有ベルト</div>
+      <div class="kv" style="color:#b44aff" id="db-titles">-</div>
+      <div class="ks" id="db-titles-sub"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">📋 今月の状況</div>
+      <div class="evlog" id="db-log"></div>
+    </div>
+    <div class="card">
+      <div class="ct">🏅 選手トップ3</div>
+      <div id="db-top3"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ROSTER ===== -->
+<div id="s-roster" class="screen">
+  <div class="sec"><h2>🤼 選手管理</h2></div>
+  <div class="g3" id="roster-cards"></div>
+  <div class="card" id="wrestler-detail" style="display:none">
+    <div id="wd-content"></div>
+  </div>
+</div>
+
+<!-- ===== EVENT ===== -->
+<div id="s-event" class="screen">
+  <div class="sec"><h2>🎪 興行計画</h2><span class="sec-badge" id="ev-status">計画中</span></div>
+  <div class="g2">
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="ct">会場選択</div>
+        <div id="venue-list"></div>
+      </div>
+      <div class="card">
+        <div class="ct">収益予測</div>
+        <div id="ev-preview"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">カード編成 <span id="card-count" style="color:var(--muted)">(0/5試合)</span></div>
+      <div id="match-slots"></div>
+      <div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-g" id="run-event-btn" onclick="runEvent()" disabled>🎪 興行を開催する</button>
+        <button class="btn btn-o btn-sm" onclick="clearCard()">リセット</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:4px">
+    <div class="ct">出場選手を選択（クリックで追加）</div>
+    <div class="g4" id="event-roster"></div>
+  </div>
+</div>
+
+<!-- ===== TITLES ===== -->
+<div id="s-titles" class="screen">
+  <div class="sec"><h2>🏆 タイトル管理</h2></div>
+  <div class="g3" id="titles-grid"></div>
+</div>
+
+<!-- ===== EVENT RESULT (modal-like screen) ===== -->
+<div id="s-result" class="screen">
+  <div class="sec"><h2>📊 興行結果</h2><span class="sec-badge" id="res-title">-</span></div>
+  <div class="g4" id="res-kpis"></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ct">試合結果</div>
+    <div id="res-matches"></div>
+  </div>
+  <button class="btn btn-o" onclick="nav('dashboard',null)">← ダッシュボードへ戻る</button>
+</div>
+
+<!-- ===== TURN CONFIRM MODAL ===== -->
+<div class="overlay" id="turn-modal">
+  <div class="modal">
+    <div class="mi">⚔️</div>
+    <div class="mt">ターンを終了しますか？</div>
+    <div class="mb" id="turn-modal-body">-</div>
+    <div class="mbtns">
+      <button class="btn btn-o" onclick="closeModal('turn-modal')">キャンセル</button>
+      <button class="btn btn-r" onclick="confirmTurnEnd()">▶ 確定して進む</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TRAINING MODAL ===== -->
+<div class="overlay" id="train-modal">
+  <div class="modal">
+    <div class="mi">💪</div>
+    <div class="mt" id="train-modal-title">トレーニング</div>
+    <div class="mb" id="train-modal-body">-</div>
+    <div class="mbtns">
+      <button class="btn btn-o" onclick="closeModal('train-modal')">キャンセル</button>
+      <button class="btn btn-g" id="train-confirm-btn">トレーニング実施</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast"></div>
+
+<!-- ===== TURN BUTTON ===== -->
+<div id="turn-btn-wrap" style="display:none">
+  <button id="turn-btn" onclick="openTurnModal()">▶ ターン終了</button>
+</div>
+
+<script>
+// =====================================================
+//  DATA MODEL  （高坂昌信 設計）
+// =====================================================
+const TURN_MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+const WRESTLER_ICONS = ['🦁','🦅','🐍','🐻','👹','🦊','🦂','🐯','🔱','⚡'];
+const WRESTLER_TYPES = ['パワーファイター','ハイフライヤー','テクニシャン','ブロウラー','オールラウンダー'];
+const WEIGHT_LABEL  = { heavy:'ヘビー級', cruiser:'クルーザー級', junior:'ジュニアヘビー級' };
+const WEIGHT_COLOR  = { heavy:'var(--accent)', cruiser:'var(--gold)', junior:'var(--blue)' };
+
+// 選手タイプ別フィニッシュムーブ・技プール（真田幸隆 設計）
+const MOVES = {
+  パワーファイター: {
+    opener:  ['ロックアップから場外へ投げ飛ばす','重いチョップで胸板を叩く','ショルダータックルで一気に吹き飛ばす'],
+    mid:     ['垂直落下式ブレーンバスター！','ジャーマンスープレックス！カウント2！','パワーボムで叩きつける！','場外へのラリアット！'],
+    nearfall:['ラリアットでカウント2！！','スパイン・バスターでカウント2！！','ジャーマンで丸め込み——惜しくも2！'],
+    finish:  ['必殺のラリアット','ダイヤモンド・クラッシャー','垂直落下式DDT','アイアン・クロー'],
+  },
+  ハイフライヤー: {
+    opener:  ['すばやいドロップキックで先手を取る','スピードを活かしたアームドラッグ連発','ロープを使ったクイックムーブで翻弄'],
+    mid:     ['トップロープからのクロスボディ！','変形DDTで叩き込む！カウント2！','フライングエルボーが命中！','場外へのダイブ！！観客騒然！'],
+    nearfall:['ムーンサルトプレス——カウント2！！','フェニックス・プレックスで丸め込み——惜しくも2！','ハイフライからのカウント2！！'],
+    finish:  ['ムーンサルトプレス','フェニックス・スプラッシュ','空中殺法・天翔フライ','変形のDDT'],
+  },
+  テクニシャン: {
+    opener:  ['慎重に関節を取りにいく','グラウンドで主導権を握る','足への執拗な攻撃で足元を崩す'],
+    mid:     ['ドラゴンスクリューで足を捻る！','腕ひしぎ逆十字！ロープに逃げる！','足4の字固めを狙う！','連続ヨーロピアンアッパー！'],
+    nearfall:['逆エビ固め——タップ寸前！！','足4の字でギブアップを迫る！なんとかロープへ！','体固めでカウント2！！'],
+    finish:  ['逆エビ固め','腕ひしぎ逆十字固め','ドラゴンスリーパー','スコーピオン・デスロック'],
+  },
+  ブロウラー: {
+    opener:  ['いきなりエルボーで殴りかかる！','頭突きの連打で押し込む','荒々しいチョップを叩き込む'],
+    mid:     ['場外でバリケードに叩きつける！','パワフルなエルボーバット！カウント2！','椅子を持ち出そうとして止められる','頭突きの連打でふらふら'],
+    nearfall:['卍固め——ロープ際でなんとか逃げる！','エルボー連打からのカウント2！！','バックドロップ——カウント2！！'],
+    finish:  ['必殺エルボーバット','ヘッドバット・ドライバー','卍固め','地獄突き'],
+  },
+  オールラウンダー: {
+    opener:  ['多彩な攻めで様子を探る','正攻法のガチンコ勝負に持ち込む','相手の出方を見ながら冷静に対処'],
+    mid:     ['スープレックス！カウント2！','鮮やかなコンビネーション！','タックルからのグラウンドへ','バックドロップで叩き込む！'],
+    nearfall:['フランケンシュタイナーでカウント2！！','スープレックスで丸め込み——惜しくも2！','連携攻撃からのカウント2！！'],
+    finish:  ['オーバーヘッドスープレックス','パーフェクト・プレックス','ダイビング・エルボードロップ','変形のフルネルソン'],
+  },
+};
+
+function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// 実況テキスト生成（真田幸隆 設計）
+function generateCommentary(w1, w2, result) {
+  const wm = MOVES[w1.type] || MOVES['オールラウンダー'];
+  const lm = MOVES[w2.type] || MOVES['オールラウンダー'];
+  const winner = result.winner;
+  const loser  = result.loser;
+  const wMoves = MOVES[winner.type] || MOVES['オールラウンダー'];
+  const lMoves = MOVES[loser.type]  || MOVES['オールラウンダー'];
+  const stars  = result.stars;
+
+  const lines = [];
+
+  // 序盤
+  lines.push(`【序盤】`);
+  lines.push(`${w1.name} と ${w2.name}、${w1.role==='heel'&&w2.role==='face'?'ヒールvsベビーフェイスの因縁の対決':'両者にらみ合いの後'}、ゴングが鳴り響く！`);
+  lines.push(`${rnd(wm.opener.concat(lm.opener))}`);
+
+  // 中盤
+  lines.push(`【中盤】`);
+  lines.push(`${loser.name} の攻勢！ ${rnd(lMoves.mid)}`);
+  if (stars >= 3) {
+    lines.push(`${winner.name} が反撃に転じる！ ${rnd(wMoves.mid)}`);
+    lines.push(rnd(wMoves.nearfall));
+  }
+  if (stars >= 4) {
+    lines.push(`${loser.name} もさるもの！ ${rnd(lMoves.mid)} 場内が沸く！`);
+    lines.push(rnd(lMoves.nearfall));
+    lines.push(`互いに消耗しながらも意地の張り合い！`);
+  }
+
+  // 終盤・フィニッシュ
+  lines.push(`【終盤】`);
+  if (stars >= 4.5) {
+    lines.push(`${winner.name}、渾身の ${rnd(wMoves.mid)} ——カウント2！！まだ終わらない！！`);
+    lines.push(`${loser.name}も奇跡の起き上がり！！場内総立ち！！`);
+  }
+  const finish = rnd(wMoves.finish);
+  lines.push(`${winner.name} が必殺技・<strong style="color:var(--gold)">${finish}</strong> を叩き込む！！`);
+  lines.push(`レフェリーカウント——<strong style="color:var(--accent)">１！　２！　３！！！</strong>`);
+  lines.push(`🏆 ${winner.name} が ${result.duration}分${result.finish}で勝利！！`);
+
+  if (result.loser.injured) {
+    lines.push(`⚠️ 試合後、${loser.name} が担架で運ばれる……`);
+  }
+
+  return lines;
+}
+
+let G = null; // game state
+let selectedWrestler = null;
+let eventCard = []; // [{w1Id, w2Id, isTitleMatch, titleId}]
+let selectedVenue = 1;
+let addingSlot = null; // which side we're adding to: {slot, side}
+
+const VENUES = [
+  {id:0, name:'小規模会場',   cap:1000, cost:300000,  popReq:0  },
+  {id:1, name:'中規模ホール', cap:3000, cost:800000,  popReq:0  },
+  {id:2, name:'大規模アリーナ',cap:8000,cost:2500000, popReq:70 },
+];
+
+const INIT_WRESTLERS = [
+  {name:'鉄剛山 猛', icon:'🦁', type:0, role:'heel', weight:'heavy',  power:88, speed:42, tech:68, toughness:85, mic:82},
+  {name:'飛鷹 瞬',   icon:'🦅', type:1, role:'face', weight:'junior', power:52, speed:92, tech:80, toughness:60, mic:70},
+  {name:'速水 龍二', icon:'🐍', type:2, role:'face', weight:'junior', power:60, speed:75, tech:88, toughness:65, mic:58},
+  {name:'黒崎 猛',   icon:'🐻', type:3, role:'heel', weight:'heavy',  power:75, speed:55, tech:62, toughness:80, mic:70},
+  {name:'雷神 轟',   icon:'⚡', type:4, role:'heel', weight:'cruiser',power:70, speed:65, tech:65, toughness:72, mic:65},
+  {name:'白龍 翔',   icon:'🔱', type:4, role:'face', weight:'cruiser',power:65, speed:70, tech:72, toughness:68, mic:75},
+];
+
+function createWrestler(data, id) {
+  return {
+    id, name:data.name, icon:data.icon,
+    type: WRESTLER_TYPES[data.type], role:data.role,
+    weight: data.weight,
+    power:data.power, speed:data.speed, tech:data.tech,
+    toughness:data.toughness, mic:data.mic,
+    condition:100, salary:200000 + Math.floor(data.power/10)*10000,
+    injured:false, injuryTurns:0,
+  };
+}
+
+function startGame() {
+  const name = document.getElementById('team-name-input').value.trim() || 'IRON DOME WRESTLING';
+  G = {
+    teamName: name,
+    money: 8000000,
+    popularity: 35,
+    turn: 1, // 1〜12
+    year: 2026,
+    lastMoneyChange: 0,
+    wrestlers: INIT_WRESTLERS.map((d,i) => createWrestler(d, i)),
+    titles: [
+      {id:0, name:'世界ヘビー級王座',    icon:'🏆', championId:0, defenses:0},
+      {id:1, name:'インターナショナル王座',icon:'🥈', championId:1, defenses:0},
+    ],
+    eventDoneThisTurn: false,
+    log: [],
+  };
+  addLog('info','🎉',`${name} が旗揚げ！歴史の幕が開いた。`,'');
+  document.getElementById('s-title').classList.remove('active');
+  document.getElementById('main-nav').style.display='flex';
+  document.getElementById('turn-btn-wrap').style.display='block';
+  nav('dashboard', document.querySelector('.nav-btn'));
+  renderAll();
+}
+
+// =====================================================
+//  RENDER（山県昌景 実装）
+// =====================================================
+function renderAll() {
+  updateHeader();
+  renderDashboard();
+  renderRoster();
+  renderEvent();
+  renderTitles();
+}
+
+function updateHeader() {
+  document.getElementById('hd-money').textContent = fmtMoney(G.money);
+  document.getElementById('hd-pop').textContent = G.popularity;
+  document.getElementById('hd-turn').textContent = `${G.year}年 ${TURN_MONTHS[G.turn-1]}`;
+}
+
+function renderDashboard() {
+  document.getElementById('db-teamname').textContent = `⚡ ${G.teamName}`;
+  document.getElementById('db-turn').textContent = `${G.year}年 ${TURN_MONTHS[G.turn-1]} ／ 第${G.turn}ターン`;
+  document.getElementById('db-money').textContent = fmtMoney(G.money);
+  const ch = G.lastMoneyChange;
+  document.getElementById('db-money-sub').innerHTML = ch !== 0
+    ? `<span class="${ch>0?'up':'dn'}">${ch>0?'▲':'▼'} ${fmtMoney(Math.abs(ch))}</span> 先月比`
+    : '変動なし';
+  document.getElementById('db-pop').textContent = G.popularity;
+  document.getElementById('db-pop-bar').style.width = G.popularity + '%';
+  const inj = G.wrestlers.filter(w=>w.injured).length;
+  document.getElementById('db-wrestlers').textContent = G.wrestlers.length + ' 名';
+  document.getElementById('db-inj-sub').innerHTML = inj > 0
+    ? `負傷中: <span class="dn">${inj}名</span>` : '全員万全';
+  const champCount = G.titles.filter(t=>t.championId !== null).length;
+  document.getElementById('db-titles').textContent = champCount + ' 本';
+  document.getElementById('db-titles-sub').textContent = `全${G.titles.length}本`;
+
+  // ログ
+  const logEl = document.getElementById('db-log');
+  const recent = [...G.log].reverse().slice(0,5);
+  logEl.innerHTML = recent.length ? recent.map(l=>`
+    <div class="evitem ${l.cls}">
+      <div class="evicon">${l.icon}</div>
+      <div><div class="evtxt">${l.text}</div><div class="evtime">${l.time}</div></div>
+    </div>`).join('') : '<div style="color:var(--muted);font-size:12px">まだイベントがありません</div>';
+
+  // トップ3
+  const sorted = [...G.wrestlers].sort((a,b)=>totalPow(b)-totalPow(a)).slice(0,3);
+  document.getElementById('db-top3').innerHTML = sorted.map((w,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <span style="color:var(--gold);font-size:16px;width:20px">${['🥇','🥈','🥉'][i]}</span>
+      <span style="font-size:18px">${w.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700">${w.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${w.type}</div>
+      </div>
+      <span style="color:var(--gold);font-weight:700">${totalPow(w)}</span>
+    </div>`).join('');
+}
+
+function renderRoster() {
+  const el = document.getElementById('roster-cards');
+  el.innerHTML = G.wrestlers.map(w => `
+    <div class="wc ${selectedWrestler===w.id?'sel':''}" onclick="selectWrestler(${w.id})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="w-av" style="background:${w.role==='heel'?'rgba(255,58,0,.2)':'rgba(0,194,255,.2)'};border-color:${w.role==='heel'?'var(--accent)':'var(--blue)'}">${w.icon}</div>
+        ${w.injured ? '<span class="tag t-inj">負傷中</span>' : isTitleHolder(w.id) ? '<span class="tag t-champ">王者</span>' : ''}
+      </div>
+      <div class="w-nm">${w.name}</div>
+      <div class="w-ty">${w.type} <span class="tag ${w.role==='heel'?'t-heel':'t-face'}">${w.role==='heel'?'ヒール':'ベビー'}</span></div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        ${statBar('PWR',w.power)}${statBar('SPD',w.speed)}${statBar('TEC',w.tech)}${statBar('MIC',w.mic)}
+      </div>
+      <div style="margin-top:10px">
+        <div class="pop"><div class="pop-f" style="width:${w.condition}%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">コンディション ${w.condition}%</div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:6px">
+        <button class="btn btn-o btn-sm" onclick="event.stopPropagation();openTrainModal(${w.id})">💪 育成</button>
+      </div>
+    </div>`).join('');
+}
+
+function selectWrestler(id) {
+  selectedWrestler = selectedWrestler === id ? null : id;
+  renderRoster();
+}
+
+function renderEvent() {
+  // 会場
+  const vl = document.getElementById('venue-list');
+  vl.innerHTML = VENUES.map(v=>`
+    <label style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;cursor:pointer;margin-bottom:6px;
+      background:${selectedVenue===v.id?'rgba(0,194,255,.07)':'var(--surface2)'};
+      border:1px solid ${selectedVenue===v.id?'rgba(0,194,255,.3)':'var(--border)'};
+      ${G.popularity < v.popReq ? 'opacity:.45;' : ''}">
+      <input type="radio" name="venue" ${selectedVenue===v.id?'checked':''} ${G.popularity<v.popReq?'disabled':''}
+        onchange="selectVenue(${v.id})" style="accent-color:var(--blue)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700">${v.name}</div>
+        <div style="font-size:11px;color:var(--muted)">定員 ${v.cap.toLocaleString()}名 ／ 固定費 ${fmtMoney(v.cost)}</div>
+      </div>
+      ${v.popReq > 0 ? `<span style="font-size:10px;color:var(--muted)">人気度${v.popReq}以上</span>` : ''}
+    </label>`).join('');
+
+  // 収益予測
+  const preview = calcEventPreview();
+  document.getElementById('ev-preview').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">予想動員数</span><span>${preview.att.toLocaleString()} 名</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">チケット収入</span><span style="color:var(--green)">${fmtMoney(preview.ticket)}</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">会場費・諸経費</span><span style="color:var(--accent)">− ${fmtMoney(VENUES[selectedVenue].cost)}</span></div>
+      <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-weight:700">予想利益</span>
+        <span style="color:${preview.profit>=0?'var(--gold)':'var(--accent)'};font-size:18px;font-weight:900">${fmtMoney(preview.profit)}</span>
+      </div>
+    </div>`;
+
+  // カードスロット
+  const slots = document.getElementById('match-slots');
+  document.getElementById('card-count').textContent = `(${eventCard.length}/5試合)`;
+  slots.innerHTML = eventCard.length === 0
+    ? '<div style="color:var(--muted);font-size:12px;padding:8px">下の選手リストからカードを作成してください</div>'
+    : eventCard.map((m,i) => {
+        const w1 = G.wrestlers.find(w=>w.id===m.w1Id);
+        const w2 = G.wrestlers.find(w=>w.id===m.w2Id);
+        const isMain = i === eventCard.length - 1;
+        return `<div class="mslot ${isMain?'main':''}">
+          <div class="mn">${isMain?'<span style="color:var(--gold)">メイン</span>':`第${i+1}試合`}</div>
+          <div class="mv">
+            <span class="mw ${isMain?'style="color:var(--gold)"':''}">${w1.icon} ${w1.name}</span>
+            <span class="mvs">VS</span>
+            <span class="mw">${w2.icon} ${w2.name}</span>
+          </div>
+          ${m.isTitleMatch ? `<span class="tag t-champ" style="font-size:9px">🏆 タイトル戦</span>` : ''}
+          <button class="btn btn-o btn-sm" onclick="removeMatch(${i})">✕</button>
+        </div>`;
+      }).join('');
+
+  document.getElementById('run-event-btn').disabled = eventCard.length < 2 || G.eventDoneThisTurn;
+  if (G.eventDoneThisTurn) document.getElementById('ev-status').textContent = '今月は開催済み';
+  else document.getElementById('ev-status').textContent = '計画中';
+
+  // 選手ピッカー
+  const evRoster = document.getElementById('event-roster');
+  const usedIds = eventCard.flatMap(m=>[m.w1Id, m.w2Id]);
+  const isPending = pendingW1 !== null;
+  evRoster.innerHTML = G.wrestlers.map(w => {
+    const used    = usedIds.includes(w.id);
+    const pending = pendingW1 === w.id;
+    const wColor  = WEIGHT_COLOR[w.weight] || 'var(--muted)';
+    const wLabel  = WEIGHT_LABEL[w.weight] || '';
+    return `<div class="wc ${used?'incard':''} ${pending?'sel':''}"
+      style="${w.injured?'opacity:.4;cursor:not-allowed':''}"
+      onclick="${w.injured?'':(`pickWrestler(${w.id})`)}"
+      title="${w.injured?'負傷中のため出場不可':'クリックして選択'}">
+      <!-- ヘッダー行：アイコン＋名前＋状態 -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:22px">${w.icon}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${w.name}</div>
+          <div style="font-size:10px;color:var(--muted)">${w.type}</div>
+        </div>
+        ${w.injured ? '<span class="tag t-inj">負傷</span>' : used ? '<span style="font-size:10px;color:var(--blue)">出場中</span>' : pending ? '<span style="font-size:10px;color:var(--gold)">選択中</span>' : isTitleHolder(w.id) ? '<span class="tag t-champ" style="font-size:9px">王者</span>' : ''}
+      </div>
+      <!-- タグ行：ヒール/ベビー・体重クラス -->
+      <div style="display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap">
+        <span class="tag ${w.role==='heel'?'t-heel':'t-face'}">${w.role==='heel'?'ヒール':'ベビー'}</span>
+        <span style="padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;
+          background:rgba(0,0,0,.3);border:1px solid ${wColor};color:${wColor}">${wLabel}</span>
+      </div>
+      <!-- 主要ステータス2本 -->
+      <div style="display:flex;flex-direction:column;gap:3px;margin-bottom:6px">
+        ${statBar(w.type.includes('パワー')||w.type.includes('ブロウ')?'PWR':'SPD',
+          w.type.includes('パワー')||w.type.includes('ブロウ')?w.power:w.speed)}
+        ${statBar('TEC', w.tech)}
+      </div>
+      <!-- コンディション＋総合 -->
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="flex:1;margin-right:8px">
+          <div class="pop"><div class="pop-f" style="width:${w.condition}%;${w.condition<50?'background:var(--red)':''}"></div></div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">コンディション ${w.condition}%</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:16px;font-weight:900;color:var(--gold)">${totalPow(w)}</div>
+          <div style="font-size:9px;color:var(--muted)">総合</div>
+        </div>
+      </div>
+      ${isPending && !pending && !used && !w.injured ? '<div style="font-size:10px;color:var(--gold);margin-top:6px;text-align:center">👆 対戦相手に選択</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderTitles() {
+  const el = document.getElementById('titles-grid');
+  el.innerHTML = G.titles.map(t => {
+    const champ = G.wrestlers.find(w=>w.id===t.championId);
+    return `<div class="card" style="text-align:center;border:1px solid rgba(255,194,0,.3);background:rgba(255,194,0,.04)">
+      <div style="font-size:44px;margin-bottom:10px">${t.icon}</div>
+      <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px">${G.teamName} ${t.name}</div>
+      <div style="font-size:18px;font-weight:900;margin-bottom:5px">${champ ? champ.icon + ' ' + champ.name : '空位'}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">防衛回数 ${t.defenses}回</div>
+      ${champ ? `
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">次回防衛戦の対戦相手</div>
+        <div style="font-size:13px;color:var(--blue);margin-bottom:12px">
+          ${getChallenger(t) ? getChallenger(t).name : '未定'}
+        </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// =====================================================
+//  GAME LOGIC（真田幸隆 設計）
+// =====================================================
+function totalPow(w) {
+  return Math.round((w.power + w.speed + w.tech + w.toughness + w.mic) / 5);
+}
+
+function simulateMatch(w1, w2) {
+  const cond1 = w1.condition / 100;
+  const cond2 = w2.condition / 100;
+  const s1 = (w1.power*1.2 + w1.speed + w1.tech*1.1 + w1.toughness + w1.mic*0.5) * cond1;
+  const s2 = (w2.power*1.2 + w2.speed + w2.tech*1.1 + w2.toughness + w2.mic*0.5) * cond2;
+  const r1 = s1 * (0.75 + Math.random()*0.5);
+  const r2 = s2 * (0.75 + Math.random()*0.5);
+  const winner = r1 >= r2 ? w1 : w2;
+  const loser  = winner === w1 ? w2 : w1;
+  const maxScore = Math.max(s1,s2);
+  const quality  = Math.min(5, ((r1+r2) / (maxScore*2)) * 5 + (Math.abs(r1-r2)/maxScore < 0.3 ? 0.5 : 0));
+  const stars    = Math.max(1, Math.min(5, Math.round(quality * 10) / 10));
+  const duration = Math.floor(8 + quality * 6 + Math.random() * 8);
+  const finishes = ['フォール','体固め','逆エビ固め','腕固め','KO','レフェリーストップ'];
+  const finish   = finishes[Math.floor(Math.random()*finishes.length)];
+  // コンディション消費
+  winner.condition = Math.max(20, winner.condition - Math.floor(5 + Math.random()*10));
+  loser.condition  = Math.max(10, loser.condition  - Math.floor(10 + Math.random()*15));
+  // 負傷チェック（確率3%）
+  if (!loser.injured && Math.random() < 0.03) {
+    loser.injured = true;
+    loser.injuryTurns = 2 + Math.floor(Math.random()*2);
+  }
+  return { winner, loser, stars, duration, finish };
+}
+
+function calcEventPreview() {
+  const v = VENUES[selectedVenue];
+  const att = Math.floor(v.cap * (0.5 + G.popularity / 200) * (0.8 + eventCard.length * 0.04));
+  const capped = Math.min(att, v.cap);
+  const ticket = capped * 6000;
+  return { att: capped, ticket, profit: ticket - v.cost };
+}
+
+function runEvent() {
+  if (eventCard.length < 2) return;
+  if (G.eventDoneThisTurn) { toast('今月はすでに興行を開催済みです'); return; }
+
+  const results = eventCard.map(m => {
+    const w1 = G.wrestlers.find(w=>w.id===m.w1Id);
+    const w2 = G.wrestlers.find(w=>w.id===m.w2Id);
+    const res = simulateMatch(w1, w2);
+    res.isTitleMatch = m.isTitleMatch;
+    // タイトル戦
+    if (m.isTitleMatch && m.titleId !== null) {
+      const title = G.titles.find(t=>t.id===m.titleId);
+      if (title && res.winner.id !== title.championId) {
+        title.championId = res.winner.id;
+        title.defenses = 0;
+        addLog('gold','🏆',`${res.winner.name} が ${title.name} を奪取！`,'');
+      } else if (title) {
+        title.defenses++;
+        addLog('gold','🛡️',`${res.winner.name} が ${title.name} を防衛！（${title.defenses}度目）`,'');
+      }
+    }
+    return res;
+  });
+
+  const v = VENUES[selectedVenue];
+  const preview = calcEventPreview();
+  const avgStars = results.reduce((a,r)=>a+r.stars,0) / results.length;
+  const bonus = avgStars > 3.5 ? Math.floor((avgStars-3.5)*500000) : 0;
+  const revenue = preview.ticket + bonus - v.cost;
+  const popGain = Math.round(avgStars * 2 + (results.length-2));
+  const prevMoney = G.money;
+  G.money += revenue;
+  G.lastMoneyChange = revenue;
+  G.popularity = Math.min(100, G.popularity + popGain);
+  G.eventDoneThisTurn = true;
+  addLog(revenue>=0?'good':'bad','🎪',
+    `${TURN_MONTHS[G.turn-1]}興行 動員 ${preview.att.toLocaleString()}名 ／ ${revenue>=0?'+':''}${fmtMoney(revenue)}`,
+    `評価 ★${avgStars.toFixed(1)} 人気度+${popGain}`);
+  // 負傷報告
+  results.forEach(r => {
+    if (r.loser.injured) addLog('bad','🤕',`${r.loser.name} が試合中に負傷（${r.loser.injuryTurns}ターン離脱）`,'');
+  });
+
+  showResult(results, preview, revenue, popGain, avgStars);
+  eventCard = [];
+  renderAll();
+}
+
+function showResult(results, preview, revenue, popGain, avgStars) {
+  const mvp = results.reduce((best,r) => r.stars > best.stars ? r : best, results[0]);
+  document.getElementById('res-title').textContent = `${G.year}年 ${TURN_MONTHS[G.turn-1]} 大会`;
+  document.getElementById('res-kpis').innerHTML = `
+    <div class="kpi" style="--kbg:linear-gradient(135deg,var(--gold),transparent);border-color:rgba(255,194,0,.3)">
+      <div class="kl">観客動員</div><div class="kv" style="color:var(--gold);font-size:22px">${preview.att.toLocaleString()} 名</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">興行収益</div>
+      <div class="kv" style="color:${revenue>=0?'var(--green)':'var(--accent)'};font-size:20px">${fmtMoney(revenue)}</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">平均評価</div>
+      <div class="kv" style="font-size:22px">★ ${avgStars.toFixed(1)}</div>
+      <div class="ks"><span class="up">人気度 +${popGain}</span></div>
+    </div>
+    <div class="kpi" style="--kbg:linear-gradient(135deg,#b44aff,transparent)">
+      <div class="kl">MVP</div>
+      <div class="kv" style="color:#b44aff;font-size:16px">${mvp.winner.icon} ${mvp.winner.name}</div>
+      <div class="ks">★${mvp.stars.toFixed(1)}</div>
+    </div>`;
+
+  document.getElementById('res-matches').innerHTML = results.map((r,i) => {
+    const isMain   = i === results.length - 1;
+    const starsStr = '★'.repeat(Math.floor(r.stars)) + (r.stars % 1 >= 0.5 ? '☆' : '');
+    const lines    = generateCommentary(r.winner, r.loser, r);
+    const wWeight  = WEIGHT_LABEL[r.winner.weight] || '';
+    const lWeight  = WEIGHT_LABEL[r.loser.weight]  || '';
+
+    return `<div class="rmatch ${isMain?'mvp':''}" style="margin-bottom:16px">
+      <!-- 対戦カード見出し -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div style="font-size:12px">
+          <div style="margin-bottom:4px">
+            <span style="font-size:10px;color:var(--muted);margin-right:6px">${isMain?'🏆 メインイベント':`第${i+1}試合`}</span>
+            ${r.isTitleMatch?`<span class="tag t-champ" style="font-size:9px">タイトルマッチ</span>`:''}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-weight:700;color:var(--green);font-size:14px">${r.winner.icon} ${r.winner.name}</span>
+            <span class="tag ${r.winner.role==='heel'?'t-heel':'t-face'}" style="font-size:9px">${r.winner.role==='heel'?'ヒール':'ベビー'}</span>
+            <span style="font-size:9px;color:${WEIGHT_COLOR[r.winner.weight]||'var(--muted)'}">${wWeight}</span>
+          </div>
+          <div style="color:var(--muted);margin:3px 0 3px 20px;font-size:11px">vs</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="color:var(--muted);text-decoration:line-through;font-size:13px">${r.loser.icon} ${r.loser.name}</span>
+            <span class="tag ${r.loser.role==='heel'?'t-heel':'t-face'}" style="font-size:9px">${r.loser.role==='heel'?'ヒール':'ベビー'}</span>
+            <span style="font-size:9px;color:${WEIGHT_COLOR[r.loser.weight]||'var(--muted)'}">${lWeight}</span>
+            ${r.loser.injured?'<span class="tag t-inj" style="font-size:9px">負傷</span>':''}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="stars" style="font-size:16px">${starsStr}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">${r.duration}分 / ${r.finish}</div>
+        </div>
+      </div>
+      <!-- 実況テキスト -->
+      <div style="background:rgba(0,0,0,.35);border-radius:8px;padding:12px 14px;border-left:3px solid ${isMain?'var(--gold)':'var(--border)'};font-size:12px;line-height:2;color:#ccc">
+        ${lines.map(l => l.startsWith('【') ?
+          `<div style="color:var(--gold);font-weight:700;margin-top:6px;font-size:11px;letter-spacing:1px">${l}</div>` :
+          `<div>${l}</div>`
+        ).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  nav('result', null);
+}
+
+// =====================================================
+//  TRAINING（高坂昌信）
+// =====================================================
+const TRAIN_OPTS = [
+  {stat:'power',    label:'パワー強化',   cost:300000, gain:3, icon:'💪'},
+  {stat:'speed',    label:'スピード強化', cost:300000, gain:3, icon:'⚡'},
+  {stat:'tech',     label:'テクニック強化',cost:350000,gain:3, icon:'🤼'},
+  {stat:'mic',      label:'マイクワーク', cost:200000, gain:4, icon:'🎤'},
+  {stat:'condition',label:'コンディション回復',cost:150000,gain:20,icon:'🏥'},
+];
+let currentTrainWId = null;
+let currentTrainOpt = null;
+
+function openTrainModal(wId) {
+  const w = G.wrestlers.find(x=>x.id===wId);
+  currentTrainWId = wId;
+  document.getElementById('train-modal-title').textContent = `${w.icon} ${w.name} — トレーニング`;
+  document.getElementById('train-modal-body').innerHTML = TRAIN_OPTS.map((o,i) => `
+    <label style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;cursor:pointer;
+      background:var(--surface2);border:1px solid var(--border);margin-bottom:6px;
+      ${G.money < o.cost ? 'opacity:.4;' : ''}">
+      <input type="radio" name="train-opt" value="${i}" ${G.money<o.cost?'disabled':''}
+        style="accent-color:var(--gold)" onchange="currentTrainOpt=${i}">
+      <span style="font-size:16px">${o.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700">${o.label}</div>
+        <div style="font-size:11px;color:var(--muted)">${o.stat==='condition'?`+${o.gain}% 回復`:`+${o.gain} アップ`} ／ ${fmtMoney(o.cost)}</div>
+      </div>
+    </label>`).join('');
+  currentTrainOpt = null;
+  document.getElementById('train-confirm-btn').onclick = doTrain;
+  document.getElementById('train-modal').classList.add('show');
+}
+
+function doTrain() {
+  if (currentTrainOpt === null) { toast('トレーニングを選択してください'); return; }
+  const o = TRAIN_OPTS[currentTrainOpt];
+  if (G.money < o.cost) { toast('資金が不足しています'); return; }
+  const w = G.wrestlers.find(x=>x.id===currentTrainWId);
+  G.money -= o.cost;
+  if (o.stat === 'condition') {
+    w.condition = Math.min(100, w.condition + o.gain);
+  } else {
+    w[o.stat] = Math.min(99, w[o.stat] + o.gain);
+  }
+  addLog('info','💪',`${w.name} が ${o.label}（${fmtMoney(o.cost)}）`,'');
+  closeModal('train-modal');
+  toast(`${w.name} の ${o.label} 完了！`);
+  renderAll();
+}
+
+// =====================================================
+//  EVENT CARD BUILDING
+// =====================================================
+let pendingW1 = null;
+
+function pickWrestler(wId) {
+  const usedIds = eventCard.flatMap(m=>[m.w1Id,m.w2Id]);
+  if (usedIds.includes(wId)) { toast('すでにカードに入っています'); return; }
+  if (pendingW1 === null) {
+    pendingW1 = wId;
+    toast('対戦相手を選んでください');
+    renderEvent();
+  } else {
+    if (pendingW1 === wId) { pendingW1 = null; renderEvent(); return; }
+    if (eventCard.length >= 5) { toast('カードは最大5試合です'); pendingW1 = null; return; }
+    // タイトルマッチ判定
+    const isTitleMatch = isTitleHolder(pendingW1) || isTitleHolder(wId);
+    const titleId = isTitleMatch ? getTitleForMatch(pendingW1, wId) : null;
+    eventCard.push({ w1Id: pendingW1, w2Id: wId, isTitleMatch, titleId });
+    pendingW1 = null;
+    renderEvent();
+  }
+}
+
+function removeMatch(i) { eventCard.splice(i,1); renderEvent(); }
+function clearCard() { eventCard = []; pendingW1 = null; renderEvent(); }
+function selectVenue(id) { selectedVenue = id; renderEvent(); }
+
+function isTitleHolder(wId) { return G.titles.some(t=>t.championId===wId); }
+function getTitleForMatch(w1Id, w2Id) {
+  const t = G.titles.find(t=>t.championId===w1Id||t.championId===w2Id);
+  return t ? t.id : null;
+}
+function getChallenger(title) {
+  const ids = eventCard.flatMap(m=>[m.w1Id,m.w2Id]);
+  return G.wrestlers.find(w=>ids.includes(w.id) && w.id !== title.championId) || null;
+}
+
+// =====================================================
+//  TURN END（馬場信春 チェック）
+// =====================================================
+function openTurnModal() {
+  const salary = G.wrestlers.reduce((s,w)=>s+w.salary,0);
+  document.getElementById('turn-modal-body').innerHTML =
+    `${G.year}年 ${TURN_MONTHS[G.turn-1]} のターンを終了し、${nextTurnLabel()}へ進みます。<br><br>
+    <strong style="color:var(--gold)">給与合計: ${fmtMoney(salary)}</strong><br>
+    <span style="font-size:12px;color:var(--muted)">終了後の所持金: ${fmtMoney(G.money - salary)}</span>
+    ${G.money - salary < 0 ? '<br><span style="color:var(--accent);font-weight:700">⚠️ 資金がマイナスになります！</span>' : ''}`;
+  document.getElementById('turn-modal').classList.add('show');
+}
+
+function nextTurnLabel() {
+  const nextTurn = G.turn === 12 ? 1 : G.turn + 1;
+  const nextYear = G.turn === 12 ? G.year + 1 : G.year;
+  return `${nextYear}年 ${TURN_MONTHS[nextTurn-1]}`;
+}
+
+function confirmTurnEnd() {
+  closeModal('turn-modal');
+  const salary = G.wrestlers.reduce((s,w)=>s+w.salary,0);
+  G.money -= salary;
+  G.lastMoneyChange = -salary + (G.eventDoneThisTurn ? 0 : 0);
+
+  // 負傷回復処理
+  G.wrestlers.forEach(w => {
+    if (w.injured) {
+      w.injuryTurns--;
+      if (w.injuryTurns <= 0) {
+        w.injured = false; w.condition = 60;
+        addLog('good','🏥',`${w.name} が負傷から復帰！`,'');
+      }
+    }
+    // 自然回復
+    if (!w.injured) w.condition = Math.min(100, w.condition + 10);
+  });
+
+  // ターン進行
+  if (G.turn === 12) { G.turn = 1; G.year++; }
+  else G.turn++;
+  G.eventDoneThisTurn = false;
+
+  addLog('info','📅',`${G.year}年 ${TURN_MONTHS[G.turn-1]} になった`,`給与支払: ${fmtMoney(salary)}`);
+  toast(`${G.year}年 ${TURN_MONTHS[G.turn-1]} が始まった`);
+  nav('dashboard', document.querySelector('.nav-btn'));
+  renderAll();
+}
+
+// =====================================================
+//  UTILS
+// =====================================================
+function fmtMoney(n) {
+  if (Math.abs(n) >= 1000000) return (n/1000000).toFixed(1) + 'M円';
+  return n.toLocaleString() + '円';
+}
+
+function statBar(label, val) {
+  return `<div class="sb">
+    <span style="font-size:10px;color:var(--muted);width:28px">${label}</span>
+    <div class="sb-bg"><div class="sb-f" style="width:${val}%"></div></div>
+    <span class="sb-v">${val}</span>
+  </div>`;
+}
+
+function addLog(cls, icon, text, time) {
+  G.log.push({ cls, icon, text, time: time || `${G.year}年${TURN_MONTHS[G.turn-1]}` });
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function nav(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  else {
+    const map = {dashboard:0,roster:1,event:2,titles:3};
+    const idx = map[id];
+    if (idx !== undefined) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  }
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+</script>
+</body>
+</html>
