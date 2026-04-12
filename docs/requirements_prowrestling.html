@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>仮想プロレス団体経営アプリ 要件定義書</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Yu Gothic", "游ゴシック", Meiryo, sans-serif;
+      background: #f4f1eb;
+      color: #1a1a1a;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    /* 表紙 */
+    .cover {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #1a0a00 0%, #3d1a00 50%, #1a0a00 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #e8d5a3;
+      padding: 60px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: "武";
+      position: absolute;
+      font-size: 600px;
+      opacity: 0.04;
+      color: #e8d5a3;
+      font-family: serif;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .cover-kamon {
+      font-size: 80px;
+      margin-bottom: 30px;
+      filter: drop-shadow(0 0 20px rgba(232,213,163,0.4));
+    }
+    .cover-label {
+      font-size: 12px;
+      letter-spacing: 6px;
+      color: #c8a96e;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .cover-title {
+      font-size: 36px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      margin-bottom: 12px;
+      font-family: serif;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .cover-subtitle {
+      font-size: 18px;
+      color: #c8a96e;
+      letter-spacing: 3px;
+      margin-bottom: 60px;
+    }
+    .cover-meta {
+      font-size: 13px;
+      color: #a08060;
+      line-height: 2.2;
+      border-top: 1px solid #5a3a1a;
+      padding-top: 30px;
+      width: 100%;
+      max-width: 500px;
+    }
+    .cover-meta table { width: 100%; border-collapse: collapse; }
+    .cover-meta td { padding: 4px 12px; }
+    .cover-meta td:first-child { color: #c8a96e; text-align: right; width: 40%; }
+
+    /* 本文 */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 60px 70px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.1);
+    }
+    .page + .page { border-top: 8px solid #f4f1eb; }
+
+    h1.section-title {
+      font-size: 22px;
+      font-family: serif;
+      color: #1a0a00;
+      border-left: 6px solid #8b3a00;
+      padding-left: 14px;
+      margin: 50px 0 24px;
+    }
+    h1.section-title:first-child { margin-top: 0; }
+
+    h2.subsection {
+      font-size: 16px;
+      color: #3d1a00;
+      border-bottom: 2px solid #d4a96e;
+      padding-bottom: 6px;
+      margin: 36px 0 16px;
+    }
+    h3.item {
+      font-size: 14px;
+      color: #5a2a00;
+      margin: 20px 0 8px;
+      font-weight: bold;
+    }
+
+    p { margin-bottom: 12px; }
+
+    /* 担当バッジ */
+    .officer-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .badge-shingen  { background: #1a0a00; color: #e8d5a3; }
+    .badge-yamagata { background: #8b0000; color: #fff; }
+    .badge-baba     { background: #1a3a1a; color: #a8d4a8; }
+    .badge-kosaka   { background: #1a1a5a; color: #a8a8f0; }
+    .badge-sanada   { background: #5a3a00; color: #f0d080; }
+
+    /* テーブル */
+    table.req-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px;
+      font-size: 13px;
+    }
+    table.req-table th {
+      background: #3d1a00;
+      color: #e8d5a3;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: bold;
+    }
+    table.req-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e8e0d0;
+      vertical-align: top;
+    }
+    table.req-table tr:nth-child(even) td { background: #faf7f0; }
+    table.req-table tr:hover td { background: #f5ede0; }
+
+    /* 優先度バッジ */
+    .pri { display:inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+    .pri-high { background: #fde8e8; color: #c00; }
+    .pri-mid  { background: #fef3d0; color: #a06000; }
+    .pri-low  { background: #e8f0e8; color: #0a6020; }
+
+    /* 武将コメント */
+    .officer-comment {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      position: relative;
+    }
+    .officer-comment.shingen  { background: #1a0a00; color: #e8d5a3; border-left: 5px solid #c8a96e; }
+    .officer-comment.yamagata { background: #fdf0f0; border-left: 5px solid #8b0000; }
+    .officer-comment.baba     { background: #f0fdf0; border-left: 5px solid #2a6a2a; }
+    .officer-comment.kosaka   { background: #f0f0fd; border-left: 5px solid #2a2a8b; }
+    .officer-comment.sanada   { background: #fdfaf0; border-left: 5px solid #8b6a00; }
+    .officer-comment .speaker {
+      font-weight: bold;
+      font-size: 12px;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+    .officer-comment.shingen .speaker { color: #c8a96e; }
+    .officer-comment.yamagata .speaker { color: #8b0000; }
+    .officer-comment.baba .speaker { color: #2a6a2a; }
+    .officer-comment.kosaka .speaker { color: #2a2a8b; }
+    .officer-comment.sanada .speaker { color: #8b6a00; }
+
+    /* フロー図（CSS） */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .flow-box {
+      background: #3d1a00;
+      color: #e8d5a3;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      text-align: center;
+      min-width: 100px;
+    }
+    .flow-arrow {
+      color: #8b3a00;
+      font-size: 20px;
+      padding: 0 6px;
+    }
+
+    /* フッター */
+    .footer {
+      text-align: center;
+      color: #a08060;
+      font-size: 11px;
+      padding: 30px;
+      border-top: 1px solid #e0d0b0;
+      margin-top: 60px;
+    }
+
+    /* 改ページヒント */
+    @media print {
+      .cover { page-break-after: always; }
+      .page { box-shadow: none; padding: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== 表紙 ========== -->
+<div class="cover">
+  <div class="cover-kamon">⚔️</div>
+  <div class="cover-label">Requirements Definition Document</div>
+  <div class="cover-title">仮想プロレス団体経営アプリ</div>
+  <div class="cover-subtitle">要 件 定 義 書</div>
+  <div class="cover-meta">
+    <table>
+      <tr><td>プロジェクト総大将</td><td>殿下</td></tr>
+      <tr><td>軍師（取りまとめ）</td><td>武田信玄</td></tr>
+      <tr><td>経営・内政担当</td><td>高坂昌信</td></tr>
+      <tr><td>興行・戦闘担当</td><td>山県昌景</td></tr>
+      <tr><td>品質・安定担当</td><td>馬場信春</td></tr>
+      <tr><td>策略・物語担当</td><td>真田幸隆</td></tr>
+      <tr><td>版　　　数</td><td>v1.0（初稿）</td></tr>
+      <tr><td>作成日</td><td>2026年4月12日</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ========== 本文 ========== -->
+<div class="page">
+
+  <!-- 1. 概要 -->
+  <h1 class="section-title">1. プロジェクト概要</h1>
+
+  <div class="officer-comment shingen">
+    <div class="speaker">⚔️ 武田信玄（軍師・取りまとめ）</div>
+    天下を束ねるがごとく、プロレス団体を一手に経営する。選手を育て、興行を打ち、ベルトを巡り覇権を争う——これは現代の戦国絵巻である。殿下のご意向のもと、我ら五名がこの要件を定める。
+  </div>
+
+  <h2 class="subsection">1.1 目的</h2>
+  <p>プレイヤーがプロレス団体のオーナーとなり、選手の獲得・育成・興行運営・タイトル管理を通じて団体を日本最高峰へと導くブラウザベースの経営シミュレーションゲームを開発する。</p>
+
+  <h2 class="subsection">1.2 対象ユーザー</h2>
+  <table class="req-table">
+    <tr><th>ユーザー層</th><th>特徴</th></tr>
+    <tr><td>プロレスファン</td><td>実際の団体運営に興味がある層。リアリティを重視</td></tr>
+    <tr><td>経営シミュ好き</td><td>育成・数値管理・資源配分が好きなゲーマー</td></tr>
+    <tr><td>カジュアルゲーマー</td><td>難しすぎず、さくっと遊べることを期待</td></tr>
+  </table>
+
+  <h2 class="subsection">1.3 技術スタック</h2>
+  <p>単一HTMLファイル（vanilla JS + CSS）として実装。サーバー・ビルドツール不要。ブラウザで直接開いて即プレイ可能。</p>
+
+</div>
+
+<!-- ========== 機能要件（経営） ========== -->
+<div class="page">
+  <h1 class="section-title">2. 機能要件：経営・内政システム
+    <span class="officer-badge badge-kosaka">高坂昌信 担当</span>
+  </h1>
+
+  <div class="officer-comment kosaka">
+    <div class="speaker">📘 高坂昌信（逃げ弾正）</div>
+    軍略・内政・外交を一手に担う我が得意分野にございます。資金の流れを正しく設計せねば、いかに強い選手を揃えても団体は立ち行きませぬ。
+  </div>
+
+  <h2 class="subsection">2.1 団体管理</h2>
+  <table class="req-table">
+    <tr><th style="width:5%">ID</th><th style="width:35%">機能</th><th style="width:40%">説明</th><th style="width:20%">優先度</th></tr>
+    <tr><td>F-101</td><td>団体名・ロゴ設定</td><td>ゲーム開始時に団体名を入力する</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-102</td><td>資金管理</td><td>所持金の増減、収支履歴の表示</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-103</td><td>ターン進行</td><td>1ターン＝1ヶ月。月末に固定費（給与等）を精算</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-104</td><td>ファン人気度</td><td>団体全体の人気値。興行収益・選手獲得交渉に影響</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-105</td><td>スポンサー契約</td><td>人気度に応じたスポンサー収入の自動計算</td><td><span class="pri pri-mid">中</span></td></tr>
+    <tr><td>F-106</td><td>施設投資</td><td>道場・医療室などを建設し選手ステータスに補正</td><td><span class="pri pri-low">低</span></td></tr>
+  </table>
+
+  <h2 class="subsection">2.2 選手管理</h2>
+  <table class="req-table">
+    <tr><th style="width:5%">ID</th><th style="width:35%">機能</th><th style="width:40%">説明</th><th style="width:20%">優先度</th></tr>
+    <tr><td>F-201</td><td>選手一覧</td><td>所属選手のステータス・契約状況を一覧表示</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-202</td><td>選手獲得（スカウト）</td><td>資金を使いフリーや他団体の選手を獲得</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-203</td><td>選手育成</td><td>トレーニングにより能力値を成長させる</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-204</td><td>給与・契約管理</td><td>選手ごとの月俸設定。契約期間満了で離脱</td><td><span class="pri pri-mid">中</span></td></tr>
+    <tr><td>F-205</td><td>コンディション管理</td><td>疲労・怪我状態を管理。無理使いで能力低下</td><td><span class="pri pri-mid">中</span></td></tr>
+  </table>
+
+  <h3 class="item">選手ステータス定義</h3>
+  <table class="req-table">
+    <tr><th>パラメータ</th><th>説明</th><th>範囲</th></tr>
+    <tr><td>パワー</td><td>投げ・打撃技の威力</td><td>1〜100</td></tr>
+    <tr><td>スピード</td><td>スピード技・体力回復速度</td><td>1〜100</td></tr>
+    <tr><td>テクニック</td><td>関節技・試合巧者度</td><td>1〜100</td></tr>
+    <tr><td>タフネス</td><td>耐久力・試合体力</td><td>1〜100</td></tr>
+    <tr><td>マイク</td><td>観客へのアピール力・人気への貢献</td><td>1〜100</td></tr>
+    <tr><td>コンディション</td><td>現在の体調（試合能力に補正）</td><td>0〜100%</td></tr>
+  </table>
+
+</div>
+
+<!-- ========== 機能要件（興行・試合） ========== -->
+<div class="page">
+  <h1 class="section-title">3. 機能要件：興行・試合システム
+    <span class="officer-badge badge-yamagata">山県昌景 担当</span>
+  </h1>
+
+  <div class="officer-comment yamagata">
+    <div class="speaker">🔴 山県昌景（赤備えの将）</div>
+    戦こそが全て！興行は我が担当。いかに強者を揃え、観衆を熱狂させるか——カードの組み方一つで興行の成否が決まりまする。先頭に立ち、最高の戦場を作ってみせましょう！
+  </div>
+
+  <h2 class="subsection">3.1 興行開催</h2>
+  <table class="req-table">
+    <tr><th style="width:5%">ID</th><th style="width:35%">機能</th><th style="width:40%">説明</th><th style="width:20%">優先度</th></tr>
+    <tr><td>F-301</td><td>興行計画</td><td>会場規模（小・中・大）と開催日を決定</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-302</td><td>カード編成</td><td>試合（3〜8試合）の対戦カードを組む</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-303</td><td>試合シミュレーション</td><td>ステータスをもとに勝敗・評価を自動計算</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-304</td><td>興行収益計算</td><td>観客動員数 × チケット単価で収益を算出</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-305</td><td>興行評価</td><td>試合内容・カードの組み合わせで評価点を算出</td><td><span class="pri pri-mid">中</span></td></tr>
+    <tr><td>F-306</td><td>試合結果テキスト演出</td><td>試合経過を簡易テキスト実況で表示</td><td><span class="pri pri-mid">中</span></td></tr>
+  </table>
+
+  <h2 class="subsection">3.2 試合シミュレーション詳細</h2>
+  <p>以下のフローで勝敗を決定する：</p>
+  <div class="flow">
+    <div class="flow-box">選手ステータス<br>取得</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">コンディション<br>補正</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">乱数要素<br>付加</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">勝敗・評価<br>算出</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">結果反映<br>（人気・疲労）</div>
+  </div>
+
+  <h2 class="subsection">3.3 タイトル（ベルト）管理</h2>
+  <table class="req-table">
+    <tr><th style="width:5%">ID</th><th style="width:35%">機能</th><th style="width:40%">説明</th><th style="width:20%">優先度</th></tr>
+    <tr><td>F-401</td><td>タイトル定義</td><td>団体内タイトルを最大3本設定可能</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-402</td><td>王者管理</td><td>現チャンピオンの記録・防衛回数管理</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-403</td><td>挑戦者指名</td><td>次回防衛戦の挑戦者を指名できる</td><td><span class="pri pri-mid">中</span></td></tr>
+  </table>
+
+</div>
+
+<!-- ========== 機能要件（ストーリー） ========== -->
+<div class="page">
+  <h1 class="section-title">4. 機能要件：ストーリー・抗争システム
+    <span class="officer-badge badge-sanada">真田幸隆 担当</span>
+  </h1>
+
+  <div class="officer-comment sanada">
+    <div class="speaker">🟡 真田幸隆（調略の達人）</div>
+    兵を使わずして城を落とすのが我が流儀。プロレスもまた同じ——観客の心を動かすのは技の強さだけではなく、物語の力。ヒールとベビーフェイスの対立構図こそが、興行を何倍にも面白くする仕掛けにございます。
+  </div>
+
+  <h2 class="subsection">4.1 ストーリーライン管理</h2>
+  <table class="req-table">
+    <tr><th style="width:5%">ID</th><th style="width:35%">機能</th><th style="width:40%">説明</th><th style="width:20%">優先度</th></tr>
+    <tr><td>F-501</td><td>キャラ設定</td><td>各選手をヒール／ベビーフェイスに設定</td><td><span class="pri pri-high">高</span></td></tr>
+    <tr><td>F-502</td><td>抗争設定</td><td>2選手間の抗争を登録。連続試合でヒートを上げる</td><td><span class="pri pri-mid">中</span></td></tr>
+    <tr><td>F-503</td><td>ストーリーイベント</td><td>裏切り・乱入などの特殊イベントを手動発動</td><td><span class="pri pri-low">低</span></td></tr>
+    <tr><td>F-504</td><td>抗争ヒート値</td><td>抗争の盛り上がり度を数値管理。興行評価に反映</td><td><span class="pri pri-mid">中</span></td></tr>
+  </table>
+
+  <h2 class="subsection">4.2 他団体との関係</h2>
+  <table class="req-table">
+    <tr><th style="width:5%">ID</th><th style="width:35%">機能</th><th style="width:40%">説明</th><th style="width:20%">優先度</th></tr>
+    <tr><td>F-601</td><td>他団体の存在</td><td>CPU団体が複数存在し、業界内でランキング競争</td><td><span class="pri pri-mid">中</span></td></tr>
+    <tr><td>F-602</td><td>交流戦</td><td>他団体との対抗戦を開催し人気を獲得</td><td><span class="pri pri-low">低</span></td></tr>
+  </table>
+
+</div>
+
+<!-- ========== 非機能要件 ========== -->
+<div class="page">
+  <h1 class="section-title">5. 非機能要件
+    <span class="officer-badge badge-baba">馬場信春 担当</span>
+  </h1>
+
+  <div class="officer-comment baba">
+    <div class="speaker">🟢 馬場信春（不死身の鬼美濃）</div>
+    我が生涯、一度も傷を負わぬのは守りを疎かにせぬからにございます。いかに華やかな機能を揃えても、動かぬアプリでは意味がありませぬ。品質と堅牢さをこの馬場が保証いたします。
+  </div>
+
+  <table class="req-table">
+    <tr><th style="width:10%">分類</th><th style="width:35%">要件</th><th style="width:55%">詳細</th></tr>
+    <tr><td>性能</td><td>ターン処理速度</td><td>1ターンの計算・描画を1秒以内に完了すること</td></tr>
+    <tr><td>性能</td><td>試合シミュ速度</td><td>1興行（最大8試合）の計算を500ms以内に完了</td></tr>
+    <tr><td>保存</td><td>セーブ機能</td><td>localStorage を使ったセーブ・ロード機能を実装</td></tr>
+    <tr><td>保存</td><td>オートセーブ</td><td>各ターン終了時に自動保存</td></tr>
+    <tr><td>UX</td><td>レスポンシブ対応</td><td>PC・タブレット幅（768px以上）で正常表示</td></tr>
+    <tr><td>UX</td><td>操作フィードバック</td><td>全てのボタン操作に即時の視覚的フィードバック</td></tr>
+    <tr><td>互換性</td><td>ブラウザ</td><td>Chrome / Edge 最新版で動作すること</td></tr>
+    <tr><td>構成</td><td>単一ファイル</td><td>HTML/CSS/JS を1ファイルに内包。外部依存なし</td></tr>
+  </table>
+
+</div>
+
+<!-- ========== 画面設計 ========== -->
+<div class="page">
+  <h1 class="section-title">6. 画面設計（概要）</h1>
+
+  <div class="officer-comment shingen">
+    <div class="speaker">⚔️ 武田信玄</div>
+    高坂・山県・真田・馬場、各々の要件を束ね、画面の全体像を定める。シンプルでありながら全ての情報に素早くアクセスできる配置とする。
+  </div>
+
+  <h2 class="subsection">6.1 画面一覧</h2>
+  <table class="req-table">
+    <tr><th>画面名</th><th>主な内容</th></tr>
+    <tr><td>ダッシュボード（メイン）</td><td>資金・人気・ターン数・直近イベントの概要表示</td></tr>
+    <tr><td>選手管理画面</td><td>選手一覧・詳細・トレーニング・スカウト</td></tr>
+    <tr><td>興行計画画面</td><td>カード編成・会場選択・開催ボタン</td></tr>
+    <tr><td>興行結果画面</td><td>試合結果・収益・評価のサマリー</td></tr>
+    <tr><td>タイトル管理画面</td><td>ベルト一覧・王者・挑戦者設定</td></tr>
+    <tr><td>ストーリー画面</td><td>抗争管理・ヒール／ベビーフェイス設定</td></tr>
+    <tr><td>設定画面</td><td>セーブ・ロード・ゲームリセット</td></tr>
+  </table>
+
+  <h2 class="subsection">6.2 ナビゲーション構造</h2>
+  <div class="flow" style="flex-wrap:wrap; gap:8px;">
+    <div class="flow-box">ダッシュボード</div>
+    <div class="flow-arrow">⇄</div>
+    <div class="flow-box">選手管理</div>
+    <div class="flow-arrow">⇄</div>
+    <div class="flow-box">興行計画</div>
+    <div class="flow-arrow">⇄</div>
+    <div class="flow-box">タイトル管理</div>
+    <div class="flow-arrow">⇄</div>
+    <div class="flow-box">ストーリー</div>
+  </div>
+  <p style="margin-top:12px; color:#666; font-size:13px;">全画面は上部ナビゲーションバーから遷移可能。モーダルは使用せず、単一ページ内でのセクション切り替え方式を採用。</p>
+
+</div>
+
+<!-- ========== 開発フェーズ ========== -->
+<div class="page">
+  <h1 class="section-title">7. 開発フェーズ計画</h1>
+
+  <table class="req-table">
+    <tr><th>フェーズ</th><th>内容</th><th>対象機能ID</th></tr>
+    <tr>
+      <td>Phase 1<br><small>MVP</small></td>
+      <td>最小限で遊べる状態<br>ダッシュボード・選手管理・シンプル興行</td>
+      <td>F-101〜104, F-201〜203, F-301〜304, F-401〜402</td>
+    </tr>
+    <tr>
+      <td>Phase 2<br><small>拡充</small></td>
+      <td>ゲームとしての深みを追加<br>コンディション・抗争・タイトル挑戦者</td>
+      <td>F-205, F-305〜306, F-403, F-501〜504</td>
+    </tr>
+    <tr>
+      <td>Phase 3<br><small>完成</small></td>
+      <td>経営要素の充実・他団体との競争</td>
+      <td>F-105〜106, F-204, F-601〜602</td>
+    </tr>
+  </table>
+
+  <div class="officer-comment shingen" style="margin-top:40px;">
+    <div class="speaker">⚔️ 武田信玄（締めの言葉）</div>
+    疾きこと風の如く——まずはPhase 1で素早く動くものを作り、殿下にご覧いただく。徐として林の如く積み重ね、侵略すること火の如く拡大する。これが我らの策定した開発の道筋にございます。<br><br>
+    殿下のご下命を、謹んでお待ち申し上げております。
+  </div>
+
+  <div class="footer">
+    仮想プロレス団体経営アプリ 要件定義書 v1.0 ／ 総大将：殿下 ／ 軍師：武田信玄<br>
+    配下：山県昌景・馬場信春・高坂昌信・真田幸隆
+  </div>
+
+</div>
+
+</body>
+</html>
