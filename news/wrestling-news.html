@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Wrestling News</title>
+<meta name="theme-color" content="#0f0303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0ece5;
+  --card:#ffffff;
+  --text:#1a1209;
+  --muted:#7a6a5a;
+  --border:#e4ddd3;
+  --header:#0f0303;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.06);
+  --shadow-hover:0 4px 20px rgba(0,0,0,.13);
+  --accent:#e03000;
+  --gold:#e09000;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","游ゴシック",Meiryo,sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;
+}
+
+/* ===== HEADER ===== */
+header{
+  position:sticky;top:0;z-index:100;
+  background:var(--header);
+  border-bottom:3px solid #c84a00;
+  box-shadow:0 2px 16px rgba(0,0,0,.35);
+}
+.header-top{
+  display:flex;align-items:center;gap:12px;height:54px;padding:0 16px;
+}
+.brand{
+  font-size:18px;font-weight:900;letter-spacing:2px;flex:1;
+  background:linear-gradient(90deg,#ffd04d,#ff7700,#ff3300);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 6px rgba(255,140,0,.4));
+}
+.refresh-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:8px;border:1px solid rgba(255,160,40,.3);
+  background:rgba(255,255,255,.08);color:#f0ddc0;
+  font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;
+  transition:all .2s;white-space:nowrap;
+}
+.refresh-btn:hover{background:rgba(255,255,255,.15);border-color:rgba(255,160,40,.6);}
+.refresh-btn:disabled{opacity:.4;cursor:not-allowed;}
+.spin{display:inline-block;}
+.refresh-btn.loading .spin{animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== FILTER TABS ===== */
+.filter-row{
+  display:flex;gap:6px;padding:10px 14px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;background:rgba(0,0,0,.2);
+}
+.filter-row::-webkit-scrollbar{display:none;}
+.filter-btn{
+  padding:5px 14px;border:1px solid rgba(255,255,255,.15);border-radius:20px;
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.55);
+  font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;
+  white-space:nowrap;transition:all .2s;flex-shrink:0;letter-spacing:.3px;
+}
+.filter-btn:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.12);}
+.filter-btn.active{
+  background:rgba(220,70,0,.75);border-color:rgba(255,130,50,.5);
+  color:#fff;box-shadow:0 0 10px rgba(220,70,0,.4);
+}
+
+/* ===== MAIN ===== */
+main{padding:16px 12px 80px;max-width:720px;margin:0 auto;}
+
+/* ===== STATUS BAR ===== */
+.status{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:11px;color:var(--muted);margin-bottom:14px;
+  padding:9px 13px;border-radius:10px;
+  background:var(--card);border:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+.dot{
+  width:8px;height:8px;border-radius:50%;
+  display:inline-block;margin-right:7px;flex-shrink:0;
+}
+.dot.ok{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.5);}
+.dot.loading{background:var(--gold);animation:blink 1s ease-in-out infinite;}
+.dot.error{background:var(--accent);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.status-left{display:flex;align-items:center;}
+
+/* ===== NEWS LIST ===== */
+.news-list{display:flex;flex-direction:column;gap:10px;}
+
+/* ===== NEWS CARD ===== */
+a.news-card{
+  display:flex;gap:12px;padding:14px;border-radius:14px;
+  background:var(--card);border:1px solid var(--border);
+  text-decoration:none;color:var(--text);
+  box-shadow:var(--shadow);transition:all .2s;
+}
+a.news-card:hover{
+  box-shadow:var(--shadow-hover);transform:translateY(-2px);
+  border-color:#d0c8be;
+}
+.news-thumb{
+  width:88px;height:66px;border-radius:9px;object-fit:cover;flex-shrink:0;
+  background:var(--bg);
+}
+.news-thumb-placeholder{
+  width:88px;height:66px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(135deg,#f5ede0,#ebe0d0);
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  border:1px solid var(--border);
+}
+.news-body{flex:1;min-width:0;}
+.source-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;
+  margin-bottom:6px;letter-spacing:.3px;
+}
+.news-title{
+  font-size:13px;font-weight:700;line-height:1.45;color:var(--text);
+  margin-bottom:6px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.news-date{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+
+/* ===== SKELETON ===== */
+.skeleton{
+  display:flex;gap:12px;padding:14px;border-radius:14px;
+  background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);
+}
+.skel-img{
+  width:88px;height:66px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(90deg,#ede7df 25%,#e0d9d0 50%,#ede7df 75%);
+  background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;
+}
+.skel-body{flex:1;display:flex;flex-direction:column;gap:8px;padding-top:2px;}
+.skel-line{
+  border-radius:4px;
+  background:linear-gradient(90deg,#ede7df 25%,#e0d9d0 50%,#ede7df 75%);
+  background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ===== ERROR / EMPTY ===== */
+.empty{
+  text-align:center;padding:56px 24px;background:var(--card);
+  border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow);
+}
+.empty .icon{font-size:48px;margin-bottom:14px;}
+.empty h3{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text);}
+.empty p{font-size:13px;color:var(--muted);line-height:1.7;}
+.retry-btn{
+  margin-top:18px;padding:9px 22px;border-radius:8px;border:none;
+  background:var(--accent);color:#fff;font-size:13px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.retry-btn:hover{background:#c02800;transform:translateY(-1px);}
+
+.warn-bar{
+  margin-bottom:12px;padding:9px 13px;border-radius:9px;
+  background:#fffbeb;border:1px solid #f0d070;
+  font-size:11px;color:#7a6020;display:flex;align-items:center;gap:6px;
+}
+
+/* ===== BACK TO TOP ===== */
+#back-top{
+  position:fixed;bottom:20px;right:14px;
+  width:42px;height:42px;border-radius:50%;
+  background:var(--accent);border:none;
+  color:#fff;font-size:18px;cursor:pointer;
+  opacity:0;transition:opacity .25s;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 14px rgba(220,60,0,.5);font-weight:700;
+}
+#back-top.show{opacity:1;pointer-events:auto;}
+
+/* ===== VIEW TOGGLE ===== */
+.view-toggle{display:flex;gap:4px;flex-shrink:0;}
+.view-btn{
+  width:32px;height:32px;border-radius:7px;border:1px solid rgba(255,160,40,.25);
+  background:rgba(255,255,255,.07);color:rgba(255,220,160,.6);
+  font-size:16px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.view-btn:hover{background:rgba(255,255,255,.14);}
+.view-btn.active{background:rgba(200,60,0,.5);border-color:rgba(255,130,50,.5);color:#fff;}
+
+/* ===== GRID VIEW ===== */
+.news-list.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+@media(min-width:900px){
+  .news-list.grid{grid-template-columns:repeat(3,1fr);}
+}
+.news-list.grid a.news-card{
+  flex-direction:column;padding:0;overflow:hidden;
+}
+.news-list.grid .news-thumb{
+  width:100%;height:140px;border-radius:9px 9px 0 0;
+}
+.news-list.grid .news-thumb-placeholder{
+  width:100%;height:140px;border-radius:9px 9px 0 0;font-size:36px;
+}
+.news-list.grid .news-body{padding:12px;}
+.news-list.grid .news-title{-webkit-line-clamp:3;}
+
+/* ===== MOBILE ===== */
+@media(max-width:500px){
+  .news-thumb,.news-thumb-placeholder,.skel-img{width:70px;height:54px;}
+  .news-list.grid{grid-template-columns:1fr;}
+  .news-list.grid a.news-card{flex-direction:row;padding:14px;overflow:visible;}
+  .news-list.grid .news-thumb{width:70px;height:54px;border-radius:9px;}
+  .news-list.grid .news-thumb-placeholder{width:70px;height:54px;border-radius:9px;font-size:26px;}
+  .news-list.grid .news-body{padding:0;}
+  .news-title{font-size:12px;}
+  .brand{font-size:16px;}
+  main{padding:12px 8px 80px;}
+  .header-top{padding:0 12px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="brand">🤼 WRESTLING NEWS</div>
+    <div class="view-toggle">
+      <button id="btn-list" class="view-btn" onclick="setView('list')" title="リスト">☰</button>
+      <button id="btn-grid" class="view-btn" onclick="setView('grid')" title="グリッド">⊞</button>
+    </div>
+    <button class="refresh-btn" id="refresh-btn" onclick="loadAll()">
+      <span class="spin">⟳</span> 更新
+    </button>
+  </div>
+  <div class="filter-row" id="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all',this)">🌐 すべて</button>
+    <button class="filter-btn" onclick="setFilter('ja',this)">🇯🇵 日本語</button>
+<button class="filter-btn" onclick="setFilter('POST Wrestling',this)">POST Wrestling</button>
+    <button class="filter-btn" onclick="setFilter('Fightful',this)">Fightful</button>
+    <button class="filter-btn" onclick="setFilter('Wrestling Inc',this)">Wrestling Inc</button>
+    <button class="filter-btn" onclick="setFilter('411Mania',this)">411Mania</button>
+    <button class="filter-btn" onclick="setFilter('PWSheet',this)">PWSheet</button>
+    <button class="filter-btn" onclick="setFilter('Ringside News',this)">Ringside News</button>
+  </div>
+</header>
+
+<main>
+  <div class="status" id="status-bar">
+    <span class="status-left"><span class="dot loading" id="status-dot"></span><span id="status-text">読み込み中...</span></span>
+    <span id="status-count"></span>
+  </div>
+  <div id="warn-area"></div>
+  <div class="news-list" id="news-list"></div>
+</main>
+
+<button id="back-top" onclick="scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+const SOURCES = [
+  {
+    name: 'POST Wrestling',
+    color: '#c83000',
+    bg: '#fff1ed',
+    icon: '📰',
+    rss: 'https://www.postwrestling.com/feed/',
+  },
+  {
+    name: 'Fightful',
+    color: '#0070c0',
+    bg: '#eaf4ff',
+    icon: '🥊',
+    rss: 'https://www.fightful.com/wrestling/feed',
+  },
+  {
+    name: 'Wrestling Inc',
+    color: '#8a5e00',
+    bg: '#fff8e6',
+    icon: '🏆',
+    rss: 'https://www.wrestlinginc.com/feed/',
+  },
+  {
+    name: '411Mania',
+    color: '#6a20b0',
+    bg: '#f5eeff',
+    icon: '⚡',
+    rss: 'https://411mania.com/wrestling/feed/',
+  },
+  {
+    name: 'PWSheet',
+    color: '#006e40',
+    bg: '#ebfaf3',
+    icon: '📋',
+    rss: 'https://www.prowrestlingsheet.com/feed/',
+  },
+  {
+    name: 'Ringside News',
+    color: '#c04400',
+    bg: '#fff3ec',
+    icon: '🔔',
+    rss: 'https://ringsidenews.com/feed/',
+  },
+];
+
+let allItems = [];
+let activeFilter = 'all';
+let failedSources = [];
+
+function timedFetch(url, ms = 12000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, {signal: ctrl.signal}).finally(() => clearTimeout(t));
+}
+
+// rss2json.com API経由（XML→JSONに変換してくれる）
+async function viaRss2Json(rssUrl) {
+  const u = encodeURIComponent(rssUrl);
+  const res = await timedFetch(`https://api.rss2json.com/v1/api.json?rss_url=${u}&count=20`);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  if (data.status !== 'ok' || !data.items?.length) throw new Error('empty');
+  return data.items.map(item => ({
+    title: item.title || '',
+    link:  item.link  || '',
+    date:  item.pubDate || '',
+    thumb: item.thumbnail || item.enclosure?.link || '',
+  }));
+}
+
+// CORSプロキシ経由でRaw XML取得
+async function tryProxy(proxyUrl, isJsonWrapper) {
+  const res = await timedFetch(proxyUrl);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  const xmlStr = isJsonWrapper ? (JSON.parse(text).contents || '') : text;
+  if (!xmlStr || xmlStr.length < 100) throw new Error('empty');
+  return xmlStr;
+}
+
+function parseXML(xmlStr) {
+  const xml = new DOMParser().parseFromString(xmlStr, 'text/xml');
+  if (xml.querySelector('parsererror')) throw new Error('XML parse error');
+  const items = [];
+
+  // RSS 2.0
+  xml.querySelectorAll('channel > item').forEach(el => {
+    const title = el.querySelector('title')?.textContent?.trim() || '';
+    const link  = el.querySelector('link')?.textContent?.trim() || '';
+    const date  = el.querySelector('pubDate')?.textContent?.trim() || '';
+    let thumb   = '';
+    const mt = el.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail')[0];
+    if (mt) thumb = mt.getAttribute('url') || '';
+    if (!thumb) {
+      const enc = el.querySelector('enclosure');
+      if (enc && (enc.getAttribute('type') || '').startsWith('image')) {
+        thumb = enc.getAttribute('url') || '';
+      }
+    }
+    if (title && link) items.push({title, link, date, thumb});
+  });
+
+  // Atom
+  xml.querySelectorAll('entry').forEach(el => {
+    const title = el.querySelector('title')?.textContent?.trim() || '';
+    const linkEl = el.querySelector('link[rel="alternate"]') || el.querySelector('link');
+    const link  = linkEl?.getAttribute('href') || linkEl?.textContent?.trim() || '';
+    const date  = el.querySelector('published,updated')?.textContent?.trim() || '';
+    let thumb   = '';
+    const mt = el.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail')[0];
+    if (mt) thumb = mt.getAttribute('url') || '';
+    if (title && link) items.push({title, link, date, thumb});
+  });
+
+  return items.slice(0, 20);
+}
+
+async function fetchSource(src) {
+  const u = encodeURIComponent(src.rss);
+
+  const attempts = [
+    // rss2json API（XML→JSON変換込み）
+    viaRss2Json(src.rss),
+    // CORSプロキシ × 5 → XML parse
+    ...[
+      tryProxy(`https://api.allorigins.win/get?url=${u}`, true),
+      tryProxy(`https://api.allorigins.win/raw?url=${u}`, false),
+      tryProxy(`https://corsproxy.io/?${u}`,              false),
+      tryProxy(`https://api.codetabs.com/v1/proxy?quest=${u}`, false),
+      tryProxy(`https://thingproxy.freeboard.io/fetch/${src.rss}`, false),
+    ].map(async p => parseXML(await p)),
+  ];
+
+  try {
+    const items = await Promise.any(attempts);
+    if (!items.length) throw new Error('empty');
+    return items.map(item => ({source: src.name, color: src.color, bg: src.bg, icon: src.icon, ...item}));
+  } catch (_) {
+    return {error: src.name};
+  }
+}
+
+async function loadAll() {
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  setStatus('loading', '取得中...', '');
+  showSkeletons(10);
+
+  const results = await Promise.all(SOURCES.map(fetchSource));
+
+  allItems = [];
+  failedSources = [];
+  results.forEach(r => {
+    if (Array.isArray(r)) allItems.push(...r);
+    else if (r?.error) failedSources.push(r.error);
+  });
+
+  allItems.sort((a, b) => (new Date(b.date)||0) - (new Date(a.date)||0));
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+
+  const now = new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+  const ok = SOURCES.length - failedSources.length;
+  setStatus('ok', `${ok}/${SOURCES.length}ソース • ${now}更新`, '');
+
+  renderWarn();
+  render();
+}
+
+function render() {
+  const items = activeFilter === 'all'
+    ? allItems
+    : allItems.filter(i => i.source === activeFilter);
+
+  const list = document.getElementById('news-list');
+
+  if (items.length === 0) {
+    list.innerHTML = `<div class="empty">
+      <div class="icon">📡</div>
+      <h3>ニュースを取得できませんでした</h3>
+      <p>インターネット接続を確認して<br>再度お試しください</p>
+      <button class="retry-btn" onclick="loadAll()">⟳ 再読み込み</button>
+    </div>`;
+    setStatus('error', '取得失敗', '');
+    return;
+  }
+
+  document.getElementById('status-count').textContent = `${items.length}件`;
+
+  list.innerHTML = items.map(item => {
+    const thumbHtml = item.thumb
+      ? `<img class="news-thumb" src="${esc(item.thumb)}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        + `<div class="news-thumb-placeholder" style="display:none">${item.icon}</div>`
+      : `<div class="news-thumb-placeholder">${item.icon}</div>`;
+
+    return `<a class="news-card" href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">
+      <div style="flex-shrink:0">${thumbHtml}</div>
+      <div class="news-body">
+        <div class="source-badge" style="background:${item.bg};color:${item.color}">${item.source}</div>
+        <div class="news-title">${esc(item.title)}</div>
+        <div class="news-date">🕐 ${timeAgo(item.date)}</div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function renderWarn() {
+  const el = document.getElementById('warn-area');
+  if (failedSources.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="warn-bar">⚠️ 取得できなかったソース: ${failedSources.join(', ')}</div>`;
+}
+
+function showSkeletons(n) {
+  document.getElementById('news-list').innerHTML = Array(n).fill('').map(() => `
+    <div class="skeleton">
+      <div class="skel-img"></div>
+      <div class="skel-body">
+        <div class="skel-line" style="height:12px;width:38%"></div>
+        <div class="skel-line" style="height:13px;width:95%"></div>
+        <div class="skel-line" style="height:13px;width:72%"></div>
+        <div class="skel-line" style="height:11px;width:22%"></div>
+      </div>
+    </div>`).join('');
+}
+
+function setStatus(state, text, count) {
+  const dot = document.getElementById('status-dot');
+  dot.className = 'dot ' + state;
+  document.getElementById('status-text').textContent = text;
+  document.getElementById('status-count').textContent = count;
+}
+
+function setFilter(name, btn) {
+  activeFilter = name;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return '';
+  const diff = (Date.now() - d) / 1000;
+  if (diff < 60) return 'たった今';
+  if (diff < 3600) return `${Math.floor(diff/60)}分前`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}時間前`;
+  if (diff < 604800) return `${Math.floor(diff/86400)}日前`;
+  return d.toLocaleDateString('ja-JP', {month:'long', day:'numeric'});
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function setView(v) {
+  document.getElementById('news-list').classList.toggle('grid', v === 'grid');
+  document.getElementById('btn-list').classList.toggle('active', v === 'list');
+  document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
+  localStorage.setItem('wn-view', v);
+}
+
+window.addEventListener('scroll', () => {
+  document.getElementById('back-top').classList.toggle('show', scrollY > 400);
+});
+
+// PC幅ならグリッド、スマホならリストを初期値に
+const savedView = localStorage.getItem('wn-view') || (window.innerWidth >= 768 ? 'grid' : 'list');
+setView(savedView);
+loadAll();
+</script>
+</body>
+</html>
