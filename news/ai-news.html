@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AI News</title>
+<meta name="theme-color" content="#06060f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2fa;
+  --card:#ffffff;
+  --text:#0f1120;
+  --muted:#6870a0;
+  --border:#e0e4f4;
+  --header:#06060f;
+  --shadow:0 1px 3px rgba(10,20,80,.07),0 4px 16px rgba(10,20,80,.06);
+  --shadow-hover:0 4px 22px rgba(10,20,80,.14);
+  --accent:#2563eb;
+  --purple:#7c3aed;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","游ゴシック",Meiryo,sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;
+}
+
+/* ===== HEADER ===== */
+header{
+  position:sticky;top:0;z-index:100;
+  background:var(--header);
+  border-bottom:3px solid #1d40c0;
+  box-shadow:0 2px 20px rgba(0,0,60,.4);
+}
+.header-top{
+  display:flex;align-items:center;gap:12px;height:54px;padding:0 16px;
+}
+.brand{
+  font-size:18px;font-weight:900;letter-spacing:2px;flex:1;
+  background:linear-gradient(90deg,#60d0ff,#818cf8,#c084fc);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 8px rgba(129,140,248,.5));
+}
+.refresh-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:8px;border:1px solid rgba(129,140,248,.3);
+  background:rgba(255,255,255,.08);color:#c0caff;
+  font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;
+  transition:all .2s;white-space:nowrap;
+}
+.refresh-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(129,140,248,.6);}
+.refresh-btn:disabled{opacity:.4;cursor:not-allowed;}
+.spin{display:inline-block;}
+.refresh-btn.loading .spin{animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== FILTER TABS ===== */
+.filter-row{
+  display:flex;gap:6px;padding:10px 14px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;background:rgba(0,0,0,.25);
+}
+.filter-row::-webkit-scrollbar{display:none;}
+.filter-btn{
+  padding:5px 14px;border:1px solid rgba(255,255,255,.12);border-radius:20px;
+  background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);
+  font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;
+  white-space:nowrap;transition:all .2s;flex-shrink:0;letter-spacing:.3px;
+}
+.filter-btn:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);}
+.filter-btn.active{
+  background:rgba(37,99,235,.7);border-color:rgba(99,140,255,.5);
+  color:#fff;box-shadow:0 0 10px rgba(37,99,235,.5);
+}
+
+/* ===== MAIN ===== */
+main{padding:16px 12px 80px;max-width:720px;margin:0 auto;}
+
+/* ===== STATUS BAR ===== */
+.status{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:11px;color:var(--muted);margin-bottom:14px;
+  padding:9px 13px;border-radius:10px;
+  background:var(--card);border:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px;flex-shrink:0;}
+.dot.ok{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.5);}
+.dot.loading{background:#f59e0b;animation:blink 1s ease-in-out infinite;}
+.dot.error{background:#ef4444;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.status-left{display:flex;align-items:center;}
+
+/* ===== CATEGORY LABEL ===== */
+.cat-label{
+  font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;
+  padding:0 4px;margin:18px 0 8px;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;
+}
+.cat-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ===== NEWS LIST ===== */
+.news-list{display:flex;flex-direction:column;gap:10px;}
+
+/* ===== NEWS CARD ===== */
+a.news-card{
+  display:flex;gap:12px;padding:14px;border-radius:14px;
+  background:var(--card);border:1px solid var(--border);
+  text-decoration:none;color:var(--text);
+  box-shadow:var(--shadow);transition:all .2s;
+}
+a.news-card:hover{
+  box-shadow:var(--shadow-hover);transform:translateY(-2px);
+  border-color:#c0caee;
+}
+.news-thumb{
+  width:88px;height:66px;border-radius:9px;object-fit:cover;flex-shrink:0;
+  background:var(--bg);
+}
+.news-thumb-placeholder{
+  width:88px;height:66px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(135deg,#e8ecff,#d8e0ff);
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  border:1px solid var(--border);
+}
+.news-body{flex:1;min-width:0;}
+.source-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;
+  margin-bottom:6px;letter-spacing:.3px;
+}
+.news-title{
+  font-size:13px;font-weight:700;line-height:1.45;color:var(--text);
+  margin-bottom:6px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.news-date{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+
+/* ===== SKELETON ===== */
+.skeleton{
+  display:flex;gap:12px;padding:14px;border-radius:14px;
+  background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);
+}
+.skel-img{
+  width:88px;height:66px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(90deg,#e8ecff 25%,#d8e0ff 50%,#e8ecff 75%);
+  background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;
+}
+.skel-body{flex:1;display:flex;flex-direction:column;gap:8px;padding-top:2px;}
+.skel-line{
+  border-radius:4px;
+  background:linear-gradient(90deg,#e8ecff 25%,#d8e0ff 50%,#e8ecff 75%);
+  background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ===== EMPTY / ERROR ===== */
+.empty{
+  text-align:center;padding:56px 24px;background:var(--card);
+  border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow);
+}
+.empty .icon{font-size:48px;margin-bottom:14px;}
+.empty h3{font-size:16px;font-weight:700;margin-bottom:8px;}
+.empty p{font-size:13px;color:var(--muted);line-height:1.7;}
+.retry-btn{
+  margin-top:18px;padding:9px 22px;border-radius:8px;border:none;
+  background:var(--accent);color:#fff;font-size:13px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.retry-btn:hover{background:#1d4ed8;transform:translateY(-1px);}
+
+.warn-bar{
+  margin-bottom:12px;padding:9px 13px;border-radius:9px;
+  background:#fffbeb;border:1px solid #f0d070;
+  font-size:11px;color:#7a6020;display:flex;align-items:center;gap:6px;
+}
+
+/* ===== BACK TO TOP ===== */
+#back-top{
+  position:fixed;bottom:20px;right:14px;
+  width:42px;height:42px;border-radius:50%;
+  background:var(--accent);border:none;
+  color:#fff;font-size:18px;cursor:pointer;
+  opacity:0;transition:opacity .25s;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 14px rgba(37,99,235,.5);font-weight:700;
+}
+#back-top.show{opacity:1;pointer-events:auto;}
+
+/* ===== VIEW TOGGLE ===== */
+.view-toggle{display:flex;gap:4px;flex-shrink:0;}
+.view-btn{
+  width:32px;height:32px;border-radius:7px;border:1px solid rgba(129,140,248,.25);
+  background:rgba(255,255,255,.07);color:rgba(180,190,255,.6);
+  font-size:16px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.view-btn:hover{background:rgba(255,255,255,.14);}
+.view-btn.active{background:rgba(37,99,235,.55);border-color:rgba(99,140,255,.5);color:#fff;}
+
+/* ===== GRID VIEW ===== */
+.news-list.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+@media(min-width:900px){
+  .news-list.grid{grid-template-columns:repeat(3,1fr);}
+}
+.news-list.grid a.news-card{
+  flex-direction:column;padding:0;overflow:hidden;
+}
+.news-list.grid .news-thumb{
+  width:100%;height:140px;border-radius:9px 9px 0 0;
+}
+.news-list.grid .news-thumb-placeholder{
+  width:100%;height:140px;border-radius:9px 9px 0 0;font-size:36px;
+}
+.news-list.grid .news-body{padding:12px;}
+.news-list.grid .news-title{-webkit-line-clamp:3;}
+
+/* ===== MOBILE ===== */
+@media(max-width:500px){
+  .news-thumb,.news-thumb-placeholder,.skel-img{width:70px;height:54px;}
+  .news-list.grid{grid-template-columns:1fr;}
+  .news-list.grid a.news-card{flex-direction:row;padding:14px;overflow:visible;}
+  .news-list.grid .news-thumb{width:70px;height:54px;border-radius:9px;}
+  .news-list.grid .news-thumb-placeholder{width:70px;height:54px;border-radius:9px;font-size:26px;}
+  .news-list.grid .news-body{padding:0;}
+  .news-title{font-size:12px;}
+  .brand{font-size:15px;}
+  main{padding:12px 8px 80px;}
+  .header-top{padding:0 12px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="brand">🤖 AI NEWS HUB</div>
+    <div class="view-toggle">
+      <button id="btn-list" class="view-btn" onclick="setView('list')" title="リスト">☰</button>
+      <button id="btn-grid" class="view-btn" onclick="setView('grid')" title="グリッド">⊞</button>
+    </div>
+    <button class="refresh-btn" id="refresh-btn" onclick="loadAll()">
+      <span class="spin">⟳</span> 更新
+    </button>
+  </div>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all',this)">🌐 すべて</button>
+    <button class="filter-btn" onclick="setFilter('news',this)">📰 ニュース</button>
+    <button class="filter-btn" onclick="setFilter('community',this)">💬 コミュニティ</button>
+    <button class="filter-btn" onclick="setFilter('newsletter',this)">📬 ニュースレター</button>
+    <button class="filter-btn" onclick="setFilter('TechCrunch',this)">TechCrunch</button>
+    <button class="filter-btn" onclick="setFilter('VentureBeat',this)">VentureBeat</button>
+    <button class="filter-btn" onclick="setFilter('The Verge',this)">The Verge</button>
+    <button class="filter-btn" onclick="setFilter('MIT Tech Review',this)">MIT Tech Review</button>
+    <button class="filter-btn" onclick="setFilter('Ars Technica',this)">Ars Technica</button>
+    <button class="filter-btn" onclick="setFilter('AI News',this)">AI News</button>
+    <button class="filter-btn" onclick="setFilter('r/MachineLearning',this)">r/ML</button>
+    <button class="filter-btn" onclick="setFilter('r/artificial',this)">r/artificial</button>
+    <button class="filter-btn" onclick="setFilter('r/LocalLLaMA',this)">r/LocalLLaMA</button>
+    <button class="filter-btn" onclick="setFilter('Import AI',this)">Import AI</button>
+  </div>
+</header>
+
+<main>
+  <div class="status" id="status-bar">
+    <span class="status-left"><span class="dot loading" id="status-dot"></span><span id="status-text">読み込み中...</span></span>
+    <span id="status-count"></span>
+  </div>
+  <div id="warn-area"></div>
+  <div class="news-list" id="news-list"></div>
+</main>
+
+<button id="back-top" onclick="scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+const SOURCES = [
+  // ── ニュースメディア ──────────────────────────
+  {
+    name: 'TechCrunch', cat: 'news',
+    color: '#0a7a35', bg: '#edf7f1', icon: '📰',
+    rss: 'https://techcrunch.com/category/artificial-intelligence/feed/',
+  },
+  {
+    name: 'VentureBeat', cat: 'news',
+    color: '#0a5cd8', bg: '#eaf2ff', icon: '💡',
+    rss: 'https://venturebeat.com/category/ai/feed/',
+  },
+  {
+    name: 'The Verge', cat: 'news',
+    color: '#cc1500', bg: '#fff0ee', icon: '🔺',
+    rss: 'https://www.theverge.com/ai-artificial-intelligence/rss/index.xml',
+  },
+  {
+    name: 'MIT Tech Review', cat: 'news',
+    color: '#8b0000', bg: '#fff5f5', icon: '🎓',
+    rss: 'https://www.technologyreview.com/feed/',
+  },
+  {
+    name: 'Ars Technica', cat: 'news',
+    color: '#d04400', bg: '#fff3ec', icon: '🔬',
+    rss: 'https://feeds.arstechnica.com/arstechnica/index',
+  },
+  {
+    name: 'AI News', cat: 'news',
+    color: '#6a20b0', bg: '#f5eeff', icon: '🤖',
+    rss: 'https://artificialintelligence-news.com/feed/',
+  },
+  // ── Redditコミュニティ ───────────────────────
+  {
+    name: 'r/MachineLearning', cat: 'community',
+    color: '#d44000', bg: '#fff2ec', icon: '🧠',
+    rss: 'https://www.reddit.com/r/MachineLearning/.rss',
+  },
+  {
+    name: 'r/artificial', cat: 'community',
+    color: '#c03800', bg: '#fff2ec', icon: '💬',
+    rss: 'https://www.reddit.com/r/artificial/.rss',
+  },
+  {
+    name: 'r/LocalLLaMA', cat: 'community',
+    color: '#b03200', bg: '#fff2ec', icon: '🦙',
+    rss: 'https://www.reddit.com/r/LocalLLaMA/.rss',
+  },
+  // ── ニュースレター ───────────────────────────
+  {
+    name: 'Import AI', cat: 'newsletter',
+    color: '#0e6ea8', bg: '#e8f5ff', icon: '📬',
+    rss: 'https://importai.substack.com/feed',
+  },
+];
+
+let allItems    = [];
+let activeFilter = 'all';
+let failedSources = [];
+
+// ── フェッチ ──────────────────────────────────
+
+function timedFetch(url, ms = 12000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, {signal: ctrl.signal}).finally(() => clearTimeout(t));
+}
+
+async function viaRss2Json(rssUrl) {
+  const u = encodeURIComponent(rssUrl);
+  const res = await timedFetch(`https://api.rss2json.com/v1/api.json?rss_url=${u}&count=20`);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  if (data.status !== 'ok' || !data.items?.length) throw new Error('empty');
+  return data.items.map(item => ({
+    title: item.title || '',
+    link:  item.link  || '',
+    date:  item.pubDate || '',
+    thumb: item.thumbnail || item.enclosure?.link || '',
+  }));
+}
+
+async function tryProxy(proxyUrl, isJsonWrapper) {
+  const res = await timedFetch(proxyUrl);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  const xmlStr = isJsonWrapper ? (JSON.parse(text).contents || '') : text;
+  if (!xmlStr || xmlStr.length < 100) throw new Error('empty');
+  return xmlStr;
+}
+
+function parseXML(xmlStr) {
+  const xml = new DOMParser().parseFromString(xmlStr, 'text/xml');
+  if (xml.querySelector('parsererror')) throw new Error('parse error');
+  const items = [];
+
+  xml.querySelectorAll('channel > item').forEach(el => {
+    const title = el.querySelector('title')?.textContent?.trim() || '';
+    const link  = el.querySelector('link')?.textContent?.trim() || '';
+    const date  = el.querySelector('pubDate')?.textContent?.trim() || '';
+    let thumb = '';
+    const mt = el.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail')[0];
+    if (mt) thumb = mt.getAttribute('url') || '';
+    if (!thumb) {
+      const enc = el.querySelector('enclosure');
+      if (enc && (enc.getAttribute('type') || '').startsWith('image')) thumb = enc.getAttribute('url') || '';
+    }
+    if (title && link) items.push({title, link, date, thumb});
+  });
+
+  xml.querySelectorAll('entry').forEach(el => {
+    const title = el.querySelector('title')?.textContent?.trim() || '';
+    const linkEl = el.querySelector('link[rel="alternate"]') || el.querySelector('link');
+    const link  = linkEl?.getAttribute('href') || linkEl?.textContent?.trim() || '';
+    const date  = el.querySelector('published,updated')?.textContent?.trim() || '';
+    let thumb = '';
+    const mt = el.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail')[0];
+    if (mt) thumb = mt.getAttribute('url') || '';
+    if (title && link) items.push({title, link, date, thumb});
+  });
+
+  return items.slice(0, 20);
+}
+
+async function fetchSource(src) {
+  const u = encodeURIComponent(src.rss);
+  const attempts = [
+    viaRss2Json(src.rss),
+    ...[
+      tryProxy(`https://api.allorigins.win/get?url=${u}`, true),
+      tryProxy(`https://api.allorigins.win/raw?url=${u}`, false),
+      tryProxy(`https://corsproxy.io/?${u}`,              false),
+      tryProxy(`https://api.codetabs.com/v1/proxy?quest=${u}`, false),
+      tryProxy(`https://thingproxy.freeboard.io/fetch/${src.rss}`, false),
+    ].map(async p => parseXML(await p)),
+  ];
+
+  try {
+    const items = await Promise.any(attempts);
+    if (!items.length) throw new Error('empty');
+    return items.map(i => ({source: src.name, cat: src.cat, color: src.color, bg: src.bg, icon: src.icon, ...i}));
+  } catch (_) {
+    return {error: src.name};
+  }
+}
+
+// ── ロード ───────────────────────────────────
+
+async function loadAll() {
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  setStatus('loading', '取得中...', '');
+  showSkeletons(10);
+
+  const results = await Promise.all(SOURCES.map(fetchSource));
+
+  allItems = [];
+  failedSources = [];
+  results.forEach(r => {
+    if (Array.isArray(r)) allItems.push(...r);
+    else if (r?.error) failedSources.push(r.error);
+  });
+
+  allItems.sort((a, b) => (new Date(b.date)||0) - (new Date(a.date)||0));
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+
+  const now = new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+  const ok  = SOURCES.length - failedSources.length;
+  setStatus('ok', `${ok}/${SOURCES.length}ソース • ${now}更新`, '');
+
+  renderWarn();
+  render();
+}
+
+// ── レンダリング ─────────────────────────────
+
+const CAT_FILTERS = {news: true, community: true, newsletter: true};
+
+function render() {
+  const items = activeFilter === 'all'
+    ? allItems
+    : CAT_FILTERS[activeFilter]
+      ? allItems.filter(i => i.cat === activeFilter)
+      : allItems.filter(i => i.source === activeFilter);
+
+  const list = document.getElementById('news-list');
+  document.getElementById('status-count').textContent = items.length ? `${items.length}件` : '';
+
+  if (!items.length) {
+    list.innerHTML = `<div class="empty">
+      <div class="icon">📡</div>
+      <h3>ニュースを取得できませんでした</h3>
+      <p>接続を確認して再度お試しください</p>
+      <button class="retry-btn" onclick="loadAll()">⟳ 再読み込み</button>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(item => {
+    const thumbHtml = item.thumb
+      ? `<img class="news-thumb" src="${esc(item.thumb)}" alt="" loading="lazy"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+         <div class="news-thumb-placeholder" style="display:none">${item.icon}</div>`
+      : `<div class="news-thumb-placeholder">${item.icon}</div>`;
+
+    return `<a class="news-card" href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">
+      <div style="flex-shrink:0">${thumbHtml}</div>
+      <div class="news-body">
+        <div class="source-badge" style="background:${item.bg};color:${item.color}">${item.source}</div>
+        <div class="news-title">${esc(item.title)}</div>
+        <div class="news-date">🕐 ${timeAgo(item.date)}</div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function renderWarn() {
+  const el = document.getElementById('warn-area');
+  if (!failedSources.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="warn-bar">⚠️ 取得できなかったソース: ${failedSources.join(', ')}</div>`;
+}
+
+function showSkeletons(n) {
+  document.getElementById('news-list').innerHTML = Array(n).fill('').map(() => `
+    <div class="skeleton">
+      <div class="skel-img"></div>
+      <div class="skel-body">
+        <div class="skel-line" style="height:12px;width:38%"></div>
+        <div class="skel-line" style="height:13px;width:95%"></div>
+        <div class="skel-line" style="height:13px;width:72%"></div>
+        <div class="skel-line" style="height:11px;width:22%"></div>
+      </div>
+    </div>`).join('');
+}
+
+function setStatus(state, text, count) {
+  document.getElementById('status-dot').className = 'dot ' + state;
+  document.getElementById('status-text').textContent = text;
+  document.getElementById('status-count').textContent = count;
+}
+
+function setFilter(name, btn) {
+  activeFilter = name;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return '';
+  const diff = (Date.now() - d) / 1000;
+  if (diff < 60) return 'たった今';
+  if (diff < 3600) return `${Math.floor(diff/60)}分前`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}時間前`;
+  if (diff < 604800) return `${Math.floor(diff/86400)}日前`;
+  return d.toLocaleDateString('ja-JP', {month:'long', day:'numeric'});
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function setView(v) {
+  document.getElementById('news-list').classList.toggle('grid', v === 'grid');
+  document.getElementById('btn-list').classList.toggle('active', v === 'list');
+  document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
+  localStorage.setItem('ai-view', v);
+}
+
+window.addEventListener('scroll', () => {
+  document.getElementById('back-top').classList.toggle('show', scrollY > 400);
+});
+
+// PC幅ならグリッド、スマホならリストを初期値に
+const savedView = localStorage.getItem('ai-view') || (window.innerWidth >= 768 ? 'grid' : 'list');
+setView(savedView);
+loadAll();
+</script>
+</body>
+</html>

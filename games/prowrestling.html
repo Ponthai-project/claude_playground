@@ -2,8 +2,14 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>IRON DOME WRESTLING</title>
+<link rel="manifest" href="pwa/manifest.json">
+<meta name="theme-color" content="#080303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IRON DOME">
+<link rel="apple-touch-icon" href="pwa/icon.svg">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -242,6 +248,61 @@ nav{
   box-shadow:0 4px 28px rgba(255,58,0,.6),0 0 0 1px rgba(255,150,0,.25);
 }
 #turn-btn:hover{transform:translateY(-2px);box-shadow:0 6px 36px rgba(255,58,0,.85);}
+
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+  /* nav */
+  nav{
+    padding:0 10px;gap:0;height:auto;min-height:48px;
+    flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  }
+  nav::-webkit-scrollbar{display:none;}
+  .nav-brand{font-size:13px;margin-right:8px;flex-shrink:0;}
+  .nav-btn{padding:4px 9px;font-size:11px;flex-shrink:0;}
+  .nav-right{gap:6px;flex-shrink:0;}
+  .chip{padding:3px 8px;font-size:11px;}
+
+  /* screens */
+  .screen{padding:12px;}
+
+  /* title */
+  #s-title h1{font-size:34px;letter-spacing:3px;}
+  #s-title .sub{font-size:13px;margin-bottom:32px;}
+  .btn-lg{padding:12px 28px;font-size:14px;}
+
+  /* grids → 1〜2カラム */
+  .g4{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .g3{grid-template-columns:1fr;gap:10px;}
+  .g2{grid-template-columns:1fr;gap:10px;}
+
+  /* KPI値を小さく */
+  .kpi .kv{font-size:20px;}
+
+  /* wrestler card */
+  .wc{padding:10px;}
+  .w-av{width:38px;height:38px;font-size:18px;}
+
+  /* match slot */
+  .mslot{flex-wrap:wrap;gap:6px;}
+  .mslot .mv{flex-direction:column;gap:4px;}
+
+  /* result */
+  .rmatch{padding:10px 11px;}
+
+  /* turn btn */
+  #turn-btn-wrap{bottom:16px;right:12px;}
+  #turn-btn{padding:11px 18px;font-size:13px;}
+
+  /* modal */
+  .modal{padding:22px 18px;}
+
+  /* toast */
+  #toast{font-size:12px;padding:8px 14px;bottom:70px;}
+
+  /* safe area (iPhone notch/home bar) */
+  body{padding-bottom:env(safe-area-inset-bottom);}
+  nav{padding-top:env(safe-area-inset-top);}
+}
 </style>
 </head>
 <body>
@@ -1092,6 +1153,15 @@ function nav(id, btn) {
 
 function closeModal(id) {
   document.getElementById(id).classList.remove('show');
+}
+
+// =====================================================
+//  PWA — Service Worker 登録
+// =====================================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./pwa/sw.js').catch(() => {});
+  });
 }
 </script>
 </body>
