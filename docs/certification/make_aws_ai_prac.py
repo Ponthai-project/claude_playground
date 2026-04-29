@@ -491,7 +491,87 @@ add_textbox(slide, "Foundationalレベルは基礎・概念理解が中心。コ
 add_textbox(slide, "1〜2ヶ月の学習で十分合格可能。まずAWS Skill Builderから始めよう！", Inches(0.5), Inches(6.5), Inches(12.3), Inches(0.6), size=16, color=AWS_NAVY, align=PP_ALIGN.CENTER)
 
 
+# ===== スライド13: 参考文献・公式リソース =====
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+add_bg(slide, LIGHT_GRAY)
+
+bar13 = slide.shapes.add_shape(1, 0, 0, prs.slide_width, Inches(1.0))
+bar13.fill.solid()
+bar13.fill.fore_color.rgb = AWS_NAVY
+bar13.line.fill.background()
+
+acc13 = slide.shapes.add_shape(1, 0, Inches(1.0), prs.slide_width, Inches(0.05))
+acc13.fill.solid()
+acc13.fill.fore_color.rgb = AWS_ORANGE
+acc13.line.fill.background()
+
+add_textbox(slide, "参考文献・公式リソース", Inches(0.4), Inches(0.13), Inches(12), Inches(0.75), size=26, bold=True, color=WHITE)
+
+LINK_BLUE = RGBColor(0x00, 0x56, 0xB3)
+
+def ref_section(slide, title, x, y, w):
+    tb = slide.shapes.add_textbox(x, y, w, Inches(0.35))
+    tf = tb.text_frame
+    p = tf.add_paragraph()
+    p.text = title
+    p.font.size = Pt(13)
+    p.font.bold = True
+    p.font.color.rgb = AWS_ORANGE
+    return y + Inches(0.37)
+
+def ref_item(slide, label, url, x, y, w):
+    item_h = Inches(0.72)
+    box = slide.shapes.add_shape(1, x, y, w, item_h)
+    box.fill.solid()
+    box.fill.fore_color.rgb = WHITE
+    box.line.color.rgb = RGBColor(0xCC, 0xCC, 0xCC)
+
+    ltb = slide.shapes.add_textbox(x + Inches(0.12), y + Inches(0.05), w - Inches(0.24), Inches(0.3))
+    ltf = ltb.text_frame
+    ltf.word_wrap = True
+    lp = ltf.add_paragraph()
+    lp.text = label
+    lp.font.size = Pt(12)
+    lp.font.bold = True
+    lp.font.color.rgb = AWS_NAVY
+
+    utb = slide.shapes.add_textbox(x + Inches(0.12), y + Inches(0.38), w - Inches(0.24), Inches(0.28))
+    utf = utb.text_frame
+    utf.word_wrap = True
+    up = utf.add_paragraph()
+    up.text = url
+    up.font.size = Pt(8.5)
+    up.font.color.rgb = LINK_BLUE
+    up.font.underline = True
+
+    return y + item_h + Inches(0.05)
+
+col_w = Inches(6.1)
+x_l = Inches(0.35)
+x_r = Inches(6.88)
+y_l = Inches(1.15)
+y_r = Inches(1.15)
+
+y_l = ref_section(slide, "【試験公式】", x_l, y_l, col_w)
+y_l = ref_item(slide, "試験公式ページ", "https://aws.amazon.com/certification/certified-ai-practitioner/", x_l, y_l, col_w)
+y_l = ref_item(slide, "試験ガイド（日本語PDF）", "https://d1.awsstatic.com/ja_JP/training-and-certification/docs-ai-practitioner/AWS-Certified-AI-Practitioner_Exam-Guide.pdf", x_l, y_l, col_w)
+y_l = ref_item(slide, "試験ガイド（AWS Docs）", "https://docs.aws.amazon.com/aws-certification/latest/examguides/ai-practitioner-01.html", x_l, y_l, col_w)
+y_l = ref_item(slide, "試験予約（Pearson VUE）", "https://aws.amazon.com/certification/certification-prep/testing/", x_l, y_l, col_w)
+y_l = ref_item(slide, "AWS認定 FAQ", "https://aws.amazon.com/certification/faqs/", x_l, y_l, col_w)
+
+y_r = ref_section(slide, "【学習リソース（公式）】", x_r, y_r, col_w)
+y_r = ref_item(slide, "AWS Skill Builder - 試験準備コース（無料）", "https://skillbuilder.aws/learn/X83W99WJXA/exam-prep-standard-course-aws-certified-ai-practitioner-aif-c01/KUW4WB2K4B", x_r, y_r, col_w)
+y_r = ref_item(slide, "AWS Skill Builder - 公式模擬問題集（無料）", "https://explore.skillbuilder.aws/learn/course/19790/exam-prep-official-practice-question-set-aws-certified-ai-practitioner-aif-c01-english", x_r, y_r, col_w)
+y_r = ref_item(slide, "AWS Skill Builder - 試験準備プラン", "https://skillbuilder.aws/category/exam-prep/ai-practitioner", x_r, y_r, col_w)
+
+y_r += Inches(0.12)
+y_r = ref_section(slide, "【AWSサービス公式ドキュメント】", x_r, y_r, col_w)
+y_r = ref_item(slide, "Amazon Bedrock 公式ドキュメント", "https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html", x_r, y_r, col_w)
+y_r = ref_item(slide, "Amazon SageMaker 公式ドキュメント", "https://docs.aws.amazon.com/sagemaker/", x_r, y_r, col_w)
+
+
 # 保存
-output_path = r"C:\Users\topge\OneDrive\ドキュメント\GitHub\claude_playground\docs\AWS_AI_Practitioner_Overview.pptx"
+import os
+output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "AWS_AI_Practitioner_Overview.pptx")
 prs.save(output_path)
 print(f"保存完了: {output_path}")
