@@ -493,11 +493,11 @@ add_textbox(slide, "1〜2ヶ月の学習で十分合格可能。まずAWS Skill 
 
 # ===== スライド13: 参考文献・公式リソース =====
 slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide, LIGHT_GRAY)
+add_bg(slide, AWS_NAVY)
 
 bar13 = slide.shapes.add_shape(1, 0, 0, prs.slide_width, Inches(1.0))
 bar13.fill.solid()
-bar13.fill.fore_color.rgb = AWS_NAVY
+bar13.fill.fore_color.rgb = RGBColor(0x10, 0x1B, 0x27)
 bar13.line.fill.background()
 
 acc13 = slide.shapes.add_shape(1, 0, Inches(1.0), prs.slide_width, Inches(0.05))
@@ -505,69 +505,74 @@ acc13.fill.solid()
 acc13.fill.fore_color.rgb = AWS_ORANGE
 acc13.line.fill.background()
 
-add_textbox(slide, "参考文献・公式リソース", Inches(0.4), Inches(0.13), Inches(12), Inches(0.75), size=26, bold=True, color=WHITE)
+add_textbox(slide, "参考文献・公式リソース", Inches(0.4), Inches(0.15), Inches(12), Inches(0.75), size=26, bold=True, color=WHITE)
 
-LINK_BLUE = RGBColor(0x00, 0x56, 0xB3)
+LINK_BLUE = RGBColor(0x58, 0xC4, 0xFF)
 
-def ref_section(slide, title, x, y, w):
-    tb = slide.shapes.add_textbox(x, y, w, Inches(0.35))
-    tf = tb.text_frame
-    p = tf.add_paragraph()
-    p.text = title
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = AWS_ORANGE
-    return y + Inches(0.37)
+refs_data = [
+    ("試験公式", [
+        ("試験公式ページ", "https://aws.amazon.com/certification/certified-ai-practitioner/"),
+        ("試験ガイド（日本語PDF）", "https://d1.awsstatic.com/ja_JP/training-and-certification/docs-ai-practitioner/AWS-Certified-AI-Practitioner_Exam-Guide.pdf"),
+        ("試験ガイド（AWS Docs）", "https://docs.aws.amazon.com/aws-certification/latest/examguides/ai-practitioner-01.html"),
+        ("試験予約（Pearson VUE）", "https://aws.amazon.com/certification/certification-prep/testing/"),
+        ("AWS認定 FAQ", "https://aws.amazon.com/certification/faqs/"),
+    ]),
+    ("学習リソース（公式）", [
+        ("AWS Skill Builder - 試験準備コース（無料）", "https://skillbuilder.aws/learn/X83W99WJXA/exam-prep-standard-course-aws-certified-ai-practitioner-aif-c01/KUW4WB2K4B"),
+        ("AWS Skill Builder - 公式模擬問題集（無料）", "https://explore.skillbuilder.aws/learn/course/19790/exam-prep-official-practice-question-set-aws-certified-ai-practitioner-aif-c01-english"),
+        ("AWS Skill Builder - 試験準備プラン", "https://skillbuilder.aws/category/exam-prep/ai-practitioner"),
+        ("Amazon Bedrock 公式ドキュメント", "https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html"),
+        ("Amazon SageMaker 公式ドキュメント", "https://docs.aws.amazon.com/sagemaker/"),
+    ]),
+]
 
-def ref_item(slide, label, url, x, y, w):
-    item_h = Inches(0.72)
-    box = slide.shapes.add_shape(1, x, y, w, item_h)
-    box.fill.solid()
-    box.fill.fore_color.rgb = WHITE
-    box.line.color.rgb = RGBColor(0xCC, 0xCC, 0xCC)
+col_positions = [Inches(0.35), Inches(6.85)]
+col_w = Inches(6.0)
 
-    ltb = slide.shapes.add_textbox(x + Inches(0.12), y + Inches(0.05), w - Inches(0.24), Inches(0.3))
-    ltf = ltb.text_frame
-    ltf.word_wrap = True
-    lp = ltf.add_paragraph()
-    lp.text = label
-    lp.font.size = Pt(12)
-    lp.font.bold = True
-    lp.font.color.rgb = AWS_NAVY
+for col_i, (section_title, items) in enumerate(refs_data):
+    x = col_positions[col_i]
 
-    utb = slide.shapes.add_textbox(x + Inches(0.12), y + Inches(0.38), w - Inches(0.24), Inches(0.28))
-    utf = utb.text_frame
-    utf.word_wrap = True
-    up = utf.add_paragraph()
-    up.text = url
-    up.font.size = Pt(8.5)
-    up.font.color.rgb = LINK_BLUE
-    up.font.underline = True
+    # セクションヘッダー背景
+    hdr = slide.shapes.add_shape(1, x, Inches(1.15), col_w, Inches(0.45))
+    hdr.fill.solid()
+    hdr.fill.fore_color.rgb = AWS_ORANGE
+    hdr.line.fill.background()
 
-    return y + item_h + Inches(0.05)
+    # セクションタイトル
+    htb = slide.shapes.add_textbox(x + Inches(0.15), Inches(1.18), col_w - Inches(0.2), Inches(0.4))
+    htf = htb.text_frame
+    hp = htf.add_paragraph()
+    hp.text = section_title
+    hp.font.size = Pt(14)
+    hp.font.bold = True
+    hp.font.color.rgb = AWS_NAVY
 
-col_w = Inches(6.1)
-x_l = Inches(0.35)
-x_r = Inches(6.88)
-y_l = Inches(1.15)
-y_r = Inches(1.15)
+    item_h = Inches(0.9)
+    for i, (label, url) in enumerate(items):
+        iy = Inches(1.65) + i * item_h
 
-y_l = ref_section(slide, "【試験公式】", x_l, y_l, col_w)
-y_l = ref_item(slide, "試験公式ページ", "https://aws.amazon.com/certification/certified-ai-practitioner/", x_l, y_l, col_w)
-y_l = ref_item(slide, "試験ガイド（日本語PDF）", "https://d1.awsstatic.com/ja_JP/training-and-certification/docs-ai-practitioner/AWS-Certified-AI-Practitioner_Exam-Guide.pdf", x_l, y_l, col_w)
-y_l = ref_item(slide, "試験ガイド（AWS Docs）", "https://docs.aws.amazon.com/aws-certification/latest/examguides/ai-practitioner-01.html", x_l, y_l, col_w)
-y_l = ref_item(slide, "試験予約（Pearson VUE）", "https://aws.amazon.com/certification/certification-prep/testing/", x_l, y_l, col_w)
-y_l = ref_item(slide, "AWS認定 FAQ", "https://aws.amazon.com/certification/faqs/", x_l, y_l, col_w)
+        # 交互背景
+        item_bg = slide.shapes.add_shape(1, x, iy, col_w, item_h - Inches(0.04))
+        item_bg.fill.solid()
+        item_bg.fill.fore_color.rgb = RGBColor(0x1A, 0x26, 0x35) if i % 2 == 0 else RGBColor(0x22, 0x32, 0x44)
+        item_bg.line.fill.background()
 
-y_r = ref_section(slide, "【学習リソース（公式）】", x_r, y_r, col_w)
-y_r = ref_item(slide, "AWS Skill Builder - 試験準備コース（無料）", "https://skillbuilder.aws/learn/X83W99WJXA/exam-prep-standard-course-aws-certified-ai-practitioner-aif-c01/KUW4WB2K4B", x_r, y_r, col_w)
-y_r = ref_item(slide, "AWS Skill Builder - 公式模擬問題集（無料）", "https://explore.skillbuilder.aws/learn/course/19790/exam-prep-official-practice-question-set-aws-certified-ai-practitioner-aif-c01-english", x_r, y_r, col_w)
-y_r = ref_item(slide, "AWS Skill Builder - 試験準備プラン", "https://skillbuilder.aws/category/exam-prep/ai-practitioner", x_r, y_r, col_w)
+        # ラベルとURL を1つのテキストフレームにまとめる
+        tb = slide.shapes.add_textbox(x + Inches(0.18), iy + Inches(0.06), col_w - Inches(0.25), item_h - Inches(0.1))
+        tf = tb.text_frame
+        tf.word_wrap = True
 
-y_r += Inches(0.12)
-y_r = ref_section(slide, "【AWSサービス公式ドキュメント】", x_r, y_r, col_w)
-y_r = ref_item(slide, "Amazon Bedrock 公式ドキュメント", "https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html", x_r, y_r, col_w)
-y_r = ref_item(slide, "Amazon SageMaker 公式ドキュメント", "https://docs.aws.amazon.com/sagemaker/", x_r, y_r, col_w)
+        lp = tf.paragraphs[0]
+        lp.text = label
+        lp.font.size = Pt(12)
+        lp.font.bold = True
+        lp.font.color.rgb = WHITE
+
+        up = tf.add_paragraph()
+        up.text = url
+        up.font.size = Pt(9)
+        up.font.color.rgb = LINK_BLUE
+        up.font.underline = True
 
 
 # 保存
