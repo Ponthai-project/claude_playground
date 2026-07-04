@@ -421,6 +421,6 @@ slide_chef(prs)
 slide_reviews(prs)
 slide_summary(prs)
 
-out = r"C:\Users\topge\OneDrive\ドキュメント\GitHub\claude_playground\docs\上野_榮_調査.pptx"
+out = r"C:\Users\topge\OneDrive\ドキュメント\GitHub\claude_playground\docs\sushi\上野_榮_調査.pptx"
 prs.save(out)
 print(f"完了: {out}")

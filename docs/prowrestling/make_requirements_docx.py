@@ -428,6 +428,6 @@ r = p_footer.add_run("仮想プロレス団体経営アプリ 要件定義書 v1
 set_font(r, size=8, color=(0xa0, 0x80, 0x60))
 
 # ========== 保存 ==========
-output_path = r"C:\Users\topge\OneDrive\ドキュメント\GitHub\claude_playground\docs\requirements_prowrestling.docx"
+output_path = r"C:\Users\topge\OneDrive\ドキュメント\GitHub\claude_playground\docs\prowrestling\requirements_prowrestling.docx"
 doc.save(output_path)
 print(f"保存完了: {output_path}")
