@@ -25,3 +25,8 @@ replay_pid*
 
 # Claude Code
 .claude/
+
+# Claudeのagent定義はチーム共有のため追跡する
+!.claude/
+!.claude/agents/
+!.claude/agents/*.md
