@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>うつのみや日帰りBOOK｜大谷石・餃子・街歩き完全保存版</title>
+<style>
+  :root {
+    --bg: #fffdf4;
+    --bg-soft: #ffffff;
+    --text: #241a12;
+    --text-soft: #55483c;
+    --card-border: #f0dfae;
+    --shadow: rgba(60, 40, 10, 0.14);
+    --paper: #fffef9;
+    --marker: #fff34d;
+
+    /* るるぶ的ハイトーン配色 */
+    --y: #ffe100;
+    --y2: #ffc400;
+    --r: #e2001b;
+    --r2: #ff4d3d;
+    --o: #ff7a00;
+    --p: #ff2d78;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Yu Gothic", "Hiragino Sans", "Meiryo", "Segoe UI", sans-serif;
+    line-height: 1.75;
+    overflow-x: hidden;
+    word-break: break-word;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 1.2rem;
+  }
+
+  /* =====================================================
+     表紙
+  ===================================================== */
+  header.mag-cover {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 88% 8%, rgba(255,255,255,0.18), transparent 40%),
+      linear-gradient(160deg, var(--r) 0%, #b8001a 55%, #7a0f14 100%);
+    color: #fff8ee;
+    padding: 2.4rem 0 2.6rem;
+    border-bottom: 10px solid var(--y);
+  }
+
+  header.mag-cover::before {
+    content: "🥟";
+    position: absolute;
+    font-size: 11rem;
+    opacity: 0.16;
+    right: -1.8rem;
+    top: -3rem;
+    transform: rotate(15deg);
+  }
+
+  header.mag-cover::after {
+    content: "⛰️";
+    position: absolute;
+    font-size: 9rem;
+    opacity: 0.14;
+    left: -1.8rem;
+    bottom: -2.4rem;
+    transform: rotate(-10deg);
+  }
+
+  .cover-inner { position: relative; z-index: 2; }
+
+  .cover-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .issue-badge {
+    display: inline-block;
+    background: var(--y);
+    color: #7a0f14;
+    font-weight: 900;
+    padding: 0.4rem 1rem;
+    border-radius: 3px;
+    transform: rotate(-3deg);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.25);
+    font-size: 0.92rem;
+    letter-spacing: 0.05em;
+  }
+
+  .issue-date {
+    font-size: 0.82rem;
+    background: rgba(255,255,255,0.18);
+    padding: 0.32rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.45);
+    font-weight: 700;
+  }
+
+  /* --- スターバースト --- */
+  .starburst {
+    position: absolute;
+    top: 1.4rem;
+    right: 1.4rem;
+    width: 132px;
+    height: 132px;
+    z-index: 3;
+    transform: rotate(8deg);
+  }
+
+  .starburst .shape {
+    position: absolute;
+    inset: 0;
+    background: var(--y);
+    clip-path: polygon(
+      50% 0%, 61% 35%, 95% 20%, 73% 50%, 95% 80%, 61% 65%,
+      50% 100%, 39% 65%, 5% 80%, 27% 50%, 5% 20%, 39% 35%
+    );
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  .starburst .txt {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--r);
+    font-weight: 900;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    transform: rotate(-2deg);
+  }
+
+  .cover-titlebox {
+    background: rgba(0,0,0,0.16);
+    border-left: 6px solid var(--y);
+    padding: 0.3rem 0 0.3rem 1rem;
+    margin-bottom: 1rem;
+    max-width: 34rem;
+  }
+
+  .cover-kicker {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--y);
+    margin-bottom: 0.25rem;
+  }
+
+  h1.cover-title {
+    margin: 0;
+    font-size: clamp(2.3rem, 7vw, 3.6rem);
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    line-height: 1.05;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.28);
+  }
+
+  h1.cover-title em {
+    font-style: italic;
+    color: var(--y);
+    padding-right: 0.1em;
+  }
+
+  h1.cover-title .book {
+    display: inline-block;
+    font-size: 0.62em;
+    font-weight: 900;
+    margin-left: 0.35rem;
+  }
+
+  .cover-ribbon {
+    position: relative;
+    display: inline-block;
+    background: var(--y);
+    color: #7a0f14;
+    font-weight: 900;
+    font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+    padding: 0.55rem 1.6rem;
+    margin: 0 0 1.2rem;
+    transform: rotate(-1.5deg);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.22);
+  }
+
+  .cover-ribbon::before,
+  .cover-ribbon::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    border-style: solid;
+    border-width: 50% 10px;
+  }
+
+  .cover-ribbon::before {
+    left: -10px;
+    border-color: transparent #c79f00 transparent transparent;
+  }
+
+  .cover-ribbon::after {
+    right: -10px;
+    border-color: transparent transparent transparent #c79f00;
+  }
+
+  p.cover-lead {
+    font-size: clamp(0.93rem, 2vw, 1.08rem);
+    max-width: 44rem;
+    color: #fff3ea;
+    margin: 0 0 1.4rem;
+  }
+
+  .cover-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .cover-strip span {
+    background: rgba(0,0,0,0.22);
+    border: 1px solid var(--y);
+    color: #fff8ee;
+    padding: 0.32rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  nav.mag-toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.6rem;
+  }
+
+  nav.mag-toc a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #fff8ee;
+    color: var(--r);
+    text-decoration: none;
+    padding: 0.5rem 1.05rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.22);
+    border: 2px solid var(--y);
+  }
+
+  main { padding: 2.6rem 0 1rem; counter-reset: arealist; }
+
+  /* =====================================================
+     エリア章扉（AREA GUIDE バナー）
+  ===================================================== */
+  section.area-section {
+    margin: 0 0 3.6rem;
+    scroll-margin-top: 1rem;
+    counter-increment: arealist;
+  }
+
+  .area-band {
+    position: relative;
+    background: linear-gradient(105deg, var(--area-main), var(--area-main2, var(--area-main)));
+    color: #fff;
+    padding: 1.6rem 1.6rem 1.4rem;
+    border-radius: 4px;
+    box-shadow: 0 6px 16px var(--shadow);
+    margin-bottom: 0;
+    overflow: hidden;
+  }
+
+  /* 折り返し（ページ隅の三角） */
+  .area-band::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    border-style: solid;
+    border-width: 22px 22px 0 0;
+    border-color: rgba(0,0,0,0.22) transparent transparent transparent;
+  }
+
+  .area-band::after {
+    content: "AREA " counter(arealist, decimal-leading-zero) " / 05";
+    position: absolute;
+    right: 1.2rem;
+    bottom: 0.7rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.55);
+  }
+
+  .area-kicker {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    opacity: 0.85;
+    margin: 0 0 0.3rem 0.1rem;
+  }
+
+  .area-band-top {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
+
+  .area-band .area-icon {
+    font-size: 2.3rem;
+    flex: none;
+    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.3));
+  }
+
+  .area-band h2 {
+    margin: 0;
+    font-size: clamp(1.3rem, 3.6vw, 1.8rem);
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  }
+
+  .area-band .area-tag {
+    background: rgba(0,0,0,0.28);
+    padding: 0.28rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+
+  .area-sticker {
+    position: absolute;
+    top: -0.6rem;
+    right: 1.6rem;
+    background: var(--y);
+    color: #7a0f14;
+    font-weight: 900;
+    font-size: 0.78rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    transform: rotate(7deg);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    border: 2px solid #fff;
+    z-index: 4;
+  }
+
+  .area-lead {
+    color: var(--text-soft);
+    font-size: 0.94rem;
+    margin: 0 0 1.6rem;
+    max-width: 58rem;
+    padding: 0.7rem 1rem;
+    background: var(--paper);
+    border-left: 5px solid var(--area-main);
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+
+  .area-band + .area-lead { margin-top: 0.9rem; }
+
+  .spot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 1.7rem 1.4rem;
+  }
+
+  /* =====================================================
+     スポット記事カード
+  ===================================================== */
+  .spot-card {
+    position: relative;
+    background: var(--bg-soft);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 1.6rem 1.25rem 1.3rem;
+    box-shadow: 0 5px 14px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .spot-num {
+    position: absolute;
+    top: -18px;
+    left: -14px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--area-main);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.55rem;
+    font-weight: 900;
+    border: 3px solid var(--paper);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.28);
+    z-index: 3;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .must-badge {
+    position: absolute;
+    top: -10px;
+    right: -8px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--r);
+    color: #fff8ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 900;
+    line-height: 1.15;
+    transform: rotate(10deg);
+    border: 2px dashed rgba(255,255,255,0.75);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    z-index: 3;
+  }
+
+  .photo-frame {
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--area-main), var(--area-main2, var(--area-sub, var(--area-main))));
+    color: #fff;
+    text-align: center;
+    padding: 2.1rem 1rem 1.6rem;
+    position: relative;
+    overflow: hidden;
+    min-height: 128px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.3), transparent 55%);
+  }
+
+  .photo-frame::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 40%;
+    background: linear-gradient(0deg, rgba(0,0,0,0.28), transparent);
+  }
+
+  .photo-frame .emoji {
+    position: relative;
+    z-index: 1;
+    display: block;
+    font-size: 4rem;
+    filter: drop-shadow(0 4px 5px rgba(0,0,0,0.35));
+  }
+
+  .photo-caption {
+    margin: -0.35rem 0 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-align: right;
+    border-bottom: 1px dashed var(--card-border);
+    padding-bottom: 0.35rem;
+  }
+
+  .photo-caption::before { content: "📷 "; }
+
+  .spot-title {
+    margin: 0.1rem 0 0;
+    font-size: 1.1rem;
+    line-height: 1.4;
+  }
+
+  .catch {
+    display: inline-block;
+    color: var(--area-main);
+    font-weight: 800;
+    font-size: 0.88rem;
+    background: linear-gradient(180deg, transparent 62%, var(--marker) 62%);
+    padding: 0 0.15em;
+  }
+
+  .stars {
+    font-size: 1.02rem;
+    letter-spacing: 0.12em;
+  }
+
+  .stars .filled { color: #f0a500; }
+  .stars .empty { color: var(--card-border); }
+
+  .spot-body { column-gap: 1.2rem; }
+
+  .spot-desc {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-soft);
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0.1rem 0 0.1rem;
+  }
+
+  .tag-chip {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--area-main);
+    background: color-mix(in srgb, var(--area-main) 12%, #fff);
+    border: 1px solid var(--area-main);
+    border-radius: 999px;
+    padding: 0.16rem 0.6rem;
+  }
+
+  .callout {
+    position: relative;
+    background: #fff;
+    border: 2px solid var(--r);
+    border-radius: 10px 10px 10px 2px;
+    margin-top: 0.75rem;
+    padding: 1.3rem 0.8rem 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text);
+    transform: rotate(-1.4deg);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.14);
+    align-self: flex-start;
+  }
+
+  .callout .callout-label {
+    position: absolute;
+    top: -0.7rem;
+    left: 0.7rem;
+    display: inline-block;
+    background: var(--r);
+    color: #fff;
+    font-weight: 900;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transform: rotate(-3deg);
+    white-space: nowrap;
+    z-index: 2;
+  }
+
+  .data-box {
+    border: 1px solid var(--area-main);
+    border-radius: 6px;
+    background: var(--paper);
+    padding: 0.15rem 0.85rem 0.55rem;
+    font-size: 0.79rem;
+  }
+
+  .data-box .data-head {
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    color: #fff;
+    background: var(--area-main);
+    display: inline-block;
+    padding: 0.12rem 0.7rem;
+    border-radius: 0 0 6px 6px;
+    transform: translateY(-1px);
+    margin-bottom: 0.35rem;
+  }
+
+  .data-box .dline {
+    display: flex;
+    gap: 0.6rem;
+    align-items: baseline;
+    padding: 0.3rem 0;
+    border-top: 1px dashed var(--card-border);
+  }
+
+  .data-box .dline:first-of-type { border-top: none; }
+
+  .data-box .dlabel {
+    flex: none;
+    width: 7.6em;
+    font-weight: 800;
+    color: var(--area-main);
+    white-space: nowrap;
+    font-size: 0.76rem;
+  }
+
+  .data-box a {
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    color: var(--area-main);
+  }
+
+  .data-box a:hover { opacity: 0.7; }
+
+  .price-tag {
+    display: inline-block;
+    position: relative;
+    background: var(--y);
+    color: #7a0f14;
+    font-weight: 900;
+    padding: 0.05rem 0.55rem 0.05rem 0.7rem;
+    border-radius: 0 3px 3px 0;
+    font-size: 0.78rem;
+  }
+
+  .memo {
+    position: relative;
+    background: var(--marker);
+    border-radius: 3px 12px 12px 12px;
+    padding: 0.6rem 0.8rem 0.5rem;
+    font-size: 0.82rem;
+    color: #4a3a12;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.14);
+  }
+
+  .memo .memo-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 900;
+    margin-bottom: 0.2rem;
+  }
+
+  .memo .memo-label::before { content: "📝 "; }
+
+  /* ===== エリアカラー定義（高彩度化） ===== */
+  .area-oya { --area-main: #007e8c; --area-main2: #00b3a4; }
+  .area-city { --area-main: #d81e2c; --area-main2: #ff5a3d; }
+  .area-gourmet { --area-main: #e07800; --area-main2: #ffb400; }
+  .area-night { --area-main: #10193a; --area-main2: #3d4d8a; }
+  .area-more { --area-main: #1e7d32; --area-main2: #7cb342; }
+
+  /* =====================================================
+     モデルコース
+  ===================================================== */
+  section.courses {
+    background: var(--bg-soft);
+    border-radius: 14px;
+    padding: 2.3rem 1.7rem 2.1rem;
+    border: 1px solid var(--card-border);
+    scroll-margin-top: 1rem;
+  }
+
+  section.courses > .courses-head {
+    margin: 0 0 0.3rem;
+  }
+
+  section.courses h2 {
+    margin: 0 0 0.3rem;
+    font-size: 1.6rem;
+  }
+
+  section.courses h2 .en {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    color: var(--text-soft);
+  }
+
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+    gap: 1.9rem;
+    margin-top: 1.7rem;
+  }
+
+  .course-block {
+    background: var(--paper);
+    border-radius: 12px;
+    padding: 1.35rem 1.25rem 1.4rem;
+    border: 2px solid var(--course-color);
+    position: relative;
+  }
+
+  .course-plan-badge {
+    position: absolute;
+    top: -14px;
+    left: 1rem;
+    background: var(--course-color);
+    color: #fff;
+    font-weight: 900;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+    transform: rotate(-2deg);
+  }
+
+  .course-block h3 {
+    margin: 0.5rem 0 0.2rem;
+    font-size: 1.08rem;
+    color: var(--course-color);
+  }
+
+  .course-sub {
+    font-size: 0.8rem;
+    color: var(--text-soft);
+    margin: 0 0 1rem;
+  }
+
+  .course-a { --course-color: #d9622b; }
+  .course-b { --course-color: #2a5db0; }
+
+  .tl-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tl-item {
+    position: relative;
+    display: flex;
+    gap: 0.9rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .tl-item:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 27px;
+    top: 58px;
+    bottom: -4px;
+    width: 3px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--course-color) 0,
+      var(--course-color) 6px,
+      transparent 6px,
+      transparent 11px
+    );
+  }
+
+  .tl-time {
+    flex: none;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--course-color);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.85rem;
+    text-align: center;
+    line-height: 1.2;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.28);
+  }
+
+  .tl-content {
+    flex: 1;
+    background: var(--bg-soft);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    box-shadow: 0 2px 5px var(--shadow);
+    min-width: 0;
+  }
+
+  .tl-transit-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--course-color);
+    margin-bottom: 0.25rem;
+    border-bottom: 1px dotted var(--course-color);
+  }
+
+  .tl-content h4 {
+    margin: 0 0 0.3rem;
+    font-size: 0.97rem;
+  }
+
+  .tl-content p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-soft);
+  }
+
+  mark.hl {
+    background: linear-gradient(180deg, transparent 55%, var(--marker) 55%);
+    color: inherit;
+    padding: 0 2px;
+    font-weight: 700;
+  }
+
+  /* =====================================================
+     位置関係マップ（巻末付録）
+  ===================================================== */
+  .area-map { --area-main: #7a4b21; --area-main2: #b9822f; }
+
+  section.map-section {
+    margin: 0 0 3.6rem;
+    scroll-margin-top: 1rem;
+  }
+
+  .map-band::after { content: "AREA MAP"; }
+
+  .map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.2rem;
+    margin: 0 0 1.4rem;
+    padding: 0.7rem 1rem;
+    background: var(--paper);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    break-inside: avoid;
+  }
+
+  .map-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--text-soft);
+  }
+
+  .map-legend .legend-swatch {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: inline-block;
+    flex: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    border: 2px solid #fff;
+  }
+
+  .map-figure {
+    background: var(--bg-soft);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1rem 1rem 0.7rem;
+    box-shadow: 0 4px 10px var(--shadow);
+    margin: 0 0 1.6rem;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .map-figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .map-figure figcaption {
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 900;
+    color: var(--area-main);
+    margin-top: 0.55rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* =====================================================
+     フッター
+  ===================================================== */
+  footer {
+    background: linear-gradient(135deg, #3a2b20, #241a14);
+    color: #f1e6d8;
+    margin-top: 3.2rem;
+    padding: 2.2rem 0 2.4rem;
+    font-size: 0.82rem;
+  }
+
+  footer .wrap p { margin: 0.4rem 0; }
+  footer .foot-title { font-weight: 900; font-size: 1rem; margin-bottom: 0.6rem; color: var(--y); }
+
+  @media (max-width: 480px) {
+    header.mag-cover { padding: 2rem 0 1.6rem; }
+    section.courses { padding: 1.6rem 1rem; }
+    .spot-num { width: 44px; height: 44px; font-size: 1.3rem; top: -14px; left: -10px; }
+    .starburst { width: 100px; height: 100px; top: 0.8rem; right: 0.8rem; }
+  }
+
+  /* =====================================================
+     印刷（PDF出力）用 ―― A4誌面レイアウト
+  ===================================================== */
+  @page {
+    size: A4;
+    margin: 13mm 11mm;
+  }
+
+  @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    html, body { background: #fff; }
+
+    .wrap { max-width: none; padding: 0 2mm; }
+
+    /* 表紙は単独の1ページ */
+    header.mag-cover {
+      break-after: page;
+      min-height: 258mm;
+      display: flex;
+      align-items: center;
+      padding: 0;
+    }
+
+    header.mag-cover .wrap { width: 100%; }
+
+    main { padding: 0; counter-reset: arealist; }
+
+    /* 章（エリア）ごとに新ページから開始 */
+    section.area-section {
+      break-before: page;
+      margin: 0;
+      padding-top: 2mm;
+    }
+
+    /* 誌面は1カラム、写真＋本文＋DATAが分断されないように */
+    .spot-grid {
+      grid-template-columns: 1fr;
+      gap: 4mm;
+      margin-top: 4mm;
+    }
+
+    .spot-card,
+    .photo-frame,
+    .data-box,
+    .tag-row,
+    .callout,
+    .memo,
+    .course-block,
+    .tl-item,
+    .tl-content,
+    .area-band {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .spot-card { padding: 4mm 4mm 3mm; box-shadow: none; gap: 0.4rem; }
+    .spot-num { top: -12px; left: -10px; width: 40px; height: 40px; font-size: 1.2rem; }
+    .must-badge { width: 44px; height: 44px; font-size: 0.6rem; top: -8px; right: -6px; }
+    .photo-frame { padding: 3mm 4mm 2.5mm; min-height: 18mm; }
+    .photo-frame .emoji { font-size: 1.9rem; }
+    .photo-caption { font-size: 0.66rem; margin: -0.2rem 0 0; padding-bottom: 0.2rem; }
+    .spot-title { font-size: 1rem; }
+    .catch { font-size: 0.82rem; }
+    .spot-desc { font-size: 0.79rem; line-height: 1.55; }
+    .tag-chip { font-size: 0.66rem; padding: 0.1rem 0.5rem; }
+    .callout { padding: 1.1rem 0.7rem 0.4rem; font-size: 0.74rem; }
+    .memo { padding: 0.4rem 0.7rem 0.4rem; font-size: 0.76rem; }
+    .data-box { padding: 0.05rem 0.7rem 0.4rem; font-size: 0.73rem; }
+    .data-box .dline { padding: 0.18rem 0; }
+    .data-box .dlabel { width: 7.2em; font-size: 0.7rem; }
+
+    footer { break-inside: avoid; page-break-inside: avoid; }
+
+    /* モデルコースは案ごとに1ページ */
+    section.courses {
+      break-before: page;
+      border: none;
+      padding: 2mm 0 0;
+      border-radius: 0;
+    }
+
+    .course-grid { grid-template-columns: 1fr; gap: 0; margin-top: 5mm; }
+
+    .course-block {
+      break-before: page;
+      border-width: 2px;
+      padding: 6mm 6mm 6mm;
+    }
+
+    section.courses > .courses-head + .course-grid .course-block:first-child {
+      break-before: avoid;
+    }
+
+    .tl-item { padding-bottom: 4mm; }
+    .tl-time { width: 15mm; height: 15mm; font-size: 0.72rem; }
+    .tl-item:not(:last-child)::before { left: 7mm; top: 16mm; }
+
+    /* マップ章も新ページから */
+    section.map-section {
+      break-before: page;
+      margin: 0;
+      padding-top: 2mm;
+    }
+
+    .map-figure { margin-bottom: 5mm; }
+
+    nav.mag-toc, .cover-strip, .issue-date { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="mag-cover">
+  <div class="wrap cover-inner">
+    <div class="starburst">
+      <span class="shape"></span>
+      <span class="txt">完全<br>保存版</span>
+    </div>
+    <div class="cover-top">
+      <span class="issue-badge">保存版 特別編集</span>
+      <span class="issue-date">2026年 日帰り最新版</span>
+    </div>
+    <div class="cover-titlebox">
+      <span class="cover-kicker">大谷石 × 餃子 × レトロ街歩き × カクテル</span>
+      <h1 class="cover-title"><em>うつのみや</em><span class="book">日帰りBOOK</span></h1>
+    </div>
+    <p class="cover-ribbon">餃子もカクテルも大谷も！ぜんぶ盛りの1日</p>
+    <p class="cover-lead">朝イチで地下神殿級の絶景「大谷資料館」へ、昼は元祖ご当地グルメの餃子をハシゴ、午後は城址と神社の街歩き、夕方は展望タワー、夜はカクテルで締める――。栃木・宇都宮を丸ごと1日で味わい尽くす、るるぶ風完全ガイドです。</p>
+    <div class="cover-strip">
+      <span>🚄 東京から新幹線約50分</span>
+      <span>📸 全19スポット掲載</span>
+      <span>🥟 餃子店5軒食べ比べ</span>
+      <span>🗺️ モデルコース2案</span>
+    </div>
+    <nav class="mag-toc" aria-label="目次">
+      <a href="#area-oya">⛰️ 大谷エリア</a>
+      <a href="#area-city">🏯 中心市街地エリア</a>
+      <a href="#area-gourmet">🥟 ご当地グルメ</a>
+      <a href="#area-night">🍸 夜のお楽しみ</a>
+      <a href="#area-more">🚗 足をのばして</a>
+      <a href="#courses">🗓️ モデルコース</a>
+      <a href="#area-map">🗺️ 位置関係マップ</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ エリア1：大谷 ============ -->
+  <section class="area-section area-oya" id="area-oya">
+    <div class="area-band">
+      <span class="area-sticker">必見！</span>
+      <span class="area-kicker">AREA GUIDE 01 ―― MORNING</span>
+      <div class="area-band-top">
+        <span class="area-icon">⛰️</span>
+        <h2>大谷（おおや）エリア</h2>
+        <span class="area-tag">午前の主役</span>
+      </div>
+    </div>
+    <p class="area-lead">石の地下神殿と奇岩・巨大観音がそろう、宇都宮観光のハイライト。バス1本＋徒歩でまとめて巡れる、日帰りなら外せない鉄板エリアです。</p>
+
+    <div class="spot-grid">
+
+      <article class="spot-card">
+        <span class="spot-num">①</span>
+        <span class="must-badge">必見<br>MUST</span>
+        <div class="photo-frame">
+          <span class="emoji">⛏️</span>
+        </div>
+        <p class="photo-caption">大谷資料館・地下採掘場跡</p>
+        <h3 class="spot-title">大谷資料館</h3>
+        <p class="catch">地下30m、幻想の石切り場跡へ</p>
+        <div class="stars" aria-label="おすすめ度5点満点中5点"><span class="filled">★★★★★</span></div>
+        <p class="spot-desc">深さ30m・広さ2万㎡の巨大地下空間。大谷石の採掘跡がまるで神殿のような幻想的景観をつくり出し、映画・PV・結婚式の撮影地としても有名。夏でも館内は10℃前後なので羽織るもの必携。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#地下神殿</span>
+          <span class="tag-chip">#写真映え</span>
+          <span class="tag-chip">#涼しい</span>
+        </div>
+        <div class="callout"><span class="callout-label">ここが凄い！</span>地下は真夏でも10℃前後。避暑を兼ねた撮影スポットとして地元でも人気。</div>
+        <div class="memo"><span class="memo-label">編集部メモ</span>「行くまで写真の凄さを疑っていたが、地下に降りた瞬間に鳥肌が立った」との声多数。冬季は火曜休館に注意。</div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅西口6番乗場→関東バス「大谷・立岩」行約30分「大谷観音前」下車徒歩約5分／車で宇都宮ICから約10分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span>入館料あり（詳細は公式サイト参照）</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>午前イチの目玉。夏の避暑スポットにも</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.oya909.co.jp/" target="_blank" rel="noopener">公式サイト ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">②</span>
+        <div class="photo-frame">
+          <span class="emoji">🗿</span>
+        </div>
+        <p class="photo-caption">大谷寺・大谷観音（磨崖仏）</p>
+        <h3 class="spot-title">大谷寺・大谷観音</h3>
+        <p class="catch">日本最古級の磨崖仏に会う</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">810年開基の古刹。岩壁に直接彫られた高さ約4mの千手観音は、日本最古級の磨崖仏として知られる。ひんやりとした洞内の荘厳な空気も見どころ。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#歴史</span>
+          <span class="tag-chip">#パワースポット</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>大谷資料館から徒歩圏（大谷観音前バス停すぐ）</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span>拝観料あり（詳細は公式サイト参照）</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>大谷資料館とセットで午前中に</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.ooyaji.jp/" target="_blank" rel="noopener">公式サイト ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">③</span>
+        <div class="photo-frame">
+          <span class="emoji">🙏</span>
+        </div>
+        <p class="photo-caption">大谷公園・平和観音</p>
+        <h3 class="spot-title">大谷公園・平和観音</h3>
+        <p class="catch">高さ27m、総手彫りの巨大観音</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">露天掘りの大谷石岩肌を背に立つ高さ27mの平和観音。戦没者慰霊のため彫られた総手彫りの磨崖仏で、大谷寺のすぐ隣に位置する。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#無料</span>
+          <span class="tag-chip">#歴史</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>「大谷観音前」下車すぐ</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span class="price-tag">見学無料</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>大谷寺参拝の流れで立ち寄り</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.utsunomiya-cvb.org/spot/detail_10022.html" target="_blank" rel="noopener">観光ナビ ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">④</span>
+        <div class="photo-frame">
+          <span class="emoji">🏞️</span>
+        </div>
+        <p class="photo-caption">大谷景観公園・御止山</p>
+        <h3 class="spot-title">大谷景観公園（御止山・奇岩群）</h3>
+        <p class="catch">"陸の松島"の奇岩美</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">姿川沿いの芝生広場から、大谷石の絶壁「御止山」を望む国指定名勝。無料で気軽に散策でき、所要時間も短めなので大谷観光の締めくくりにちょうどよい。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#無料</span>
+          <span class="tag-chip">#自然</span>
+          <span class="tag-chip">#さくっと</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>大谷観音前バス停から徒歩約5分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span class="price-tag">無料</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>大谷観光の仕上げにサクッと</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.utsunomiya-cvb.org/spot/detail_10023.html" target="_blank" rel="noopener">観光ナビ ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑤</span>
+        <div class="photo-frame">
+          <span class="emoji">🎋</span>
+        </div>
+        <p class="photo-caption">若竹の杜 若山農場・竹林</p>
+        <h3 class="spot-title">若竹の杜 若山農場</h3>
+        <p class="catch">10万本の竹林で映え散歩</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">10万本もの竹林が広がる幻想的な散策路。『るろうに剣心』など数々の映画・ドラマのロケ地としても知られ、木漏れ日の中を歩くだけで写真映え間違いなし。季節により夜間ライトアップも。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#映え</span>
+          <span class="tag-chip">#竹林</span>
+          <span class="tag-chip">#ロケ地</span>
+        </div>
+        <div class="memo"><span class="memo-label">編集部メモ</span>最寄りバス停がないため、大谷観光とあわせて車・タクシーでの移動がおすすめ。土日祝は夜まで営業。</div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>大谷寺から車で約10分（車・タクシー推奨）</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span>入場料あり（詳細は公式サイト参照）</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>土日祝は夜間営業あり、写真好きに</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://wakayamafarm.com/" target="_blank" rel="noopener">公式サイト ↗</a></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ エリア2：中心市街地 ============ -->
+  <section class="area-section area-city" id="area-city">
+    <div class="area-band">
+      <span class="area-kicker">AREA GUIDE 02 ―― AFTERNOON</span>
+      <div class="area-band-top">
+        <span class="area-icon">🏯</span>
+        <h2>中心市街地エリア</h2>
+        <span class="area-tag">午後の街歩き</span>
+      </div>
+    </div>
+    <p class="area-lead">歴史ある神社仏閣、復元された城址、レトロ建築、賑やかなアーケード商店街——徒歩とバスで巡れる街歩きゾーン。</p>
+
+    <div class="spot-grid">
+
+      <article class="spot-card">
+        <span class="spot-num">⑥</span>
+        <div class="photo-frame">
+          <span class="emoji">⛩️</span>
+        </div>
+        <p class="photo-caption">宇都宮二荒山神社</p>
+        <h3 class="spot-title">宇都宮二荒山神社（ふたあらやま）</h3>
+        <p class="catch">1600年の歴史、街の総鎮守</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">約1600年の歴史を持つ下野国一の宮。「宇都宮」という地名の由来とも言われる街の総鎮守で、餃子通りに隣接するため市街地観光の起点にぴったり。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#歴史</span>
+          <span class="tag-chip">#パワースポット</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅西口からバス約5分「馬場町（二荒山神社前）」下車／徒歩約15分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span class="price-tag">参拝無料</span><span>（御祈祷等は別途）</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>街歩きのスタート地点として午後イチに</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.utsunomiya-cvb.org/spot/detail_10002.html" target="_blank" rel="noopener">観光ナビ ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑦</span>
+        <div class="photo-frame">
+          <span class="emoji">🏯</span>
+        </div>
+        <p class="photo-caption">宇都宮城址公園・清明台</p>
+        <h3 class="spot-title">宇都宮城址公園</h3>
+        <p class="catch">甦った城の櫓と土塁</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">戊辰戦争で焼失した本丸を復元した歴史公園。土塁・堀・清明台・富士見櫓が並び、歴史資料館「清明館」も併設。桜の名所としても知られ、金〜日は夜間ライトアップも実施。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#無料</span>
+          <span class="tag-chip">#夜景</span>
+          <span class="tag-chip">#桜</span>
+        </div>
+        <div class="memo"><span class="memo-label">編集部メモ</span>開園時間は9:00〜19:00、駐車場は無料。夕方に立ち寄って夜のライトアップまで粘るのも◎。</div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅西口38番のりば→「市内循環きぶな」で「宇都宮城址公園入口」下車徒歩約15分／徒歩約20分。駐車無料</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span class="price-tag">入園無料</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>午後の街歩き、金〜日は夜景も</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.utsunomiya-cvb.org/spot/detail_10010.html" target="_blank" rel="noopener">観光ナビ ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑧</span>
+        <div class="photo-frame">
+          <span class="emoji">🗼</span>
+        </div>
+        <p class="photo-caption">八幡山公園・宇都宮タワー</p>
+        <h3 class="spot-title">八幡山公園（宇都宮タワー・アドベンチャーU）</h3>
+        <p class="catch">タワー展望と吊り橋スリル</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">市中心部を見渡す高台の公園。宇都宮タワーからは市街地を一望でき、全長150mの吊り橋やゴーカート、動物広場も。入園自体は無料で、夕景を楽しむのに絶好の立地。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#夕景</span>
+          <span class="tag-chip">#アクティブ</span>
+        </div>
+        <div class="memo"><span class="memo-label">編集部メモ</span>タワー・遊具は月曜休みなので注意。夕暮れどきの街並みは一見の価値あり。</div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅から徒歩約20分／バス「県庁前」下車徒歩約15分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span class="price-tag">入園無料</span><span>宇都宮タワーは大人190円</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>夕方の展望に最適（タワー・遊具は月曜休）</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://hatimanyama.jp/" target="_blank" rel="noopener">公式サイト ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑨</span>
+        <div class="photo-frame">
+          <span class="emoji">🏮</span>
+        </div>
+        <p class="photo-caption">オリオン通り商店街</p>
+        <h3 class="spot-title">オリオン通り商店街</h3>
+        <p class="catch">食べ歩き＆はしご酒の目抜き通り</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">全長約280mのアーケード商店街。飲食・カフェ約100店がひしめき、屋内横丁「夜市横丁」や「来らっせ本店」も通り沿いにある。屋根付きなので雨の日でも安心。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#雨でもOK</span>
+          <span class="tag-chip">#食べ歩き</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>東武宇都宮駅から徒歩すぐ／JR宇都宮駅から徒歩約15分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span class="price-tag">通行無料</span><span>（飲食は店舗ごとに精算）</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>昼〜夜、食べ歩き・雨天時に強い</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.utsunomiya-cvb.org/spot/detail_10030.html" target="_blank" rel="noopener">観光ナビ ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑩</span>
+        <div class="photo-frame">
+          <span class="emoji">⛪</span>
+        </div>
+        <p class="photo-caption">松が峰教会・大谷石の街並み</p>
+        <h3 class="spot-title">松が峰教会＆大谷石の街並み散策</h3>
+        <p class="catch">双塔の大谷石建築とレトロ街歩き</p>
+        <div class="stars" aria-label="おすすめ度5点満点中3点"><span class="filled">★★★</span><span class="empty">★★</span></div>
+        <p class="spot-desc">双塔が美しい大谷石造りのカトリック教会。周辺には大谷石を活かしたレトロなカフェや蔵をリノベーションした店が点在し、街歩きの合間の休憩にちょうどよい。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#レトロ建築</span>
+          <span class="tag-chip">#カフェ</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅から徒歩約15分、中心市街地（オリオン通り近く）</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span>見学自由（ミサ等の時間帯は要確認）</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>街歩きの合間、カフェ休憩と一緒に</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.utsunomiya-cvb.org/" target="_blank" rel="noopener">宇都宮観光ナビ ↗</a></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ エリア3：ご当地グルメ ============ -->
+  <section class="area-section area-gourmet" id="area-gourmet">
+    <div class="area-band">
+      <span class="area-sticker">マスト</span>
+      <span class="area-kicker">AREA GUIDE 03 ―― LUNCH</span>
+      <div class="area-band-top">
+        <span class="area-icon">🥟</span>
+        <h2>ご当地グルメ（餃子＆焼きそば）</h2>
+        <span class="area-tag">昼の主役</span>
+      </div>
+    </div>
+    <p class="area-lead">言わずと知れた餃子の街、宇都宮。野菜多め・あっさり味で、店ごとに個性豊か。開店前後の行列は覚悟の上でどうぞ。</p>
+
+    <div class="spot-grid">
+
+      <article class="spot-card">
+        <span class="spot-num">⑪</span>
+        <span class="must-badge">必見<br>MUST</span>
+        <div class="photo-frame">
+          <span class="emoji">🥟</span>
+        </div>
+        <p class="photo-caption">宇都宮みんみん 本店</p>
+        <h3 class="spot-title">宇都宮みんみん 本店</h3>
+        <p class="catch">まずはここ！餃子の代名詞</p>
+        <div class="stars" aria-label="おすすめ度5点満点中5点"><span class="filled">★★★★★</span></div>
+        <p class="spot-desc">白菜たっぷりのあっさり味が特徴。焼・水・揚の三種が揃い、食べログ「餃子百名店」の常連。開店前から並ぶ人が絶えない、宇都宮餃子の代名詞的存在。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#行列必至</span>
+          <span class="tag-chip">#餃子</span>
+        </div>
+        <div class="memo"><span class="memo-label">編集部メモ</span>行列必至なので、開店前並び推奨。「みんみん派か正嗣派か」は地元でも定番の話題。</div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>馬場通り「餃子通り」沿い。JR西口徒歩約15分（バス約5分）、東武宇都宮駅徒歩約8分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span>商品価格は店舗の案内を参照</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>昼の一軒目。開店直後が狙い目</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.minmin.co.jp/" target="_blank" rel="noopener">公式サイト ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑫</span>
+        <span class="must-badge">必見<br>MUST</span>
+        <div class="photo-frame">
+          <span class="emoji">🥟</span>
+        </div>
+        <p class="photo-caption">正嗣 宮島本店</p>
+        <h3 class="spot-title">正嗣（まさし）宮島本店</h3>
+        <p class="catch">焼と水のみ、潔い地元の魂</p>
+        <div class="stars" aria-label="おすすめ度5点満点中5点"><span class="filled">★★★★★</span></div>
+        <p class="spot-desc">焼餃子と水餃子のみ、ライスもビールも置かない潔いスタイル。薄皮パリッと野菜濃厚な味わいで地元民の支持が絶大。昼のみ営業で、14:30頃には売り切れることも。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#昼のみ</span>
+          <span class="tag-chip">#地元人気</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>東武宇都宮駅周辺（宮島町）。JR駅からはバス／タクシー</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span>商品価格は店舗の案内を参照</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>昼のみ営業。早めの時間帯が安心</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.gyozakai.com/shop/65" target="_blank" rel="noopener">詳細情報 ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑬</span>
+        <div class="photo-frame">
+          <span class="emoji">🥟</span>
+        </div>
+        <p class="photo-caption">香蘭・実演焼き餃子</p>
+        <h3 class="spot-title">香蘭（こうらん）</h3>
+        <p class="catch">実演焼き＆コスパ良、ハシゴ向き</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">目の前で焼き上げる実演スタイルが名物。焼・揚・水いずれも6個250円前後とリーズナブルで、餃子ハシゴの一軒目にちょうどいい気軽さ。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#コスパ良</span>
+          <span class="tag-chip">#実演</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅西口徒歩約10〜15分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span class="price-tag">6個250円前後</span><span>（メニューにより変動）</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>財布に優しく、ハシゴの一軒目に</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://tabelog.com/tochigi/A0901/A090101/9000047/" target="_blank" rel="noopener">食べログ ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑭</span>
+        <span class="must-badge">必見<br>MUST</span>
+        <div class="photo-frame">
+          <span class="emoji">🥟</span>
+        </div>
+        <p class="photo-caption">来らっせ 本店・食べ比べ</p>
+        <h3 class="spot-title">来らっせ 本店</h3>
+        <p class="catch">30店以上を食べ比べ！雨天・団体OK</p>
+        <div class="stars" aria-label="おすすめ度5点満点中5点"><span class="filled">★★★★★</span></div>
+        <p class="spot-desc">宇都宮餃子会公認のフードテーマパーク。常設5店＋日替わり店舗を合わせて30店以上を一箇所で食べ比べできる、選べない人・グループ旅行にうってつけの施設。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#雨でもOK</span>
+          <span class="tag-chip">#食べ比べ</span>
+          <span class="tag-chip">#団体向き</span>
+        </div>
+        <div class="callout"><span class="callout-label">ここが凄い！</span>常設5店＋日替わりで30店以上を1カ所で制覇できる、餃子好きの聖地。</div>
+        <div class="memo"><span class="memo-label">編集部メモ</span>MEGAドン・キホーテ「ラパーク宇都宮店」地下1階。雨の日や大人数の予定でも安心して選べる。</div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅西口徒歩約15分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span>商品価格は店舗ごとに異なる</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>「選べない」ときの最適解。雨天・団体向き</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.gyozakai.com/kirasse" target="_blank" rel="noopener">公式サイト ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑮</span>
+        <div class="photo-frame">
+          <span class="emoji">🍳</span>
+        </div>
+        <p class="photo-caption">石田屋 やきそば店</p>
+        <h3 class="spot-title">石田屋 やきそば店</h3>
+        <p class="catch">餃子だけじゃない！宇都宮焼きそば</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">1952年創業。醤油だしで蒸し焼きにした太麺に半熟目玉焼きをのせ、後から特製ソースをかける宇都宮焼きそばの代表格。週末は行列覚悟。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#B級グルメ</span>
+          <span class="tag-chip">#行列</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>東武宇都宮駅から徒歩約8分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span>商品価格は店舗の案内を参照</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>餃子に飽きたら、B級グルメの筆頭</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://tabelog.com/tochigi/A0901/A090101/9001448/" target="_blank" rel="noopener">食べログ ↗</a></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ エリア4：夜のお楽しみ ============ -->
+  <section class="area-section area-night" id="area-night">
+    <div class="area-band">
+      <span class="area-kicker">AREA GUIDE 04 ―― NIGHT</span>
+      <div class="area-band-top">
+        <span class="area-icon">🍸</span>
+        <h2>夜のお楽しみ</h2>
+        <span class="area-tag">日帰りの締め</span>
+      </div>
+    </div>
+    <p class="area-lead">実は「カクテルの街」としても名高い宇都宮。帰りの新幹線までの時間、大人だけの締めの一杯はいかが。</p>
+
+    <div class="spot-grid">
+
+      <article class="spot-card">
+        <span class="spot-num">⑯</span>
+        <div class="photo-frame">
+          <span class="emoji">🍸</span>
+        </div>
+        <p class="photo-caption">カクテルの街のバー巡り</p>
+        <h3 class="spot-title">カクテルの街のバー巡り</h3>
+        <p class="catch">日本一のカクテル都市で締めの一杯</p>
+        <div class="stars" aria-label="おすすめ度5点満点中4点"><span class="filled">★★★★</span><span class="empty">★</span></div>
+        <p class="spot-desc">全国カクテルコンクールの優勝者を多数輩出する「カクテルの街」宇都宮。老舗「パイプのけむり」をはじめ、オリオン通り裏路地に名バーが集中している。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#大人の時間</span>
+          <span class="tag-chip">#カクテル</span>
+        </div>
+        <div class="memo"><span class="memo-label">編集部メモ</span>個別店は営業日・席数が変動しやすいため、公式特集ページから当日開いているお店を選ぶと安心。</div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅西口〜オリオン通り周辺</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span>店舗ごとに異なる（要事前確認）</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>夜、日帰り旅の締めくくりに</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.utsunomiya-cvb.org/feature/cocktail" target="_blank" rel="noopener">カクテル特集ページ ↗</a></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ エリア5：足をのばして ============ -->
+  <section class="area-section area-more" id="area-more">
+    <div class="area-band">
+      <span class="area-kicker">AREA GUIDE 05 ―― EXTRA</span>
+      <div class="area-band-top">
+        <span class="area-icon">🚗</span>
+        <h2>足をのばして（郊外・予備枠）</h2>
+        <span class="area-tag">時間や車があれば</span>
+      </div>
+    </div>
+    <p class="area-lead">車移動が前提なら組み込みやすい郊外スポット。街歩きの動線とは別に、丸ごと一日型のプランにも。</p>
+
+    <div class="spot-grid">
+
+      <article class="spot-card">
+        <span class="spot-num">⑰</span>
+        <div class="photo-frame">
+          <span class="emoji">♨️</span>
+        </div>
+        <p class="photo-caption">道の駅うつのみや ろまんちっく村</p>
+        <h3 class="spot-title">道の駅うつのみや ろまんちっく村</h3>
+        <p class="catch">一日遊べる巨大ファームパーク</p>
+        <div class="stars" aria-label="おすすめ度5点満点中3点"><span class="filled">★★★</span><span class="empty">★★</span></div>
+        <p class="spot-desc">46haという広大な敷地を持つ滞在体験型の道の駅。天然温泉・地ビール・直売所・レストランが揃い、街歩きの動線とは別に「大谷＋ろまんちっく村」の郊外型プランなら成立する。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#温泉</span>
+          <span class="tag-chip">#一日満喫</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅西口8番→バス約40分「ろまんちっく村」終点／宇都宮ICから車約5分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span class="price-tag">入場無料</span><span>（施設利用は個別料金）</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>車移動なら午前〜午後まるごと一日型で</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.romanticmura.com/" target="_blank" rel="noopener">公式サイト ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑱</span>
+        <div class="photo-frame">
+          <span class="emoji">🏺</span>
+        </div>
+        <p class="photo-caption">うつのみや遺跡の広場</p>
+        <h3 class="spot-title">うつのみや遺跡の広場（根古谷台遺跡）</h3>
+        <p class="catch">縄文の大集落を無料で体感</p>
+        <div class="stars" aria-label="おすすめ度5点満点中3点"><span class="filled">★★★</span><span class="empty">★★</span></div>
+        <p class="spot-desc">約5500年前の縄文集落跡を復元した史跡公園。日本最大級の竪穴建物が並び、資料館とも入場無料。5月頃はニッコウキスゲの群生も楽しめる。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#無料</span>
+          <span class="tag-chip">#歴史</span>
+          <span class="tag-chip">#自然</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅から車・バスで郊外（聖山公園内）。車が円滑</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span class="price-tag">入場無料</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>車移動の郊外プラン、5月はニッコウキスゲも</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://www.utsunomiya-cvb.org/spot/detail_10080.html" target="_blank" rel="noopener">観光ナビ ↗</a></div>
+        </div>
+      </article>
+
+      <article class="spot-card">
+        <span class="spot-num">⑲</span>
+        <div class="photo-frame">
+          <span class="emoji">🎨</span>
+        </div>
+        <p class="photo-caption">宇都宮美術館</p>
+        <h3 class="spot-title">宇都宮美術館</h3>
+        <p class="catch">緑の森でマグリット＆名デザイン</p>
+        <div class="stars" aria-label="おすすめ度5点満点中3点"><span class="filled">★★★</span><span class="empty">★★</span></div>
+        <p class="spot-desc">マグリットやシャガールなどの近現代美術に加え、国内有数のデザインコレクションを所蔵。26haの文化の森公園内にあり、雨の日の午後の過ごし方としても好適。</p>
+        <div class="tag-row">
+          <span class="tag-chip">#雨でもOK</span>
+          <span class="tag-chip">#アート</span>
+        </div>
+        <div class="data-box">
+          <span class="data-head">DATA</span>
+          <div class="dline"><span class="dlabel">📍アクセス</span><span>JR宇都宮駅西口5番→バス約25分「宇都宮美術館」下車／宇都宮ICから車約14分</span></div>
+          <div class="dline"><span class="dlabel">💰料金</span><span>観覧料あり（詳細は公式サイト参照）</span></div>
+          <div class="dline"><span class="dlabel">⏰使いどころ</span><span>雨天時の午後の予備プランに</span></div>
+          <div class="dline"><span class="dlabel">🔗リンク</span><a href="https://u-moa.jp/" target="_blank" rel="noopener">公式サイト ↗</a></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ モデルコース ============ -->
+  <section class="courses" id="courses">
+    <div class="courses-head">
+      <h2><span class="en">1DAY MODEL PLAN</span>🗓️ モデルコース タイムライン</h2>
+      <p class="area-lead" style="border:none;padding-left:0;margin-bottom:0.4rem;background:transparent;box-shadow:none;">日帰り前提で組んだ2つのプラン。時間はあくまで目安、混雑状況にあわせて調整を。</p>
+    </div>
+
+    <div class="course-grid">
+
+      <div class="course-block course-a">
+        <span class="course-plan-badge">案A</span>
+        <h3>大谷満喫＋市街街歩き</h3>
+        <p class="course-sub">王道・鉄板コース／バスと徒歩で完結</p>
+        <ul class="tl-list">
+          <li class="tl-item">
+            <span class="tl-time">午前</span>
+            <div class="tl-content">
+              <h4>大谷エリア一括</h4>
+              <p>駅からバス約30分→<mark class="hl">大谷資料館</mark>→大谷寺・大谷観音→平和観音・大谷公園→大谷景観公園（御止山）。徒歩圏で完結。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-time">昼</span>
+            <div class="tl-content">
+              <span class="tl-transit-tag">🚌 バス約30分＋徒歩で市街へ</span>
+              <h4>餃子でランチ</h4>
+              <p>市街へ戻り「来らっせ本店」で食べ比べ、または「みんみん本店」で王道の一皿。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-time">午後</span>
+            <div class="tl-content">
+              <span class="tl-transit-tag">🚶 徒歩ですぐ移動</span>
+              <h4>街歩き</h4>
+              <p>宇都宮城址公園→二荒山神社→オリオン通り食べ歩き→松が峰教会・大谷石の街並み。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-time">夕方</span>
+            <div class="tl-content">
+              <span class="tl-transit-tag">🚶 徒歩約15分</span>
+              <h4>展望</h4>
+              <p>八幡山公園・宇都宮タワーで夕景を一望（<mark class="hl">※月曜はタワー休み</mark>）。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-time">夜</span>
+            <div class="tl-content">
+              <span class="tl-transit-tag">🚶 徒歩でオリオン通りへ</span>
+              <h4>締めの一杯</h4>
+              <p>オリオン通り裏路地のバーでカクテルを1杯楽しんでから帰路へ。</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="course-block course-b">
+        <span class="course-plan-badge">案B</span>
+        <h3>市街コンパクト＋映え重視</h3>
+        <p class="course-sub">歩き中心・雨天に強いコース</p>
+        <ul class="tl-list">
+          <li class="tl-item">
+            <span class="tl-time">午前</span>
+            <div class="tl-content">
+              <h4>映えスタート</h4>
+              <p><mark class="hl">若竹の杜 若山農場</mark>で竹林散策、または八幡山公園から一日をスタート。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-time">昼</span>
+            <div class="tl-content">
+              <span class="tl-transit-tag">🚌 バス＋徒歩で市街へ移動</span>
+              <h4>餃子でランチ</h4>
+              <p>正嗣宮島本店、または香蘭で気軽に餃子ランチ。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-time">午後</span>
+            <div class="tl-content">
+              <span class="tl-transit-tag">🚶 徒歩で街歩きへ</span>
+              <h4>文化と街歩き</h4>
+              <p>宇都宮城址公園→二荒山神社→オリオン通り（雨でもアーケードなら安心）→余力があれば宇都宮美術館 or 遺跡の広場。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-time">夜</span>
+            <div class="tl-content">
+              <span class="tl-transit-tag">🚶 徒歩ですぐ移動</span>
+              <h4>はしご酒</h4>
+              <p>夜市横丁ではしご酒を楽しみ、締めはカクテルバーで一杯。</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 位置関係マップ ============ -->
+  <section class="map-section area-map" id="area-map">
+    <div class="area-band map-band">
+      <span class="area-kicker">AREA MAP ―― APPENDIX</span>
+      <div class="area-band-top">
+        <span class="area-icon">🗺️</span>
+        <h2>位置関係マップ</h2>
+        <span class="area-tag">巻末付録</span>
+      </div>
+    </div>
+    <p class="area-lead">詳細な道順ではなく、全19スポット＋バー街のざっくりした位置関係をまとめました。丸数字は本文のスポット番号と対応しています。</p>
+
+    <div class="map-legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:#007e8c;"></span>大谷エリア</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#d81e2c;"></span>中心市街地</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#e07800;"></span>ご当地グルメ</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#10193a;"></span>夜のお楽しみ</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#1e7d32;"></span>足をのばして</span>
+    </div>
+
+    <figure class="map-figure">
+      <svg viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="宇都宮全体マップ">
+        <rect x="1" y="1" width="898" height="618" rx="18" fill="#fbf8f0" stroke="#e4d6ae" stroke-width="1"/>
+        <text x="855" y="34" text-anchor="middle" font-size="15" font-weight="900" fill="#7a4b21">N</text>
+        <path d="M855 40 L861 56 L855 52 L849 56 Z" fill="#7a4b21"/>
+
+        <line x1="760" y1="46" x2="760" y2="590" stroke="#9a9a9a" stroke-width="2.5" stroke-dasharray="2 7" stroke-linecap="round"/>
+        <text x="760" y="34" text-anchor="middle" font-size="13" font-weight="800" fill="#555" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">JR宇都宮線</text>
+
+        <line x1="330" y1="120" x2="330" y2="560" stroke="#9a9a9a" stroke-width="2.5" stroke-dasharray="2 7" stroke-linecap="round"/>
+        <text x="330" y="108" text-anchor="middle" font-size="13" font-weight="800" fill="#555" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">東武宇都宮線</text>
+
+        <rect x="748" y="318" width="24" height="24" rx="4" fill="#444"/>
+        <text x="760" y="334" text-anchor="middle" font-size="12" fill="#fff" font-weight="900">駅</text>
+        <text x="742" y="304" text-anchor="end" font-size="15" font-weight="900" fill="#333" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">JR宇都宮駅</text>
+
+        <rect x="318" y="318" width="24" height="24" rx="4" fill="#444"/>
+        <text x="330" y="334" text-anchor="middle" font-size="12" fill="#fff" font-weight="900">駅</text>
+        <text x="330" y="304" text-anchor="middle" font-size="15" font-weight="900" fill="#333" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">東武宇都宮駅</text>
+
+        <line x1="255" y1="235" x2="400" y2="295" stroke="#8a6a3a" stroke-width="2.5" stroke-dasharray="1 8" stroke-linecap="round"/>
+        <text x="300" y="248" font-size="14" font-weight="800" fill="#8a6a3a" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">🚌バス約30分</text>
+
+        <rect x="380" y="240" width="230" height="170" rx="18" fill="#d81e2c22" stroke="#d81e2c" stroke-width="2.5" stroke-dasharray="6 4"/>
+        <text x="495" y="300" text-anchor="middle" font-size="19" font-weight="900" fill="#d81e2c" style="paint-order:stroke;stroke:#fff;stroke-width:4px;">中心市街地</text>
+        <text x="495" y="325" text-anchor="middle" font-size="14" font-weight="800" fill="#d81e2c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">⑥〜⑯・バー街</text>
+        <text x="495" y="346" text-anchor="middle" font-size="13" font-weight="800" fill="#d81e2c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">（下の拡大図を参照）</text>
+        <text x="495" y="390" text-anchor="middle" font-size="12" font-weight="700" fill="#7a4b21" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">二荒山神社・オリオン通り・城址公園ほか</text>
+
+        <rect x="65" y="95" width="210" height="180" rx="18" fill="#007e8c1a" stroke="#007e8c" stroke-width="2.5" stroke-dasharray="6 4"/>
+        <text x="170" y="82" text-anchor="middle" font-size="14" font-weight="900" fill="#007e8c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">大谷エリア（市街から北西へ約8km）</text>
+
+        <line x1="150" y1="150" x2="78" y2="110" stroke="#999" stroke-width="1"/>
+        <line x1="178" y1="165" x2="78" y2="140" stroke="#999" stroke-width="1"/>
+        <line x1="195" y1="185" x2="78" y2="170" stroke="#999" stroke-width="1"/>
+        <line x1="150" y1="205" x2="78" y2="200" stroke="#999" stroke-width="1"/>
+        <line x1="215" y1="130" x2="78" y2="230" stroke="#999" stroke-width="1"/>
+
+        <circle cx="150" cy="150" r="13" fill="#007e8c" stroke="#fff" stroke-width="2.5"/>
+        <text x="150" y="150" dy=".35em" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">①</text>
+        <circle cx="178" cy="165" r="13" fill="#007e8c" stroke="#fff" stroke-width="2.5"/>
+        <text x="178" y="165" dy=".35em" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">②</text>
+        <circle cx="195" cy="185" r="13" fill="#007e8c" stroke="#fff" stroke-width="2.5"/>
+        <text x="195" y="185" dy=".35em" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">③</text>
+        <circle cx="150" cy="205" r="13" fill="#007e8c" stroke="#fff" stroke-width="2.5"/>
+        <text x="150" y="205" dy=".35em" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">④</text>
+        <circle cx="215" cy="130" r="13" fill="#007e8c" stroke="#fff" stroke-width="2.5"/>
+        <text x="215" y="130" dy=".35em" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">⑤</text>
+
+        <text x="8" y="114" font-size="13" font-weight="800" fill="#007e8c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">① 大谷資料館</text>
+        <text x="8" y="144" font-size="13" font-weight="800" fill="#007e8c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">② 大谷寺・大谷観音</text>
+        <text x="8" y="174" font-size="13" font-weight="800" fill="#007e8c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">③ 平和観音</text>
+        <text x="8" y="204" font-size="13" font-weight="800" fill="#007e8c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">④ 大谷景観公園</text>
+        <text x="8" y="234" font-size="13" font-weight="800" fill="#007e8c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">⑤ 若山農場</text>
+
+        <circle cx="35" cy="45" r="13" fill="#1e7d32" stroke="#fff" stroke-width="2.5"/>
+        <text x="35" y="45" dy=".35em" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">⑰</text>
+        <text x="55" y="50" font-size="13" font-weight="800" fill="#1e7d32" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">ろまんちっく村</text>
+
+        <circle cx="560" cy="150" r="13" fill="#1e7d32" stroke="#fff" stroke-width="2.5"/>
+        <text x="560" y="150" dy=".35em" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">⑲</text>
+        <text x="560" y="133" text-anchor="middle" font-size="13" font-weight="800" fill="#1e7d32" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">宇都宮美術館</text>
+
+        <circle cx="330" cy="470" r="13" fill="#1e7d32" stroke="#fff" stroke-width="2.5"/>
+        <text x="330" y="470" dy=".35em" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">⑱</text>
+        <text x="330" y="495" text-anchor="middle" font-size="13" font-weight="800" fill="#1e7d32" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">遺跡の広場</text>
+
+        <text x="12" y="608" font-size="11" font-weight="600" fill="#999">※デフォルメ図のため距離・角度は正確ではありません</text>
+      </svg>
+      <figcaption>宇都宮 全体マップ（デフォルメ・方位関係のみ正確）</figcaption>
+    </figure>
+
+    <figure class="map-figure">
+      <svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="中心市街地拡大図">
+        <rect x="1" y="1" width="698" height="478" rx="18" fill="#fbf8f0" stroke="#e4d6ae" stroke-width="1"/>
+
+        <rect x="86" y="208" width="24" height="24" rx="4" fill="#444"/>
+        <text x="98" y="224" text-anchor="middle" font-size="12" fill="#fff" font-weight="900">駅</text>
+        <text x="80" y="200" text-anchor="end" font-size="14" font-weight="900" fill="#333" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">東武宇都宮駅</text>
+
+        <text x="650" y="245" text-anchor="end" font-size="13" font-weight="800" fill="#555" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">→ JR宇都宮駅方面</text>
+        <path d="M655 240 L668 240 L662 234 M668 240 L662 246" fill="none" stroke="#555" stroke-width="2"/>
+
+        <!-- ⑧八幡山公園 -->
+        <circle cx="350" cy="110" r="12" fill="#d81e2c" stroke="#fff" stroke-width="2.5"/>
+        <text x="350" y="110" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑧</text>
+        <text x="350" y="90" text-anchor="middle" font-size="13" font-weight="800" fill="#d81e2c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">八幡山公園</text>
+
+        <!-- ⑫正嗣宮島本店 -->
+        <circle cx="112" cy="160" r="12" fill="#e07800" stroke="#fff" stroke-width="2.5"/>
+        <text x="112" y="160" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑫</text>
+        <text x="97" y="153" text-anchor="end" font-size="13" font-weight="800" fill="#e07800" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">正嗣宮島本店</text>
+
+        <!-- ⑥二荒山神社 -->
+        <circle cx="350" cy="240" r="12" fill="#d81e2c" stroke="#fff" stroke-width="2.5"/>
+        <text x="350" y="240" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑥</text>
+        <text x="350" y="218" text-anchor="middle" font-size="13" font-weight="800" fill="#d81e2c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">二荒山神社</text>
+
+        <!-- ⑬香蘭 -->
+        <circle cx="530" cy="240" r="12" fill="#e07800" stroke="#fff" stroke-width="2.5"/>
+        <text x="530" y="240" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑬</text>
+        <text x="530" y="218" text-anchor="middle" font-size="13" font-weight="800" fill="#e07800" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">香蘭</text>
+
+        <!-- ⑪みんみん本店 -->
+        <circle cx="392" cy="260" r="12" fill="#e07800" stroke="#fff" stroke-width="2.5"/>
+        <text x="392" y="260" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑪</text>
+        <text x="407" y="278" text-anchor="start" font-size="13" font-weight="800" fill="#e07800" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">みんみん本店</text>
+
+        <!-- ⑩松が峰教会 -->
+        <circle cx="150" cy="255" r="12" fill="#d81e2c" stroke="#fff" stroke-width="2.5"/>
+        <text x="150" y="255" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑩</text>
+        <text x="165" y="253" text-anchor="start" font-size="13" font-weight="800" fill="#d81e2c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">松が峰教会</text>
+
+        <!-- ⑮石田屋 -->
+        <circle cx="112" cy="345" r="12" fill="#e07800" stroke="#fff" stroke-width="2.5"/>
+        <text x="112" y="345" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑮</text>
+        <text x="97" y="349" text-anchor="end" font-size="13" font-weight="800" fill="#e07800" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">石田屋</text>
+
+        <!-- ⑦宇都宮城址公園 -->
+        <circle cx="350" cy="360" r="12" fill="#d81e2c" stroke="#fff" stroke-width="2.5"/>
+        <text x="350" y="360" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑦</text>
+        <text x="350" y="388" text-anchor="middle" font-size="13" font-weight="800" fill="#d81e2c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">宇都宮城址公園</text>
+
+        <!-- オリオン通りクラスタ：⑨⑭⑯ leader lines -->
+        <line x1="265" y1="290" x2="20" y2="398" stroke="#999" stroke-width="1"/>
+        <line x1="245" y1="322" x2="20" y2="423" stroke="#999" stroke-width="1"/>
+        <line x1="218" y1="268" x2="20" y2="448" stroke="#999" stroke-width="1"/>
+
+        <circle cx="265" cy="290" r="12" fill="#d81e2c" stroke="#fff" stroke-width="2.5"/>
+        <text x="265" y="290" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑨</text>
+        <circle cx="245" cy="322" r="12" fill="#e07800" stroke="#fff" stroke-width="2.5"/>
+        <text x="245" y="322" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑭</text>
+        <circle cx="218" cy="268" r="12" fill="#10193a" stroke="#fff" stroke-width="2.5"/>
+        <text x="218" y="268" dy=".35em" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">⑯</text>
+
+        <text x="16" y="402" font-size="13" font-weight="800" fill="#d81e2c" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">⑨ オリオン通り商店街</text>
+        <text x="16" y="427" font-size="13" font-weight="800" fill="#e07800" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">⑭ 来らっせ本店</text>
+        <text x="16" y="452" font-size="13" font-weight="800" fill="#10193a" style="paint-order:stroke;stroke:#fff;stroke-width:3px;">⑯ 夜のバー街（バー巡り）</text>
+
+        <text x="690" y="470" text-anchor="end" font-size="11" font-weight="600" fill="#999">※デフォルメ図のため距離は正確ではありません</text>
+      </svg>
+      <figcaption>中心市街地 拡大図</figcaption>
+    </figure>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="foot-title">出典・お願い</p>
+    <p>※本ページは宇都宮観光コンベンション協会「宇都宮観光ナビ」、各施設公式サイト、食べログ等の情報を参考に作成しています。</p>
+    <p>※料金・営業時間・定休日・アクセス手段は変動する場合があります。訪問前に必ず各施設の公式サイト・SNS等で最新情報をご確認ください。</p>
+    <p>作成：宇都宮 日帰り観光BOOK編集部</p>
+  </div>
+</footer>
+
+</body>
+</html>
