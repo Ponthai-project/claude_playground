@@ -1,0 +1,1131 @@
+<title>資産のトークン化 ぜんぶ図解 — 仕組み・日本と海外・法整備・株式ST・三菱UFJ信託</title>
+
+<svg class="svg-defs" aria-hidden="true" focusable="false">
+  <filter id="rough" x="-6%" y="-6%" width="112%" height="112%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="rough-s" x="-8%" y="-8%" width="116%" height="116%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="3" result="n2"/>
+    <feDisplacementMap in="SourceGraphic" in2="n2" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<style>
+/* ─────────── tokens ─────────── */
+:root{
+  --paper:#F7F8FA;
+  --panel:#FFFFFF;
+  --panel-2:#F2F4F8;
+  --grid:rgba(43,78,168,.075);
+  --ink:#1B2431;
+  --ink-2:#586373;
+  --ink-3:#8C97A5;
+  --rule:#D5DDE7;
+
+  --ai:#2B4EA8;   /* 藍  — 仕組み・構造 */
+  --yamabuki:#B87614; /* 山吹 — お金・収益 */
+  --tokiwa:#0F7F6E;   /* 常磐 — 法・制度 */
+  --beni:#C33B34;     /* 紅  — 課題・リスク */
+  --fuji:#6A4E9E;     /* 藤  — 海外 */
+
+  --hl-ai:rgba(43,78,168,.20);
+  --hl-yamabuki:rgba(232,163,61,.42);
+  --hl-tokiwa:rgba(15,127,110,.22);
+  --hl-beni:rgba(195,59,52,.20);
+  --hl-fuji:rgba(106,78,158,.20);
+
+  --note-a:#FFF4D6;
+  --note-b:#E4EEFF;
+  --note-c:#DFF3ED;
+  --note-d:#FFE6E2;
+  --note-e:#EEE8FA;
+
+  --shadow:0 1px 0 rgba(27,36,49,.05), 0 10px 24px -16px rgba(27,36,49,.45);
+  --shadow-note:0 1px 1px rgba(27,36,49,.08), 0 10px 18px -14px rgba(27,36,49,.5);
+
+  --f-display:"Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN W4","Rounded Mplus 1c","BIZ UDPGothic","Yu Gothic","游ゴシック体","YuGothic",system-ui,sans-serif;
+  --f-body:"Hiragino Kaku Gothic ProN","ヒラギノ角ゴ ProN","Yu Gothic","游ゴシック体","Noto Sans JP",Meiryo,system-ui,sans-serif;
+  --f-data:ui-monospace,"SF Mono","SFMono-Regular","Roboto Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#11161D;
+    --panel:#19202A;
+    --panel-2:#212A35;
+    --grid:rgba(140,172,245,.07);
+    --ink:#E9EDF3;
+    --ink-2:#A2AEBC;
+    --ink-3:#78838F;
+    --rule:#2E3843;
+
+    --ai:#8CACF5;
+    --yamabuki:#EDBB63;
+    --tokiwa:#46C7B0;
+    --beni:#F1837B;
+    --fuji:#B695E6;
+
+    --hl-ai:rgba(140,172,245,.20);
+    --hl-yamabuki:rgba(237,187,99,.24);
+    --hl-tokiwa:rgba(70,199,176,.20);
+    --hl-beni:rgba(241,131,123,.20);
+    --hl-fuji:rgba(182,149,230,.20);
+
+    --note-a:#3A3220;
+    --note-b:#1E2B3D;
+    --note-c:#183230;
+    --note-d:#392422;
+    --note-e:#2A2340;
+
+    --shadow:0 1px 0 rgba(0,0,0,.35), 0 12px 28px -18px rgba(0,0,0,.9);
+    --shadow-note:0 1px 1px rgba(0,0,0,.4), 0 12px 20px -16px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11161D;
+  --panel:#19202A;
+  --panel-2:#212A35;
+  --grid:rgba(140,172,245,.07);
+  --ink:#E9EDF3;
+  --ink-2:#A2AEBC;
+  --ink-3:#78838F;
+  --rule:#2E3843;
+
+  --ai:#8CACF5;
+  --yamabuki:#EDBB63;
+  --tokiwa:#46C7B0;
+  --beni:#F1837B;
+  --fuji:#B695E6;
+
+  --hl-ai:rgba(140,172,245,.20);
+  --hl-yamabuki:rgba(237,187,99,.24);
+  --hl-tokiwa:rgba(70,199,176,.20);
+  --hl-beni:rgba(241,131,123,.20);
+  --hl-fuji:rgba(182,149,230,.20);
+
+  --note-a:#3A3220;
+  --note-b:#1E2B3D;
+  --note-c:#183230;
+  --note-d:#392422;
+  --note-e:#2A2340;
+
+  --shadow:0 1px 0 rgba(0,0,0,.35), 0 12px 28px -18px rgba(0,0,0,.9);
+  --shadow-note:0 1px 1px rgba(0,0,0,.4), 0 12px 20px -16px rgba(0,0,0,.9);
+}
+
+/* ─────────── base ─────────── */
+*{box-sizing:border-box}
+.svg-defs{position:absolute;width:0;height:0;overflow:hidden}
+
+body{
+  margin:0;
+  font-family:var(--f-body);
+  color:var(--ink);
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:26px 26px;
+  line-height:1.85;
+  font-size:16px;
+  -webkit-text-size-adjust:100%;
+}
+
+.roll{
+  max-width:1120px;
+  margin:0 auto;
+  padding:0 20px 96px;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+/* ─────────── hand-drawn primitives ─────────── */
+.rough{position:relative;background:var(--panel);border-radius:16px}
+.rough::before{
+  content:"";position:absolute;inset:0;
+  border:2px solid var(--edge,var(--ink));
+  border-radius:16px;
+  filter:url(#rough);
+  pointer-events:none;
+}
+.rough-thin::before{border-width:1.5px;opacity:.55}
+
+.hl{
+  background-image:linear-gradient(to bottom,transparent 56%,var(--hl,var(--hl-yamabuki)) 56%,var(--hl,var(--hl-yamabuki)) 93%,transparent 93%);
+  padding:0 .1em;
+}
+.u-ai{--hl:var(--hl-ai)} .u-yamabuki{--hl:var(--hl-yamabuki)} .u-tokiwa{--hl:var(--hl-tokiwa)}
+.u-beni{--hl:var(--hl-beni)} .u-fuji{--hl:var(--hl-fuji)}
+
+.k{font-weight:700;color:var(--ink)}
+.num-v{font-family:var(--f-data);font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:-.01em}
+
+/* ─────────── header ─────────── */
+.head{padding:64px 0 40px;display:flex;flex-direction:column;gap:22px}
+.eyebrow{
+  font-family:var(--f-display);font-size:.8rem;font-weight:700;
+  letter-spacing:.22em;color:var(--ink-3);text-transform:uppercase;
+}
+.head h1{
+  font-family:var(--f-display);
+  font-size:clamp(2rem,5.6vw,3.5rem);
+  line-height:1.28;font-weight:800;margin:0;
+  letter-spacing:.01em;text-wrap:balance;
+}
+.head .lede{
+  font-size:1.02rem;color:var(--ink-2);margin:0;max-width:62ch;
+}
+.head-meta{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  font-family:var(--f-data);font-size:.76rem;color:var(--ink-3);
+}
+.head-meta span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ai)}
+
+.agenda{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.agenda a{
+  font-family:var(--f-display);font-size:.86rem;font-weight:700;
+  text-decoration:none;color:var(--ink);
+  padding:7px 15px;border-radius:999px;
+  background:var(--panel);
+  position:relative;
+}
+.agenda a::before{
+  content:"";position:absolute;inset:0;border:1.6px solid var(--edge,var(--ink-3));
+  border-radius:999px;filter:url(#rough-s);
+}
+.agenda a:hover,.agenda a:focus-visible{color:var(--edge)}
+.agenda a:focus-visible{outline:2px solid var(--edge);outline-offset:3px}
+
+/* ─────────── section ─────────── */
+.sec{padding:52px 0 8px;scroll-margin-top:24px}
+.sec-head{display:flex;gap:18px;align-items:flex-start;margin-bottom:8px}
+.num{width:58px;height:58px;flex:0 0 58px;color:var(--edge,var(--ai))}
+.num-t{font-family:var(--f-data);font-size:22px;font-weight:700;fill:currentColor}
+.sec-title{display:flex;flex-direction:column;gap:4px;padding-top:4px}
+.sec-title h2{
+  font-family:var(--f-display);font-weight:800;margin:0;
+  font-size:clamp(1.45rem,3.4vw,2.1rem);line-height:1.35;text-wrap:balance;
+}
+.sec-title .q{font-size:.88rem;color:var(--ink-2);margin:0;font-family:var(--f-data)}
+
+.sec-body{display:flex;flex-direction:column;gap:26px;margin-top:26px}
+
+h3.blk{
+  font-family:var(--f-display);font-size:1.13rem;font-weight:800;
+  margin:0 0 2px;display:flex;align-items:center;gap:10px;text-wrap:balance;
+}
+h3.blk::before{
+  content:"";width:13px;height:13px;flex:0 0 13px;border-radius:3px;
+  background:var(--edge,var(--ai));transform:rotate(12deg);
+}
+h4.sub{font-family:var(--f-display);font-size:.98rem;font-weight:800;margin:0 0 6px}
+
+p{margin:0 0 .9em}
+p:last-child{margin-bottom:0}
+.prose{max-width:70ch}
+
+/* ─────────── cards / notes ─────────── */
+.card{padding:24px 26px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.card > p, .card > ul{max-width:74ch}
+
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:16px}
+
+.note{
+  padding:18px 20px;border-radius:4px;box-shadow:var(--shadow-note);
+  background:var(--note-b);display:flex;flex-direction:column;gap:7px;
+  font-size:.93rem;line-height:1.72;
+}
+.note h4{font-family:var(--f-display);font-size:.98rem;font-weight:800;margin:0}
+.note p{margin:0}
+.note.a{background:var(--note-a);transform:rotate(-.5deg)}
+.note.b{background:var(--note-b);transform:rotate(.4deg)}
+.note.c{background:var(--note-c);transform:rotate(-.3deg)}
+.note.d{background:var(--note-d);transform:rotate(.6deg)}
+.note.e{background:var(--note-e);transform:rotate(-.6deg)}
+.tag{
+  font-family:var(--f-data);font-size:.68rem;font-weight:700;letter-spacing:.08em;
+  color:var(--edge,var(--ink-2));text-transform:uppercase;
+}
+
+/* callout */
+.callout{
+  padding:20px 22px 20px 24px;display:flex;flex-direction:column;gap:8px;
+  background:var(--panel-2);border-radius:14px;position:relative;overflow:hidden;
+}
+.callout::after{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:5px;
+  background:var(--edge,var(--yamabuki));
+}
+.callout .tag{margin:0}
+.callout p{margin:0;font-size:.96rem}
+
+/* lists */
+ul.pt,ol.pt{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+ul.pt li{position:relative;padding-left:22px;font-size:.95rem;line-height:1.75}
+ul.pt li::before{
+  content:"";position:absolute;left:2px;top:.68em;width:8px;height:8px;
+  border-radius:50%;border:2px solid var(--edge,var(--ai));
+}
+ol.pt{counter-reset:n}
+ol.pt li{position:relative;padding-left:34px;counter-increment:n;font-size:.95rem;line-height:1.75}
+ol.pt li::before{
+  content:counter(n);position:absolute;left:0;top:.28em;
+  width:23px;height:23px;border-radius:50%;
+  display:grid;place-items:center;
+  font-family:var(--f-data);font-size:.72rem;font-weight:700;
+  color:var(--edge,var(--ai));border:1.8px solid var(--edge,var(--ai));
+}
+
+/* ─────────── tables ─────────── */
+.tw{overflow-x:auto;border-radius:14px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.9rem;background:var(--panel)}
+caption{
+  text-align:left;font-family:var(--f-display);font-weight:800;font-size:1.02rem;
+  padding:0 0 10px;color:var(--ink);
+}
+th,td{padding:12px 15px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule);line-height:1.7}
+thead th{
+  font-family:var(--f-display);font-weight:800;font-size:.84rem;
+  background:var(--panel-2);border-bottom:2px solid var(--ink-3);white-space:nowrap;
+}
+tbody th{font-weight:700;white-space:nowrap;color:var(--ink);width:1%}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:none}
+td .num-v{color:var(--ink)}
+.col-jp{color:var(--ai)}
+.col-ov{color:var(--fuji)}
+
+.chip{
+  display:inline-block;font-family:var(--f-data);font-size:.68rem;font-weight:700;
+  padding:2px 8px;border-radius:999px;letter-spacing:.04em;white-space:nowrap;
+}
+.chip-stock{background:var(--hl-tokiwa);color:var(--tokiwa)}
+.chip-flow{background:var(--hl-yamabuki);color:var(--yamabuki)}
+
+/* ─────────── timeline ─────────── */
+.tl{display:flex;flex-direction:column;gap:0;position:relative;padding-left:34px}
+.tl::before{
+  content:"";position:absolute;left:9px;top:10px;bottom:10px;width:3px;
+  background:var(--edge,var(--tokiwa));opacity:.32;border-radius:2px;filter:url(#rough-s);
+}
+.tl-row{position:relative;padding:13px 0 13px 4px;display:flex;flex-direction:column;gap:4px}
+.tl-row::before{
+  content:"";position:absolute;left:-30px;top:20px;width:13px;height:13px;
+  border-radius:50%;background:var(--paper);border:3px solid var(--edge,var(--tokiwa));
+}
+.tl-row.big::before{width:17px;height:17px;left:-32px;background:var(--edge,var(--tokiwa))}
+.tl-when{
+  font-family:var(--f-data);font-size:.78rem;font-weight:700;
+  color:var(--edge,var(--tokiwa));letter-spacing:.03em;
+}
+.tl-what{font-family:var(--f-display);font-weight:800;font-size:1rem;line-height:1.55}
+.tl-desc{font-size:.92rem;color:var(--ink-2);margin:0;max-width:72ch;line-height:1.75}
+
+/* ─────────── figures ─────────── */
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.fig-scroll{overflow-x:auto;padding:4px 0 8px;-webkit-overflow-scrolling:touch}
+figcaption{font-size:.83rem;color:var(--ink-3);font-family:var(--f-data);line-height:1.7}
+svg.dia{display:block;min-width:760px;width:100%;height:auto;font-family:var(--f-body)}
+svg.dia .box{fill:var(--panel);stroke:var(--ink);stroke-width:2}
+svg.dia .t{fill:var(--ink);font-size:13.5px;font-weight:700}
+svg.dia .t-s{fill:var(--ink-2);font-size:11.5px;font-weight:400}
+svg.dia .t-lbl{font-size:11px;font-weight:700;font-family:var(--f-data);letter-spacing:.05em}
+svg.dia .arrow{stroke:var(--ink-3);stroke-width:2.2;fill:none;stroke-linecap:round}
+svg.mini{display:block;width:100%;height:auto;font-family:var(--f-body)}
+svg.mini .t{fill:var(--ink);font-size:12px;font-weight:700}
+svg.mini .box{fill:var(--panel-2);stroke:var(--ink-3);stroke-width:1.8}
+
+/* stack layers */
+.layers{display:flex;flex-direction:column;gap:12px}
+.layer{
+  display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;
+  padding:17px 20px;border-radius:12px;background:var(--panel);box-shadow:var(--shadow);
+}
+.layer-n{
+  font-family:var(--f-data);font-size:.74rem;font-weight:700;
+  color:var(--edge);border:1.8px solid var(--edge);border-radius:8px;
+  padding:4px 9px;white-space:nowrap;
+}
+.layer h4{font-family:var(--f-display);font-size:1rem;font-weight:800;margin:0 0 4px}
+.layer p{margin:0;font-size:.93rem;color:var(--ink-2);line-height:1.75;max-width:76ch}
+
+/* verdict strip */
+.verdict{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0;
+  border-radius:16px;overflow:hidden;box-shadow:var(--shadow);
+}
+.verdict > div{padding:22px 24px;display:flex;flex-direction:column;gap:8px}
+.verdict .v-jp{background:var(--note-b)}
+.verdict .v-ov{background:var(--note-e)}
+.verdict h4{font-family:var(--f-display);font-size:1rem;margin:0;font-weight:800}
+.verdict p{margin:0;font-size:.95rem;line-height:1.78}
+
+/* sources */
+.sources{margin-top:60px;padding-top:28px;border-top:2px dashed var(--rule)}
+.sources h3{font-family:var(--f-display);font-size:1rem;font-weight:800;margin:0 0 12px}
+.sources ol{margin:0;padding-left:1.35em;display:flex;flex-direction:column;gap:7px}
+.sources li{font-size:.83rem;line-height:1.7;color:var(--ink-2)}
+.sources a{color:var(--ai);text-decoration:none;border-bottom:1px solid var(--hl-ai)}
+.sources a:hover,.sources a:focus-visible{border-bottom-color:var(--ai)}
+.sources a:focus-visible{outline:2px solid var(--ai);outline-offset:2px}
+.disclaimer{margin-top:20px;font-size:.8rem;color:var(--ink-3);line-height:1.75;max-width:74ch}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .rv{opacity:1;transform:none;transition:none}
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+
+@media (max-width:640px){
+  body{font-size:15px}
+  .roll{padding:0 15px 72px}
+  .head{padding:44px 0 28px}
+  .card{padding:20px}
+  .layer{grid-template-columns:1fr;gap:8px}
+  .layer-n{justify-self:start}
+  .num{width:46px;height:46px;flex-basis:46px}
+  .sec-head{gap:13px}
+}
+</style>
+
+<div class="roll">
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="head rv">
+  <div class="eyebrow">Graphic Record ／ 2026.08</div>
+  <h1>資産をトークン化して<br><span class="hl u-yamabuki">運用・取引する</span>仕組み、<wbr>ぜんぶ図解</h1>
+  <p class="lede">ブロックチェーンは何を担っているのか。提供企業はどこで儲けるのか。日本と海外は何が違い、法整備はどこまで来たのか。株式はなぜ最後なのか。そして三菱UFJ信託銀行はどこに立っているのか — 5枚のボードでまとめました。</p>
+  <div class="head-meta">
+    <span><i class="dot"></i>国内ST残高 <b class="num-v">約6,747億円</b></span>
+    <span><i class="dot" style="background:var(--fuji)"></i>世界RWA <b class="num-v">約360億ドル</b></span>
+    <span><i class="dot" style="background:var(--tokiwa)"></i>改正金商法 <b class="num-v">2026年7月成立</b></span>
+  </div>
+  <nav class="agenda" aria-label="目次">
+    <a href="#s1" style="--edge:var(--ai)">01 仕組みと儲け方</a>
+    <a href="#s2" style="--edge:var(--fuji)">02 日本 vs 海外</a>
+    <a href="#s3" style="--edge:var(--tokiwa)">03 日本の法整備</a>
+    <a href="#s4" style="--edge:var(--beni)">04 株式のトークン化</a>
+    <a href="#s5" style="--edge:var(--yamabuki)">05 三菱UFJ信託銀行</a>
+  </nav>
+</header>
+
+<!-- ══════════ 01 ══════════ -->
+<section class="sec rv" id="s1" style="--edge:var(--ai)">
+  <div class="sec-head">
+    <svg class="num" viewBox="0 0 64 64" aria-hidden="true">
+      <g filter="url(#rough)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+        <circle cx="32" cy="32" r="26"/>
+        <path d="M7.5 33.5A24.5 24.5 0 0 0 56 30"/>
+      </g>
+      <text x="32" y="40" text-anchor="middle" class="num-t">01</text>
+    </svg>
+    <div class="sec-title">
+      <h2>仕組み — ブロックチェーンは何をしていて、企業はどこで儲けるのか</h2>
+      <p class="q">Q. 資産をトークン化して運用・取引する仕組みと、提供企業の収益モデル</p>
+    </div>
+  </div>
+
+  <div class="sec-body">
+
+    <div class="card rough" style="--edge:var(--ai)">
+      <h3 class="blk">そもそも「トークン化」とは、権利を台帳ごと入れ替えること</h3>
+      <p class="prose">資産そのものをチェーンに載せるわけではありません。載るのは<span class="k">権利</span>です。不動産・債権・ファンド持分といった原資産に対する権利を、ブロックチェーン上の残高記録＝トークンとして表現し、その移転をチェーン上で行う。紙の券面 → 証券保管振替機構（ほふり）の電子帳簿 という電子化の流れの、<span class="hl u-ai">次の台帳更新</span>だと捉えるのが正確です。</p>
+      <p class="prose">効果は突き詰めると3つに集約されます。<span class="k">①小口化</span>（1棟の不動産を10万円単位に割る）、<span class="k">②事務の自動執行</span>（名簿・分配・譲渡制限をコードに落とす）、<span class="k">③即時決済</span>（24時間365日動く台帳で、証券と資金を同時に受け渡す）。この3つが同時に効くとき、はじめて「わざわざトークン化する意味」が立ちます。</p>
+    </div>
+
+    <figure>
+      <h3 class="blk">日本の定番スキーム — 受益証券発行信託（JS）型</h3>
+      <div class="fig-scroll">
+        <svg class="dia" viewBox="0 0 1040 258" role="img" aria-label="原資産を信託銀行が受託し、受益権を受益証券発行信託の受益証券としてトークン化、証券会社が募集して投資家に販売する流れの図">
+          <g filter="url(#rough)">
+            <rect class="box" x="6" y="34" width="186" height="86" rx="12"/>
+            <rect class="box" x="220" y="34" width="186" height="86" rx="12"/>
+            <rect class="box" x="434" y="34" width="186" height="86" rx="12"/>
+            <rect class="box" x="648" y="34" width="186" height="86" rx="12"/>
+            <rect class="box" x="862" y="34" width="172" height="86" rx="12"/>
+            <rect x="434" y="168" width="600" height="72" rx="12" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="7 6" style="color:var(--ai)"/>
+            <g class="arrow">
+              <path d="M196 77h18M414 77h14M628 77h14M842 77h14"/>
+              <path d="M206 71l9 6-9 6M420 71l9 6-9 6M634 71l9 6-9 6M848 71l9 6-9 6" fill="currentColor" stroke="none"/>
+            </g>
+            <path class="arrow" d="M527 124v38" style="stroke:var(--ai)"/>
+            <path d="M521 154l6 9 6-9" fill="var(--ai)" stroke="none"/>
+          </g>
+          <g>
+            <text class="t-lbl" x="6" y="22" style="fill:var(--ink-3)">STEP 1</text>
+            <text class="t-lbl" x="220" y="22" style="fill:var(--ink-3)">STEP 2</text>
+            <text class="t-lbl" x="434" y="22" style="fill:var(--ink-3)">STEP 3</text>
+            <text class="t-lbl" x="648" y="22" style="fill:var(--ink-3)">STEP 4</text>
+            <text class="t-lbl" x="862" y="22" style="fill:var(--ink-3)">STEP 5</text>
+
+            <text class="t" x="24" y="68">原資産</text>
+            <text class="t-s" x="24" y="88">不動産・債権・</text>
+            <text class="t-s" x="24" y="105">ファンド持分など</text>
+
+            <text class="t" x="238" y="68">信託銀行が受託</text>
+            <text class="t-s" x="238" y="88">オリジネーターから</text>
+            <text class="t-s" x="238" y="105">切り離す＝倒産隔離</text>
+
+            <text class="t" x="452" y="68">受益権が生まれる</text>
+            <text class="t-s" x="452" y="88">受益証券発行信託 →</text>
+            <text class="t-s" x="452" y="105">金商法の一項有価証券</text>
+
+            <text class="t" x="666" y="68">トークン化</text>
+            <text class="t-s" x="666" y="88">券面を発行せず記録を</text>
+            <text class="t-s" x="666" y="105">チェーンへ＝ERTR</text>
+
+            <text class="t" x="880" y="68">募集・販売</text>
+            <text class="t-s" x="880" y="88">証券会社が取扱い、</text>
+            <text class="t-s" x="880" y="105">投資家が保有</text>
+
+            <text class="t" x="452" y="196" style="fill:var(--ai)">ブロックチェーン基盤（Progmat / ibet for Fin / Securitize など）</text>
+            <text class="t-s" x="452" y="219">受益者の権利者情報と、トークン残高を同期して管理。分配・譲渡制限・償還はスマートコントラクトで自動執行。</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>不動産STの大半はこの型。<b>信託</b>という器が、雑多な資産を「一項有価証券」という規制上きれいな箱に詰め替えている点が肝。だから日本のトークン化は不動産から始まった。</figcaption>
+    </figure>
+
+    <div>
+      <h3 class="blk">ブロックチェーンが担っている4つのレイヤー</h3>
+      <div class="layers" style="margin-top:14px">
+        <div class="layer" style="--edge:var(--ai)">
+          <div class="layer-n">LAYER 1</div>
+          <div>
+            <h4>権利の記録 — 誰がいくら持っているか</h4>
+            <p>トークン残高＝保有者。ここで最大の設計論点が出ます。<span class="k">チェーンを正本（ネイティブ型）にするか、既存の振替制度の写し（ミラー型）にするか</span>。日本の現行法では、後述のとおり上場株など多くの資産で正本を移せず、ミラー型か、信託でラップして新しい器を作るかの二択になります。</p>
+          </div>
+        </div>
+        <div class="layer" style="--edge:var(--ai)">
+          <div class="layer-n">LAYER 2</div>
+          <div>
+            <h4>移転と決済 — DVPをアトミックに</h4>
+            <p>証券と資金を同時に受け渡す（DVP）。資金側にステーブルコインやトークン化預金を置ければ、1本のトランザクションで「渡した／受け取った」が同時確定し、T+2の決済期間と対当事者リスクが消えます。<span class="hl u-yamabuki">逆にいえば、資金側がオンチェーンにないとこの旨みは出ない</span>。日本の最大のボトルネックがここです。</p>
+          </div>
+        </div>
+        <div class="layer" style="--edge:var(--ai)">
+          <div class="layer-n">LAYER 3</div>
+          <div>
+            <h4>業務の自動執行 — スマートコントラクト</h4>
+            <p>分配金の支払い、譲渡制限（ホワイトリスト方式で適格投資家以外に渡らないようにする）、ロックアップ、償還、コーポレートアクション。これまで人手と帳票で回していた事務が、条件を書いたコードに置き換わります。小口化しても事務コストが比例して増えないのは、このレイヤーがあるからです。</p>
+          </div>
+        </div>
+        <div class="layer" style="--edge:var(--ai)">
+          <div class="layer-n">LAYER 4</div>
+          <div>
+            <h4>共有された唯一の記録 — 照合作業の消滅</h4>
+            <p>発行体・受託者・証券会社・投資家が同じ台帳を見る。各社が自前の帳簿を持ち、突き合わせ（レコンサイル）に人を張る構造そのものが要らなくなります。地味ですが、金融機関のコスト構造に一番効くのは実はここです。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="note b">
+        <div class="tag" style="--edge:var(--ai)">技術選択</div>
+        <h4>許可型か、パブリックか</h4>
+        <p>日本の証券系は<span class="k">許可型（コンソーシアム型）</span>が主流。本人確認・譲渡制限・誤送付の是正・法令上の管理責任を負う必要があるためです。一方、海外はEthereumやSolanaといった<span class="k">パブリックチェーン</span>の上に許可制トークン規格を載せる方向へ寄っています。安心を取るか、流動性とDeFiへの接続性を取るか — 現在進行形のトレードオフで、日本勢も両対応へ動いています。</p>
+      </div>
+      <div class="note a">
+        <div class="tag" style="--edge:var(--yamabuki)">見落としがちな点</div>
+        <h4>チェーンだけでは何も起きない</h4>
+        <p>トークンが動いても、法律上の権利が動かなければ意味がありません。<span class="k">「トークンの移転＝権利の移転」を成り立たせているのは、チェーンではなく信託契約と金商法</span>です。技術は事務を安くするだけで、権利の正統性は制度が与えている。この非対称を理解しないと、海外の「トークン化株式」が中身は別物だという話（04参照）が読めません。</p>
+      </div>
+    </div>
+
+    <div class="card rough" style="--edge:var(--yamabuki)">
+      <h3 class="blk" style="--edge:var(--yamabuki)">提供企業はどこで儲けるのか — 7つの収益源</h3>
+      <p class="prose">トークン化ビジネスの収益は、バリューチェーンの各層に分かれて発生します。1社が全部を取ることは基本的になく、<span class="k">どの層を押さえるか</span>が戦略そのものです。</p>
+      <div class="tw" style="margin-top:6px">
+        <table>
+          <caption class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">トークン化事業の収益源一覧</caption>
+          <thead>
+            <tr><th>レイヤー</th><th>担い手</th><th>課金のかたち</th><th>収益の性質</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>基盤利用料</th><td>プラットフォーム事業者</td>
+              <td>初期導入・ライセンス＋案件ごとの発行手数料（発行額連動）＋期中の残高連動フィー＋API接続料</td>
+              <td><span class="chip chip-stock">ストック</span></td>
+            </tr>
+            <tr>
+              <th>信託報酬</th><td>信託銀行（受託者）</td>
+              <td>信託設定時の一時報酬＋期中の信託報酬（信託財産残高に対する料率）</td>
+              <td><span class="chip chip-stock">ストック</span></td>
+            </tr>
+            <tr>
+              <th>引受・販売手数料</th><td>証券会社</td>
+              <td>募集時の販売手数料（発行額の数％）＋継続的な口座管理料</td>
+              <td><span class="chip chip-flow">フロー</span></td>
+            </tr>
+            <tr>
+              <th>流通市場</th><td>PTS・取引所</td>
+              <td>約定手数料、銘柄の取扱料</td>
+              <td><span class="chip chip-flow">フロー</span></td>
+            </tr>
+            <tr>
+              <th>運用報酬</th><td>アセットマネージャー</td>
+              <td>AM報酬（残高連動）＋取得・売却時の成功報酬</td>
+              <td><span class="chip chip-stock">ストック</span></td>
+            </tr>
+            <tr>
+              <th>決済レイヤー</th><td>ステーブルコイン発行者・銀行</td>
+              <td>裏付け資産の運用収益（フロート）＋発行・償還手数料＋送金手数料</td>
+              <td><span class="chip chip-stock">ストック</span></td>
+            </tr>
+            <tr>
+              <th>周辺サービス</th><td>カストディ／SI／監査</td>
+              <td>ウォレット・鍵管理、名簿管理やコーポレートアクション代行、スマートコントラクト監査、導入コンサル</td>
+              <td><span class="chip chip-flow">フロー</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout" style="--edge:var(--yamabuki)">
+      <div class="tag" style="--edge:var(--yamabuki)">利益の構造 — ここが本質</div>
+      <p>トークン化は<span class="k">「1件あたりの手数料を薄くする代わりに、扱える案件数と投資家数を桁で増やす」</span>ビジネスです。基盤開発・法務・監査という固定費を先に払い、案件が増えるほど限界費用がゼロに近づく — 典型的なプラットフォーム型の損益分岐を描きます。つまり<span class="hl u-yamabuki">損益分岐点までの距離が長く、単独の金融機関では回収しきれない</span>。だからこそ業界共通インフラ化（コンソーシアム／合弁会社化）でコストを分散し、その代わり標準を握る、という戦い方になります。</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="note b">
+        <div class="tag" style="--edge:var(--ai)">勝ち筋 A</div>
+        <h4>標準・インフラを押さえる</h4>
+        <p>発行フォーマットと管理基盤がデファクトになれば、案件が増えるほど自動的に残高連動フィーが積み上がる。ネットワーク効果が働く唯一の層です。</p>
+      </div>
+      <div class="note c">
+        <div class="tag" style="--edge:var(--tokiwa)">勝ち筋 B</div>
+        <h4>組成力（オリジネーション）を持つ</h4>
+        <p>基盤だけでは商品が生まれません。良質な原資産を持ち込める不動産会社・運用会社・信託は、上流を押さえられます。</p>
+      </div>
+      <div class="note a">
+        <div class="tag" style="--edge:var(--yamabuki)">勝ち筋 C</div>
+        <h4>決済通貨を握る</h4>
+        <p>ステーブルコインの裏付け資産の運用収益（フロート）は、金利がある局面では極めて大きい。米国のプレイヤーが本丸としている層です。</p>
+      </div>
+    </div>
+
+    <div class="card rough rough-thin" style="--edge:var(--beni)">
+      <h4 class="sub" style="color:var(--beni)">ただし、最大のドライバーは流動性</h4>
+      <p class="prose">セカンダリ市場が薄いと、投資家は「売れない分」を割り引いて評価します。すると発行体は既存の私募ファンドやREITに対するトークン化の優位を感じられず、案件が増えない。案件が増えないから流動性も育たない — この循環をどう断ち切るかが、収益モデル以前の前提条件です。<span class="k">プラットフォーム単体の努力では解けない</span>という点が、この事業の難しさを規定しています。</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ 02 ══════════ -->
+<section class="sec rv" id="s2" style="--edge:var(--fuji)">
+  <div class="sec-head">
+    <svg class="num" viewBox="0 0 64 64" aria-hidden="true">
+      <g filter="url(#rough)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+        <circle cx="32" cy="32" r="26"/>
+        <path d="M7.5 33.5A24.5 24.5 0 0 0 56 30"/>
+      </g>
+      <text x="32" y="40" text-anchor="middle" class="num-t">02</text>
+    </svg>
+    <div class="sec-title">
+      <h2>日本と海外 — 同じ「トークン化」でも、始めた場所が真逆</h2>
+      <p class="q">Q. 資産のトークン化・運用・取引という観点での日本と海外の比較</p>
+    </div>
+  </div>
+
+  <div class="sec-body">
+
+    <div class="verdict">
+      <div class="v-jp">
+        <div class="tag" style="--edge:var(--ai)">日本</div>
+        <h4>規制はきれいに整った。しかし流動性が足りない。</h4>
+        <p>金商法に正面から取り込み、不動産という重い資産をリテールに小口で届ける「商品づくり」から入った。制度は世界でも先行するほど整っているのに、売り買いする場が育っていない。</p>
+      </div>
+      <div class="v-ov">
+        <div class="tag" style="--edge:var(--fuji)">海外</div>
+        <h4>流動性が先に来た。権利の実質と規制が後を追う。</h4>
+        <p>米国債・MMFという最も流動的な資産から入り、機関投資家の担保・待機資金の運用効率という「オペレーション改革」として広がった。規模は桁違いだが、株主権を伴わない「トークン化株式」など、名前と中身のギャップが残る。</p>
+      </div>
+    </div>
+
+    <div class="tw">
+      <table>
+        <caption>日本 ／ 海外（米・欧・シンガポール・スイス）比較</caption>
+        <thead>
+          <tr><th>観点</th><th class="col-jp">日本</th><th class="col-ov">海外</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>主役アセット</th>
+            <td><b>不動産</b>が公募STの約85%。投信・社債・PEファンドへの拡張が始まったところ。</td>
+            <td><b>米国債・MMF</b>などの短期金融資産。トークン化米国債だけで約111億ドル、トークン化不動産は約4.4億ドル。</td>
+          </tr>
+          <tr>
+            <th>市場規模</th>
+            <td>ST残高 <span class="num-v">約6,747億円</span>、累計発行 <span class="num-v">約3,552億円</span>。2026年中に残高 <span class="num-v">1兆円</span>超の見込み。</td>
+            <td>RWA全体で <span class="num-v">約360億ドル</span>（2022年の50億ドルから約7倍）。BlackRockのBUIDL単体で <span class="num-v">25億ドル</span>超。</td>
+          </tr>
+          <tr>
+            <th>誰のための商品か</th>
+            <td>個人投資家。小口化・分散・新しい投資機会という文脈。</td>
+            <td>機関投資家。即時償還・担保転用・24/365のキャッシュマネジメントという文脈。</td>
+          </tr>
+          <tr>
+            <th>チェーン</th>
+            <td>許可型（コンソーシアム型）が中心。管理責任と法令遵守を優先。</td>
+            <td>パブリックチェーン中心。その上に許可制トークン規格を載せる設計。</td>
+          </tr>
+          <tr>
+            <th>決済通貨</th>
+            <td>円建てステーブルコインが立ち上がり途上。資金決済は依然オフチェーンで、DVPの旨みが出しにくい。</td>
+            <td>米ドル建てステーブルコインが巨大に存在し、オンチェーンでアトミック決済が成立している。</td>
+          </tr>
+          <tr>
+            <th>法制度</th>
+            <td>金商法にERTR（電子記録移転有価証券表示権利等）を定義し、既存の証券規制をそのまま適用。2023年には資金決済法でステーブルコインを世界最速級に法制化。</td>
+            <td>米：既存証券法を適用しつつ2026年3月にSEC／CFTC共同解釈で5分類を提示、トークン化証券の免除枠を整備中。EU：MiCA＋DLTパイロット制度（利用低調で見直し中）。スイス：DLT法で完全法制化済み。星：Project Guardianが実運用フェーズへ。</td>
+          </tr>
+          <tr>
+            <th>株式のトークン化</th>
+            <td>上場株は未着手。社債株式等振替法とほふりが前提で、制度提案の段階。</td>
+            <td>Robinhood・Kraken（xStocks）・Coinbaseが提供済み、110〜120か国超。ただし<b>多くは株式そのものではなく債務証券や預託型</b>で、株主権は付かない。</td>
+          </tr>
+          <tr>
+            <th>強み</th>
+            <td>信託法制と受益証券発行信託という「使える器」がある。法的安定性が高く、詐欺的案件がほぼない。</td>
+            <td>資金と流動性の厚み。パブリックチェーンのコンポーザビリティとDeFiへの接続性。</td>
+          </tr>
+          <tr>
+            <th>弱み</th>
+            <td>流通市場がODXの「START」ほぼ一択で板が薄い。円建て決済手段の不足。アセットの偏り。</td>
+            <td>権利の実質が伴わない商品が混在。規制がパッチワークで国ごとにばらばら。投資家保護に穴。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="note e">
+        <div class="tag" style="--edge:var(--fuji)">なぜ差がついたか ①</div>
+        <h4>入口の資産が違った</h4>
+        <p>海外は<span class="k">「償還価格が読める資産」</span>から入りました。国債やMMFは、ステーブルコインでの買い取りや償還を設計しやすく、待機資金や担保として回せる。だから機関投資家がすぐ使えた。対して日本の不動産STは価格が変動し、元本に近い価格での償還を前提にできない。<span class="hl u-fuji">同じトークン化でも、担保として使えるかどうかで用途の広がりが根本的に違います</span>。</p>
+      </div>
+      <div class="note b">
+        <div class="tag" style="--edge:var(--ai)">なぜ差がついたか ②</div>
+        <h4>資金側がチェーンにあるかどうか</h4>
+        <p>米ドル建てステーブルコインという巨大な「オンチェーンの現金」が先に存在したため、海外では証券をトークン化した瞬間にアトミック決済が成立しました。日本は証券側を先に整備し、資金側が後追いになった。だから2025年以降、3メガバンクの共同ステーブルコイン検討やトークン化MMFが一斉に動いているのは必然です — <span class="k">証券より先に、資金を載せないと始まらない</span>とわかったからです。</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ 03 ══════════ -->
+<section class="sec rv" id="s3" style="--edge:var(--tokiwa)">
+  <div class="sec-head">
+    <svg class="num" viewBox="0 0 64 64" aria-hidden="true">
+      <g filter="url(#rough)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+        <circle cx="32" cy="32" r="26"/>
+        <path d="M7.5 33.5A24.5 24.5 0 0 0 56 30"/>
+      </g>
+      <text x="32" y="40" text-anchor="middle" class="num-t">03</text>
+    </svg>
+    <div class="sec-title">
+      <h2>日本の法整備 — 「証券として扱う」を積み上げてきた7年</h2>
+      <p class="q">Q. 日本の法整備の状況</p>
+    </div>
+  </div>
+
+  <div class="sec-body">
+
+    <div class="card rough" style="--edge:var(--tokiwa)">
+      <p class="prose">日本の方針は一貫しています。<span class="k">新しい法律で別枠を作るのではなく、既存の金商法・信託法の枠に取り込んで、同じ規制を適用する</span>。これが法的安定性を生み、機関投資家が安心して入れる土壌になりました。半面、既存制度の前提（ほふり中心の振替制度）が強く残るため、制度を作り替えないと踏み込めない領域が残っています。</p>
+    </div>
+
+    <div class="tl" style="--edge:var(--tokiwa)">
+      <div class="tl-row">
+        <div class="tl-when">2017</div>
+        <div class="tl-what">資金決済法 — 暗号資産交換業を登録制に</div>
+        <p class="tl-desc">世界に先駆けて暗号資産交換業者を法の下に置いた。以後、日本は「まず規制の枠に入れる」路線を取り続けます。</p>
+      </div>
+      <div class="tl-row big">
+        <div class="tl-when">2019年改正 → 2020年5月施行</div>
+        <div class="tl-what">金商法改正 — セキュリティトークンの法的土台が完成</div>
+        <p class="tl-desc">集団投資スキーム持分などをトークン化したものを<b>「電子記録移転権利」</b>として新設し、本来は流通性の低い二項有価証券でありながら<b>一項有価証券と同じ厳格な扱い</b>（有価証券届出書・目論見書の開示義務、第一種金融商品取引業の登録）を課しました。実務上は内閣府令の<b>「電子記録移転有価証券表示権利等（ERTR）」</b>という定義でまとめて規律されます。もともと一項有価証券である受益証券発行信託の受益権をトークン化したものもここに入る — これが不動産STの器です。同時に暗号資産のカストディ規制も導入。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2020</div>
+        <div class="tl-what">日本STO協会が認定金融商品取引業協会に</div>
+        <p class="tl-desc">引受・勧誘の適正化、電子情報処理組織の管理といった自主規制規則を整備。業界側のルールが揃いました。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2021年8月</div>
+        <div class="tl-what">国内初の不動産裏付けセキュリティトークンが発行</div>
+        <p class="tl-desc">三菱UFJ信託銀行がProgmat基盤で組成。ここから公募ST市場が立ち上がります。</p>
+      </div>
+      <div class="tl-row big">
+        <div class="tl-when">2023年6月施行</div>
+        <div class="tl-what">改正資金決済法 — ステーブルコインを「電子決済手段」として法制化</div>
+        <p class="tl-desc">信託型（受益証券発行信託）・資金移動業型・銀行型の3類型を定義し、<b>発行者と仲介者（電子決済手段等取引業者）を分離</b>する構造を採用。世界最速級の法制化で、信託銀行が発行者になれる道が開けました。決済レイヤーの法的な受け皿が、この時点で先にできていた点が後から効いてきます。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2023年12月</div>
+        <div class="tl-what">ODXが日本初のSTセカンダリ市場「START」を稼働</div>
+        <p class="tl-desc">大阪デジタルエクスチェンジのPTS。2026年で3年目に入り、社債STやPEファンドSTの取扱いを検討中と公表しています。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2024 – 2025</div>
+        <div class="tl-what">商品設計の多様化と、円建て決済手段の登場</div>
+        <p class="tl-desc">譲渡制限付きなど設計のバリエーションが増加。円建てステーブルコインが登場し、2025年11月には三菱UFJ・みずほ・三井住友の3行がProgmatの基盤を用いた共同ステーブルコインの実証を公表しました。</p>
+      </div>
+      <div class="tl-row big">
+        <div class="tl-when">2026年4月10日 提出 → 6月11日 衆院通過 → 7月15日 成立</div>
+        <div class="tl-what">改正金商法・資金決済法 — 暗号資産を金商法へ移管</div>
+        <p class="tl-desc">暗号資産が国内外で「投資対象」として広く認識された実態を受け、規制の軸足を資金決済法から金商法へ移す大改正。<b>①発行者・取扱業者への情報開示義務、②インサイダー取引規制の導入、③無登録業者への対応強化、④運用・助言に関する規律、⑤公正な価格形成と取引の確保</b>が柱です。同じ改正法にサステナビリティ開示の義務化も含まれます。施行は2027年中の見込み。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2028年1月〜（見込み）</div>
+        <div class="tl-what">税制 — 暗号資産も20%申告分離課税へ</div>
+        <p class="tl-desc">STは有価証券として当初から20.315%の申告分離課税でしたが、暗号資産は総合課税（最大約55%）でした。改正に伴い暗号資産も一律20%（所得税15%＋住民税5%）の申告分離課税となる方向で、適用開始は2028年1月からの見込み。<b>同じチェーン上の資産なのに税率が全く違う</b>という長年の非対称がようやく解消に向かいます。</p>
+      </div>
+    </div>
+
+    <div class="card rough" style="--edge:var(--beni)">
+      <h3 class="blk" style="--edge:var(--beni)">まだ空いている穴 — 法整備の残課題</h3>
+      <ul class="pt" style="--edge:var(--beni)">
+        <li><span class="k">正本をチェーンに置く制度がない。</span>上場株式は社債株式等振替法により、ほふりと証券会社の口座（振替口座簿）が正本。権利移転の効力も対抗要件もそこに紐づいており、ブロックチェーンを正本とする法的な受け皿が存在しません。</li>
+        <li><span class="k">投資信託の受益権は券面の交付が要る。</span>受益証券の発行義務があり、譲渡の対抗要件成立に券面交付が必要とされるため、MMFをそのままトークン化できない。受益証券発行信託でラップする迂回が必要になります。</li>
+        <li><span class="k">トークンの移転に権利推定効・善意取得を認める一般法がない。</span>いま権利の正統性は、スキームごとの信託契約と個別の作り込みで担保しています。汎用的な「トークン化法」がないため、案件ごとに法務コストが乗り続ける構造です。</li>
+        <li><span class="k">保管・倒産・相続の周辺整備。</span>ウォレットの自己保管、鍵の紛失、差押え、相続、倒産隔離の実務上の扱いに、まだ確立した答えがありません。</li>
+        <li><span class="k">クロスボーダー。</span>海外投資家の受入れ、海外チェーンとの接続、他国規制との整合。国内で完結する設計のままでは、海外の流動性に接続できません。</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ 04 ══════════ -->
+<section class="sec rv" id="s4" style="--edge:var(--beni)">
+  <div class="sec-head">
+    <svg class="num" viewBox="0 0 64 64" aria-hidden="true">
+      <g filter="url(#rough)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+        <circle cx="32" cy="32" r="26"/>
+        <path d="M7.5 33.5A24.5 24.5 0 0 0 56 30"/>
+      </g>
+      <text x="32" y="40" text-anchor="middle" class="num-t">04</text>
+    </svg>
+    <div class="sec-title">
+      <h2>株式のトークン化 — なぜ日本では、株式が最後に来るのか</h2>
+      <p class="q">Q. 日本における株式のトークン化の現状と今後の課題</p>
+    </div>
+  </div>
+
+  <div class="sec-body">
+
+    <div class="grid-2">
+      <div class="card rough rough-thin" style="--edge:var(--beni)">
+        <h4 class="sub">上場株式 — 実質ゼロ</h4>
+        <p style="font-size:.95rem">社債株式等振替法により上場会社の株券は全廃され、株主権の管理はほふりと証券会社の口座で行う建て付けです。この<span class="k">振替口座簿が正本</span>で、権利移転の効力も第三者対抗要件もここに紐づく。ブロックチェーンを正本にする法的な受け皿がないため、現行法のままでは踏み込めません。</p>
+      </div>
+      <div class="card rough rough-thin" style="--edge:var(--beni)">
+        <h4 class="sub">非上場株式 — 器を通してなら可能</h4>
+        <p style="font-size:.95rem">会社法上、譲渡制限の承認と株主名簿の書換えが必要で、<span class="k">名簿が正本</span>。トークンだけ動かしても株主にはなれません。ただし「非公開株に投資するファンドの持分」をSTにすることは可能で、ODXはPEファンドSTや社債STの取扱いを検討中です。<span class="hl u-beni">先行しているのは株式そのものではなく、株式に投資する器のトークン化</span>です。</p>
+      </div>
+    </div>
+
+    <div class="callout" style="--edge:var(--fuji)">
+      <div class="tag" style="--edge:var(--fuji)">対比 — 海外の「トークン化株式」の正体</div>
+      <p>Robinhood、Kraken（xStocks）、Coinbaseはすでにトークン化株式を110〜120か国超で提供しています。ただし<span class="k">Robinhoodの Stock Tokens は株式（equity）ではなく債務証券（debt securities）</span>で、保有者に株主権はありません。SEC／CFTCの2026年3月の共同解釈も、トークンの種類によって「登録株式そのもの」「預託機関に紐づく表示」「デジタル受領証」「合成エクスポージャー」のどれなのかが変わり、議決権やコーポレートアクションの権利が伴うのは一部だけだと整理しています。<span class="hl u-fuji">スピードで先行した代わりに、名称と実質のギャップが投資家保護の論点として残っている</span> — ここが後発の日本にとっての差別化余地です。</p>
+    </div>
+
+    <div>
+      <h3 class="blk" style="--edge:var(--beni)">日本で議論されている3つのスキーム</h3>
+      <p class="prose" style="margin-top:10px;font-size:.95rem;color:var(--ink-2)">Progmatが事務局を務めるデジタルアセット共創コンソーシアム（DCC、会員330社規模）は、2025年11月に「トークン化法・株式STワーキング・グループ」を設置し、2026年4月7日に<span class="k">「トークン化株式」及び「トークン化法」に係る中間整理</span>を公表しました。整理されている選択肢は概ね次の3つです。</p>
+      <div class="grid-3" style="margin-top:18px">
+
+        <div class="card rough rough-thin" style="--edge:var(--tokiwa);padding:20px">
+          <div class="tag" style="--edge:var(--tokiwa)">OPTION A ／ 現行法で可能</div>
+          <h4 class="sub">受益証券発行信託型（ミラー型）</h4>
+          <svg class="mini" viewBox="0 0 240 92" role="img" aria-label="正本はほふり側にあり、チェーンは信託受益権として写しを持つ構成">
+            <g filter="url(#rough-s)">
+              <rect class="box" x="4" y="24" width="102" height="46" rx="9"/>
+              <rect class="box" x="134" y="24" width="102" height="46" rx="9"/>
+              <path d="M110 47h20" stroke="var(--ink-3)" stroke-width="2" fill="none"/>
+              <path d="M124 42l7 5-7 5" fill="var(--ink-3)"/>
+            </g>
+            <text x="55" y="44" text-anchor="middle" class="t">ほふり</text>
+            <text x="55" y="60" text-anchor="middle" class="t" style="fill:var(--tokiwa);font-size:11px">★ 正本</text>
+            <text x="185" y="44" text-anchor="middle" class="t">チェーン</text>
+            <text x="185" y="60" text-anchor="middle" class="t" style="fill:var(--ink-3);font-size:11px">受益権＝写し</text>
+            <text x="120" y="14" text-anchor="middle" class="t" style="fill:var(--ink-3);font-size:10.5px">信託でラップ</text>
+          </svg>
+          <p style="font-size:.9rem;margin:0">既存の振替株式を信託し、受益権をトークン化する。<span class="k">今の法律のままできる</span>のが最大の利点。半面、議決権行使は受託者経由になり、管理コストが二重にかかります。</p>
+        </div>
+
+        <div class="card rough rough-thin" style="--edge:var(--ai);padding:20px">
+          <div class="tag" style="--edge:var(--ai)">OPTION B ／ 橋を架ける</div>
+          <h4 class="sub">複数受益権ハイブリッド型</h4>
+          <svg class="mini" viewBox="0 0 240 92" role="img" aria-label="権利内容を揃えた受益権を、チェーン側とほふり側の両方で管理し相互転換する構成">
+            <g filter="url(#rough-s)">
+              <rect class="box" x="4" y="24" width="102" height="46" rx="9"/>
+              <rect class="box" x="134" y="24" width="102" height="46" rx="9"/>
+              <path d="M110 40h22M132 54h-22" stroke="var(--ai)" stroke-width="2" fill="none"/>
+              <path d="M126 35l7 5-7 5M116 49l-7 5 7 5" fill="var(--ai)"/>
+            </g>
+            <text x="55" y="44" text-anchor="middle" class="t">受益権①</text>
+            <text x="55" y="60" text-anchor="middle" class="t" style="fill:var(--ai);font-size:11px">ST／チェーン</text>
+            <text x="185" y="44" text-anchor="middle" class="t">受益権②</text>
+            <text x="185" y="60" text-anchor="middle" class="t" style="fill:var(--ai);font-size:11px">振替／ほふり</text>
+            <text x="120" y="14" text-anchor="middle" class="t" style="fill:var(--ink-3);font-size:10.5px">相互に転換</text>
+          </svg>
+          <p style="font-size:.9rem;margin:0">権利内容を揃えた受益権を2種類用意し、片方はチェーン、片方はほふりで管理して相互に行き来させる。<span class="k">オンチェーンと既存市場をつなぐ橋</span>になります。超小口の「マイクロ株」を有価証券信託受益証券として扱えるかなど、当局との個別確認が必要な論点が残ります。</p>
+        </div>
+
+        <div class="card rough rough-thin" style="--edge:var(--beni);padding:20px">
+          <div class="tag" style="--edge:var(--beni)">OPTION C ／ 立法が要る</div>
+          <h4 class="sub">ネイティブ型</h4>
+          <svg class="mini" viewBox="0 0 240 92" role="img" aria-label="チェーンの記録そのものを正本とする構成">
+            <g filter="url(#rough-s)">
+              <rect class="box" x="66" y="20" width="108" height="52" rx="9" style="stroke:var(--beni);stroke-width:2.2"/>
+            </g>
+            <text x="120" y="44" text-anchor="middle" class="t">ブロックチェーン</text>
+            <text x="120" y="61" text-anchor="middle" class="t" style="fill:var(--beni);font-size:11px">★ 正本はここだけ</text>
+          </svg>
+          <p style="font-size:.9rem;margin:0">チェーンの記録そのものを正本にする。効果は最大ですが、<span class="k">振替法・会社法の改正が前提</span>。DCCは、トークンの移転記録に権利推定効と善意取得を認める一般法「トークン化法」の立法を提言し、当局に提出しています。</p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card rough" style="--edge:var(--beni)">
+      <h3 class="blk" style="--edge:var(--beni)">今後の課題 — 5つ</h3>
+      <ol class="pt" style="--edge:var(--beni)">
+        <li><span class="k">制度：正本をどこに置くか。</span>振替法・会社法・信託法の整合、名義書換・基準日・議決権・配当の実務をどう設計するか。ここが決まらないと他が進みません。</li>
+        <li><span class="k">決済：円のオンチェーン決済手段。</span>ステーブルコインやトークン化預金が量として立ち上がらないと、DVPという最大の便益が出ません。証券より資金が先、という順序が明確になっています。</li>
+        <li><span class="k">流動性：セカンダリの厚み。</span>STのセカンダリはODXのSTARTがほぼ唯一。取扱証券会社も気配も薄い。トークン化して小口にしても売れないなら、小口化の意味が半減します。</li>
+        <li><span class="k">コスト：「わざわざトークン化」の説明責任。</span>現状、既存の株式インフラの方が圧倒的に安い。24/365、担保への転用、超小口、プログラマビリティ — 手数料の安さ以外の便益を具体的に示せるかが問われます。</li>
+        <li><span class="k">投資家保護：権利が本物であること。</span>海外のトークン化株式には株主権を伴わないものが多く、名称と実質のギャップが誤認を生んでいます。<span class="hl u-beni">後発で入る日本にとっては、ここが差別化の軸になり得ます</span>。</li>
+      </ol>
+    </div>
+
+    <figure>
+      <h4 class="sub">現実的な順序 — 株式は最後に来る</h4>
+      <div class="fig-scroll">
+        <svg class="dia" viewBox="0 0 1040 132" role="img" aria-label="決済トークン、投信・MMF、社債、PEファンド、非上場株、上場株の順に進むロードマップ図">
+          <g filter="url(#rough)">
+            <rect class="box" x="6" y="38" width="152" height="56" rx="10" style="stroke:var(--yamabuki)"/>
+            <rect class="box" x="178" y="38" width="152" height="56" rx="10" style="stroke:var(--yamabuki)"/>
+            <rect class="box" x="350" y="38" width="152" height="56" rx="10" style="stroke:var(--ai)"/>
+            <rect class="box" x="522" y="38" width="152" height="56" rx="10" style="stroke:var(--ai)"/>
+            <rect class="box" x="694" y="38" width="152" height="56" rx="10" style="stroke:var(--beni)"/>
+            <rect class="box" x="866" y="38" width="168" height="56" rx="10" style="stroke:var(--beni);stroke-dasharray:6 5"/>
+            <g class="arrow">
+              <path d="M162 66h12M334 66h12M506 66h12M678 66h12M850 66h12"/>
+              <path d="M166 61l7 5-7 5M338 61l7 5-7 5M510 61l7 5-7 5M682 61l7 5-7 5M854 61l7 5-7 5" fill="currentColor" stroke="none"/>
+            </g>
+          </g>
+          <g>
+            <text class="t" x="82" y="63" text-anchor="middle">決済トークン</text>
+            <text class="t-s" x="82" y="81" text-anchor="middle">ステーブルコイン</text>
+            <text class="t" x="254" y="63" text-anchor="middle">投信・MMF</text>
+            <text class="t-s" x="254" y="81" text-anchor="middle">TMMF</text>
+            <text class="t" x="426" y="63" text-anchor="middle">社債</text>
+            <text class="t-s" x="426" y="81" text-anchor="middle">上場会社の社債ST</text>
+            <text class="t" x="598" y="63" text-anchor="middle">PEファンド</text>
+            <text class="t-s" x="598" y="81" text-anchor="middle">非公開株への投資持分</text>
+            <text class="t" x="770" y="63" text-anchor="middle">非上場株</text>
+            <text class="t-s" x="770" y="81" text-anchor="middle">譲渡制限の設計が鍵</text>
+            <text class="t" x="950" y="63" text-anchor="middle">上場株</text>
+            <text class="t-s" x="950" y="81" text-anchor="middle">立法待ち</text>
+            <text class="t-lbl" x="6" y="24" style="fill:var(--yamabuki)">まず資金を載せる</text>
+            <text class="t-lbl" x="350" y="24" style="fill:var(--ai)">次に器を載せる</text>
+            <text class="t-lbl" x="694" y="24" style="fill:var(--beni)">最後に株式そのもの</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>先に決済とファンドで実績と流動性をつくり、制度改正を待って株式に到達する。株式が最後なのは技術の問題ではなく、<b>正本の置き場所という制度の問題</b>だから。</figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<!-- ══════════ 05 ══════════ -->
+<section class="sec rv" id="s5" style="--edge:var(--yamabuki)">
+  <div class="sec-head">
+    <svg class="num" viewBox="0 0 64 64" aria-hidden="true">
+      <g filter="url(#rough)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+        <circle cx="32" cy="32" r="26"/>
+        <path d="M7.5 33.5A24.5 24.5 0 0 0 56 30"/>
+      </g>
+      <text x="32" y="40" text-anchor="middle" class="num-t">05</text>
+    </svg>
+    <div class="sec-title">
+      <h2>三菱UFJ信託銀行 — これまでの動き、展望、そして課題</h2>
+      <p class="q">Q. 三菱UFJ信託銀行としてのこれまでの動きと、今後の展望・課題</p>
+    </div>
+  </div>
+
+  <div class="sec-body">
+
+    <div class="tl" style="--edge:var(--yamabuki)">
+      <div class="tl-row">
+        <div class="tl-when">2019</div>
+        <div class="tl-what">「Progmat」構想を発表</div>
+        <p class="tl-desc">ST発行・管理基盤の開発に着手。信託銀行が受託者として権利者情報を管理する仕組みと、ブロックチェーンをセットで設計したのが出発点です。</p>
+      </div>
+      <div class="tl-row big">
+        <div class="tl-when">2021年8月</div>
+        <div class="tl-what">国内初の不動産裏付けセキュリティトークンを発行</div>
+        <p class="tl-desc">受益証券発行信託の器を使い、日本のST市場そのものを立ち上げました。以後、国内ST市場を牽引する立場に。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2022年2月</div>
+        <div class="tl-what">Progmat Coin ／ Progmat UT を発表</div>
+        <p class="tl-desc">ステーブルコイン発行基盤とユーティリティトークン基盤を追加。ST（証券）・SC（決済）・UT を横断する「デジタルアセット基盤」へと構想が広がります。</p>
+      </div>
+      <div class="tl-row big">
+        <div class="tl-when">2023年9月 → 10月</div>
+        <div class="tl-what">Progmatを自社から切り離し、7社合弁の株式会社Progmatを設立</div>
+        <p class="tl-desc">三菱UFJ信託を含む7社で共同検討を開始し、合弁会社を設立。NTTデータ、三井住友信託、みずほ信託、SBI、JPX、日本電気などが参画しました。同行は「<b>三菱の冠をかぶったままでは中立の組織として見られない。独立した会社とすることで、他の資本系列の会社にも広く参加いただき、ナショナルインフラとして提供できる</b>」と説明しています。<span class="hl u-yamabuki">投資回収前に手放すという判断で、自社利益より標準の座を取りにいった</span>のがこの意思決定の本質です。デジタルアセット共創コンソーシアム（DCC）は当初163社から330社規模へ拡大しました。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2023年11月</div>
+        <div class="tl-what">Gincoとの協業</div>
+        <p class="tl-desc">ウォレット・鍵管理まわりの補完。基盤単体では埋まらない実装層をパートナーで固める動きです。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2025年3月</div>
+        <div class="tl-what">MUFG不動産投資顧問・SBI証券らとの案件組成</div>
+        <p class="tl-desc">グループ内の運用・販売機能を組み合わせた案件が定着してきた時期。</p>
+      </div>
+      <div class="tl-row big">
+        <div class="tl-when">2025年11月</div>
+        <div class="tl-what">3メガバンク＋MUFG信託で共同ステーブルコインの実証へ</div>
+        <p class="tl-desc">三菱UFJ銀行・みずほ銀行・三井住友銀行の共同プロジェクトに、Progmatが基盤と技術支援を提供。<b>証券側だけでなく資金側を押さえにいく</b>という転換点です。Progmat Coinは日本法に準拠したステーブルコイン発行管理基盤で、円建てのXJPY、ドル建てのXUSDの開発に使われています。</p>
+      </div>
+      <div class="tl-row big">
+        <div class="tl-when">2025年12月</div>
+        <div class="tl-what">日本初のトークン化投資信託（TMMF）の開発を開始</div>
+        <p class="tl-desc">三菱UFJアセットマネジメント／三菱UFJモルガン・スタンレー証券／三菱UFJ信託銀行の3社がProgmatと協業。まずトークン化MMFを開発し、<b>2026年に円建てTMMFを機関投資家向けに提供</b>することを目指しています。24時間365日動くチェーンを使って即時換金を可能にする設計で、将来は個人向けへの拡充も検討。海外のBUIDLが辿った道と同じ方向です。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2026年3月</div>
+        <div class="tl-what">「MUFGリアルティ・トークン大阪堂島浜タワー（譲渡制限付）」の公募・発行完了</div>
+        <p class="tl-desc">野村證券が販売。譲渡制限付きという設計で、投資家層を絞った商品設計のバリエーションが実務に定着してきました。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2026年3月時点</div>
+        <div class="tl-what">Progmat ST の累計発行額 <span class="num-v">約2,269億円</span>／<span class="num-v">45件</span>、国内シェア首位</div>
+        <p class="tl-desc">不動産STでは公募案件で市場をリードする位置を維持しています。</p>
+      </div>
+      <div class="tl-row">
+        <div class="tl-when">2026年4月7日</div>
+        <div class="tl-what">「トークン化株式」「トークン化法」の中間整理を公表</div>
+        <p class="tl-desc">DCCのワーキング・グループでの検討成果を当局への提言としてまとめました。事業者でありながらルールメイキングに関与する — この二重の立ち位置が同行グループの戦略の核です。</p>
+      </div>
+    </div>
+
+    <div class="card rough" style="--edge:var(--ai)">
+      <h3 class="blk">なぜ信託銀行がこの領域の中心にいるのか — 3つの固有の強み</h3>
+      <div class="grid-3" style="margin-top:6px">
+        <div class="note b">
+          <div class="tag" style="--edge:var(--ai)">強み ①</div>
+          <h4>倒産隔離された「器」を出せる</h4>
+          <p>受益証券発行信託によって、原資産を法的に切り出し、一項有価証券に変えられる。<span class="k">日本のST市場が不動産から立ち上がった理由そのもの</span>が、この器の存在です。</p>
+        </div>
+        <div class="note c">
+          <div class="tag" style="--edge:var(--tokiwa)">強み ②</div>
+          <h4>原簿管理者になれる</h4>
+          <p>受益権原簿・権利者情報を管理する主体としての免許と実務ノウハウ。チェーンの記録と法律上の権利を接続する結節点に、制度上すでに立っています。</p>
+        </div>
+        <div class="note a">
+          <div class="tag" style="--edge:var(--yamabuki)">強み ③</div>
+          <h4>資金側も扱える</h4>
+          <p>信託型ステーブルコイン（電子決済手段）は信託銀行が発行者になれる。<span class="k">証券と資金の両側を同じグループで押さえられる</span>のは、世界的にも珍しいポジションです。</p>
+        </div>
+      </div>
+      <p class="prose" style="margin-top:6px">つまり同行は「<span class="hl u-ai">アセットの器 ＋ 決済の器 ＋ 基盤（Progmat）</span>」の3点セットを持っている。02で見た「海外が先行できたのは資金がチェーンにあったから」という論点に対し、日本で最も直接的に手が届く位置にいるのがこの銀行です。</p>
+    </div>
+
+    <div class="card rough" style="--edge:var(--tokiwa)">
+      <h3 class="blk" style="--edge:var(--tokiwa)">今後の展望</h3>
+      <ul class="pt" style="--edge:var(--tokiwa)">
+        <li><span class="k">資産クラスの階段を上る。</span>不動産 → 投信（TMMF）→ 社債 → PEファンド → 非上場株 → 制度改正後に上場株。04のロードマップをそのまま実行する立ち位置にいます。</li>
+        <li><span class="k">決済レイヤーを本命化する。</span>3メガ共同ステーブルコインとトークン化預金で、証券決済のDVPを円で完結させる。<span class="hl u-tokiwa">ここが立てば、既存のST全体の価値が一段跳ねます</span>。</li>
+        <li><span class="k">機関投資家の担保・資金管理へ。</span>TMMFを担保やキャッシュマネジメントに使う道。BlackRockのBUIDLが証明した最も大きな市場です。</li>
+        <li><span class="k">クロスボーダー。</span>XJPY／XUSDのようなグローバルに流通可能な円建て・ドル建てステーブルコインと、パブリックチェーン対応。国内完結の設計から抜け出す局面です。</li>
+        <li><span class="k">制度づくりへの関与を続ける。</span>トークン化法の立法提言とDCCを通じた標準化。ルールメイカーであり続けること自体が、事業戦略として機能しています。</li>
+      </ul>
+    </div>
+
+    <div class="card rough" style="--edge:var(--beni)">
+      <h3 class="blk" style="--edge:var(--beni)">課題</h3>
+      <ol class="pt" style="--edge:var(--beni)">
+        <li><span class="k">収益化のタイミング。</span>基盤事業は固定費先行で、案件数と残高が積み上がるまで採算が合わない構造です。Progmatの分社は投資回収前の判断であり、中立性と自社利益のトレードオフを中立性側に振った選択でした。<span class="hl u-beni">その賭けが回収されるかは、基盤利用料が残高とともに積み上がるかにかかっています</span>。</li>
+        <li><span class="k">中立性と競争の両立。</span>ナショナルインフラを標榜する以上、MUFG系の案件だけを回すわけにはいきません。一方で他系列は自前の基盤も持っており、標準の座は確定していない。旗を掲げ続けながら実利を取るという、難度の高い舵取りが続きます。</li>
+        <li><span class="k">流動性は自社では作れない。</span>PTS（ODX）や証券会社の販売力、投資家層の拡大に依存します。ST市場全体の厚みが、そのまま自社事業の天井になる構造です。</li>
+        <li><span class="k">パブリックチェーンへの適応。</span>許可型で作り込んだ資産を海外投資家やDeFiにつなぐには、パブリックチェーン上の許可制トークンへ寄せる必要があります。セキュリティと管理責任をどう引き受けるかは未解決です。</li>
+        <li><span class="k">「わざわざトークン化」の説明責任。</span>既存の不動産私募ファンドやJ-REITに対して、STである意味を投資家と発行体の双方に示し続ける必要があります。手数料の安さだけでは勝てません。</li>
+        <li><span class="k">運用体制と人材。</span>鍵管理、スマートコントラクト監査、24時間365日の運用。信託銀行の従来オペレーションとは質の違う体制が要求されます。</li>
+      </ol>
+    </div>
+
+    <div class="callout" style="--edge:var(--yamabuki)">
+      <div class="tag" style="--edge:var(--yamabuki)">まとめの一行</div>
+      <p>三菱UFJ信託銀行は、<span class="k">「トークン化で稼ぐ会社」ではなく「トークン化が起きる土台をつくる会社」</span>として自らを位置づけ直しました。Progmatを手放したのはその表明です。したがって同行の成否は、自社案件の積み上げよりも、<span class="hl u-yamabuki">日本のST市場そのものが1兆円から先へ育つかどうか</span>に連動します。次の1〜2年で、円建てステーブルコインとTMMFが機関投資家の実務に入るかが最初の答え合わせになります。</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ SOURCES ══════════ -->
+<footer class="sources rv">
+  <h3>参照した情報源</h3>
+  <ol>
+    <li><a href="https://www.nomuraholdings.com/jp/news/nr/bstr20260402.html">野村ホールディングス「国内セキュリティ・トークン市場総括レポート（2025年度）」</a>（市場残高・発行額・案件数）</li>
+    <li><a href="https://finance.yahoo.co.jp/news/detail/5c739ca995f160054f0b2dc84c0b7799fbf57281">NADA NEWS「不動産から未公開株まで、次なる成長フェーズを迎えたST市場──東京都デジタル証券シンポジウム【JFW 2026】」</a></li>
+    <li><a href="https://zenn.dev/komlock_lab/articles/japan-real-estate-security-token-market">「日本の不動産ST市場が1兆円に届く年 ― なぜ日本のトークン化は『不動産から』始まったのか」</a></li>
+    <li><a href="https://www.fsa.go.jp/common/diet/221/02/03.pdf">金融庁「金融商品取引法及び資金決済に関する法律の一部を改正する法律案 説明資料」（2026年4月）</a></li>
+    <li><a href="https://www.nagashima.com/publications/publication20260424-1/">長島・大野・常松法律事務所「暗号資産に係る規制・税制の改正の内容（1）」</a></li>
+    <li><a href="https://toushin-news.jp/others/news-07152026-3/">投信まるごとニュース「金融商品取引法等改正法が成立」（2026年7月15日）</a></li>
+    <li><a href="https://bittimes.net/feature/221490.html">BitTimes「暗号資産の金商法改正とは？分離課税・インサイダー規制・施行時期を解説」</a></li>
+    <li><a href="https://www.pwc.com/jp/ja/knowledge/prmagazine/pwcs-view/202303/43-06.html">PwC Japan「セキュリティトークンの実体法上の位置付けおよび関連する法規制」</a></li>
+    <li><a href="https://innovationlaw.jp/tokenized-stocks-bonds-japan-law/">So &amp; Sato「株式・社債トークン化における権利移転・対抗要件・流通市場規制の整理」</a></li>
+    <li><a href="https://progmat.co.jp/wp-content/uploads/2026/04/20260407_%E3%83%97%E3%83%AC%E3%82%B9%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9_%E3%80%8C%E3%80%8C%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E5%8C%96%E6%A0%AA%E5%BC%8F%E3%80%8D%E5%8F%8A%E3%81%B3%E3%80%8C%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E5%8C%96%E6%B3%95%E3%80%8D%E3%81%AB%E4%BF%82%E3%82%8B%E3%80%8C%E4%B8%AD%E9%96%93%E6%95%B4%E7%90%86%E3%80%8D%E3%81%AE%E5%85%AC%E8%A1%A8%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E3%80%8D.pdf">Progmat, Inc.「『トークン化株式』及び『トークン化法』に係る『中間整理』の公表について」（2026年4月7日）</a></li>
+    <li><a href="https://progmat.co.jp/%E3%80%90%E8%A9%B3%E8%AA%AC%E3%80%91%E6%A0%AA%E5%BC%8F%E6%8A%95%E8%B3%87%E3%82%92%E6%97%A5%E6%9C%AC%E3%81%A7%E3%82%AA%E3%83%B3%E3%83%81%E3%82%A7%E3%83%BC%E3%83%B3%E5%8C%96%E3%81%99/">Progmat「【詳説】株式投資を"日本でオンチェーン化"する具体的なスキームオプションと論点とは？」</a></li>
+    <li><a href="https://www.odx.co.jp/ja/news/article/1i5oti85a0/">大阪デジタルエクスチェンジ「2026年 ODXはセキュリティトークン市場の拡大に向けてギア・アップします！」</a></li>
+    <li><a href="https://coinpost.jp/?p=493066">CoinPost「ODX、新PTS市場START（スタート）の第1号案件として『公募型不動産STO』実施へ」</a></li>
+    <li><a href="https://xtech.nikkei.com/atcl/nxt/column/18/00001/07697/">日経クロステック「三菱UFJ信託など7社が『デジタルアセット』新会社、投資回収前に手放す理由」</a></li>
+    <li><a href="https://www.sbbit.jp/article/fj/118828">ビジネス+IT「三菱UFJ信託に聞くデジタル証券、『わざわざトークン化』の意義とは？」</a></li>
+    <li><a href="https://www.tr.mufg.jp/ippan/release/pdf_mutb/251204_1.pdf">三菱UFJアセットマネジメント／三菱UFJモルガン・スタンレー証券／三菱UFJ信託銀行「トークン化投資信託の商品化に向けた協業」（2025年12月4日）</a></li>
+    <li><a href="https://www.tr.mufg.jp/ippan/release/pdf_mutb/251107_1.pdf">三菱UFJ銀行／みずほ銀行／三井住友銀行／三菱UFJ信託銀行 共同リリース（2025年11月7日）</a></li>
+    <li><a href="https://www.tr.mufg.jp/ippan/pdf/progmat_coin.pdf">三菱UFJ信託銀行「【Progmat Coin】コンセプトペーパー」</a></li>
+    <li><a href="https://www.nomuraholdings.com/jp/news/nr/nsc20260304.html">野村證券「MUFGリアルティ・トークン大阪堂島浜タワー（譲渡制限付）の公募および発行完了について」</a></li>
+    <li><a href="https://www.cbiz.com/insights/article/new-u-s-rules-bring-greater-clarity-to-digital-assets-and-tokenization">CBIZ「New U.S. Rules Bring Greater Clarity to Digital Assets and Tokenization」</a>（SEC／CFTC共同解釈通達 33-11412、5分類）</li>
+    <li><a href="https://www.techtimes.com/articles/319564/20260702/robinhood-chain-goes-live-tokenized-stocks-key-ownership-caveat.htm">TechTimes「Robinhood Chain Goes Live With Tokenized Stocks and a Key Ownership Caveat」</a></li>
+    <li><a href="https://kpmg.com/xx/en/our-insights/regulatory-insights/tokenisation-adaption-of-regulation-to-support-european-markets.html">KPMG「Tokenisation – adaption of regulation to support European markets」</a>（MiCA／DLTパイロット制度／スイスDLT法）</li>
+    <li><a href="https://tech4impactsummit.com/blog/rwa-tokenization-reshaping-capital-markets/">「RWA Tokenization 2026: BlackRock BUIDL Passed $2.5B」</a></li>
+    <li><a href="https://www.spotedcrypto.com/rwa-tokenization-2026-market-31b-liquidity-gap/">SpotedCrypto「RWA Tokenization 2026: Market, Stocks Surge, Liquidity Gap」</a></li>
+    <li><a href="https://securitize.co.jp/thought-leadership/blogs/jp-real-estate-st-2026/">Securitize「日本の不動産STに、いま『STである意味』はあるのか」</a>（トークン化米国債と不動産の規模比較）</li>
+  </ol>
+  <p class="disclaimer">本ボードは公開情報をもとに2026年8月時点で整理したものです。数値・制度は時点により変動し、施行日や税制の適用開始時期には見込みを含みます。投資判断や法務判断にあたっては、必ず一次情報および専門家の確認をお願いします。</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('.rv');
+  if(!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    els.forEach(function(e){ e.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, {rootMargin:'0px 0px -8% 0px', threshold:0.04});
+  els.forEach(function(e){ io.observe(e); });
+})();
+</script>
