@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鳥取・島根 旅のしおり｜2泊3日るるぶ風トラベルガイド</title>
+<style>
+  :root{
+    --cream:#fffaf0;
+    --paper:#fff8e6;
+    --red:#ff5252;
+    --red-dark:#e53935;
+    --orange:#ff9800;
+    --orange-dark:#f57c00;
+    --yellow:#ffca28;
+    --yellow-dark:#ffa000;
+    --blue:#29b6f6;
+    --blue-dark:#0288d1;
+    --green:#66bb6a;
+    --green-dark:#2e7d32;
+    --ink:#3e2723;
+    --ink-soft:#5d4037;
+    --line:#ffcc80;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 8% 12%, rgba(255,202,40,0.35) 0%, transparent 40%),
+      radial-gradient(circle at 92% 8%, rgba(41,182,246,0.25) 0%, transparent 35%),
+      radial-gradient(circle at 90% 90%, rgba(102,187,106,0.25) 0%, transparent 40%),
+      var(--cream);
+    color:var(--ink);
+    font-family: "Yu Gothic UI","Hiragino Kaku Gothic ProN","Meiryo",system-ui,-apple-system,sans-serif;
+    line-height:1.7;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:14px 14px 60px;}
+
+  /* ===== ヘッダー ===== */
+  .hero{
+    position:relative;
+    background:linear-gradient(135deg,var(--red) 0%, var(--orange) 45%, var(--yellow) 100%);
+    border-radius:22px;
+    padding:28px 22px 24px;
+    color:#fff;
+    text-align:center;
+    box-shadow:0 8px 0 rgba(0,0,0,0.08), 0 12px 24px rgba(0,0,0,0.15);
+    overflow:hidden;
+    margin-bottom:18px;
+  }
+  .hero::before,.hero::after{
+    content:"";
+    position:absolute;
+    font-size:60px;
+    opacity:0.25;
+    line-height:1;
+  }
+  .hero-emoji-band{
+    font-size:26px;
+    letter-spacing:6px;
+    margin-bottom:6px;
+    opacity:0.95;
+  }
+  .hero h1{
+    margin:0 0 8px;
+    font-size:clamp(24px,6vw,38px);
+    text-shadow:2px 2px 0 rgba(0,0,0,0.15);
+    letter-spacing:1px;
+  }
+  .hero .sub{
+    display:inline-block;
+    background:rgba(255,255,255,0.25);
+    border:2px dashed rgba(255,255,255,0.85);
+    border-radius:30px;
+    padding:6px 18px;
+    font-weight:700;
+    font-size:15px;
+    margin-top:4px;
+  }
+  .hero .dates{
+    margin-top:12px;
+    font-size:15px;
+    font-weight:700;
+    background:#fff;
+    color:var(--red-dark);
+    display:inline-block;
+    padding:6px 16px;
+    border-radius:20px;
+    box-shadow:0 3px 0 rgba(0,0,0,0.1);
+  }
+
+  /* ===== 基本情報 ===== */
+  .section-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:20px;
+    font-weight:800;
+    color:var(--red-dark);
+    margin:26px 0 12px;
+  }
+  .section-title .bar{
+    width:8px;height:26px;background:linear-gradient(var(--red),var(--orange));border-radius:4px;
+  }
+  .info-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:12px;
+  }
+  .info-card{
+    background:#fff;
+    border-radius:16px;
+    padding:14px 16px;
+    box-shadow:0 4px 0 rgba(255,152,0,0.25), 0 6px 14px rgba(0,0,0,0.06);
+    border:2px solid #ffe0b2;
+    position:relative;
+  }
+  .info-card .ic-icon{font-size:22px;margin-right:6px;}
+  .info-card .ic-label{font-weight:800;color:var(--orange-dark);font-size:14px;}
+  .info-card .ic-body{margin-top:6px;font-size:14px;color:var(--ink-soft);}
+
+  .legend{
+    margin-top:14px;
+    background:#fff;
+    border:2px dashed var(--line);
+    border-radius:14px;
+    padding:10px 14px;
+    font-size:13px;
+    color:var(--ink-soft);
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 18px;
+    align-items:center;
+  }
+  .legend b{color:var(--red-dark);}
+
+  /* ===== DAYリボン ===== */
+  .day-section{margin-top:34px;}
+  .day1{--accent:#ff7043;--accent-dark:#e64a19;--accent-light:#ffe0d1;--accent-bg:#fff3ec;}
+  .day2{--accent:#26c6da;--accent-dark:#0277bd;--accent-light:#d6f3f8;--accent-bg:#eafbfd;}
+  .day3{--accent:#66bb6a;--accent-dark:#2e7d32;--accent-light:#ddf3de;--accent-bg:#f1fbf1;}
+
+  .day-ribbon{
+    position:relative;
+    display:inline-flex;
+    align-items:baseline;
+    gap:12px;
+    background:linear-gradient(120deg,var(--accent),var(--accent-dark));
+    color:#fff;
+    padding:10px 26px 10px 20px;
+    border-radius:10px 10px 10px 0;
+    font-weight:800;
+    box-shadow:0 4px 0 rgba(0,0,0,0.15);
+  }
+  .day-ribbon::after{
+    content:"";
+    position:absolute;
+    left:0;bottom:-9px;
+    border-width:9px 10px 0 0;
+    border-style:solid;
+    border-color:var(--accent-dark) transparent transparent transparent;
+    filter:brightness(0.7);
+  }
+  .day-ribbon .d-num{font-size:24px;letter-spacing:1px;}
+  .day-ribbon .d-date{font-size:14px;background:rgba(255,255,255,0.3);padding:2px 10px;border-radius:12px;}
+  .day-ribbon .d-sub{font-size:14px;font-weight:700;}
+
+  .route-strip{
+    margin:14px 0 18px;
+    background:var(--accent-bg);
+    border:2px solid var(--accent-light);
+    border-radius:14px;
+    padding:10px 14px;
+    font-size:14px;
+    color:var(--accent-dark);
+    font-weight:700;
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+  .route-strip .rlabel{
+    display:inline-block;background:var(--accent);color:#fff;border-radius:20px;padding:2px 12px;margin-right:10px;font-size:12px;
+  }
+
+  /* ===== タイムライン ===== */
+  .timeline{
+    position:relative;
+    padding-left:26px;
+    border-left:4px dotted var(--accent);
+    margin-left:10px;
+  }
+  .tl-item{position:relative;margin-bottom:20px;}
+  .tl-item:last-child{margin-bottom:6px;}
+  .tl-dot{
+    position:absolute;
+    left:-38px;
+    top:6px;
+    width:16px;height:16px;
+    border-radius:50%;
+    background:var(--accent);
+    border:3px solid #fff;
+    box-shadow:0 0 0 2px var(--accent);
+  }
+  .tl-time{
+    display:inline-block;
+    background:var(--accent);
+    color:#fff;
+    padding:2px 12px;
+    border-radius:12px;
+    font-weight:800;
+    font-size:14px;
+    margin-bottom:8px;
+    letter-spacing:0.5px;
+  }
+  @media (max-width:600px){
+    .timeline{padding-left:18px;margin-left:2px;}
+    .tl-dot{left:-27px;width:13px;height:13px;}
+    .tl-time{font-size:13px;padding:2px 10px;}
+  }
+
+  .tl-card{
+    background:#fff;
+    border-radius:14px;
+    padding:14px 16px;
+    border-left:7px solid var(--accent);
+    box-shadow:0 3px 0 var(--accent-light),0 6px 14px rgba(0,0,0,0.06);
+  }
+  .tl-card.major{
+    border-left-width:9px;
+    background:linear-gradient(180deg,#ffffff 0%, var(--accent-bg) 130%);
+  }
+  .tl-card-head{display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap;}
+  .tl-emoji{font-size:26px;}
+  .tl-card-head h3{margin:0;font-size:17px;color:var(--ink);}
+  .badge-major{
+    background:var(--accent);color:#fff;font-size:11px;font-weight:800;
+    padding:2px 10px;border-radius:10px;margin-left:auto;
+  }
+  .catch{
+    display:inline;
+    font-weight:800;
+    font-size:15px;
+    color:var(--accent-dark);
+    background:linear-gradient(transparent 62%, var(--accent-light) 62%);
+    padding:0 2px;
+    margin:2px 0 6px;
+  }
+  .body-text{margin:4px 0 8px;font-size:14px;color:var(--ink-soft);}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .meta-tag{
+    background:var(--accent-bg);
+    border:1.5px solid var(--accent-light);
+    color:var(--accent-dark);
+    font-size:12.5px;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+
+  /* 移動（コンパクト）アイテム */
+  .tl-item.move .tl-dot{background:#fff;border:3px solid var(--accent);box-shadow:none;width:12px;height:12px;top:8px;}
+  .move-card{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:transparent;
+    border:2px dashed var(--accent-light);
+    border-radius:30px;
+    padding:8px 16px;
+    font-size:13.5px;
+    color:var(--accent-dark);
+    font-weight:700;
+    font-style:italic;
+  }
+  .move-card .tl-emoji{font-size:18px;}
+
+  /* コラム */
+  .column-box{
+    margin-top:18px;
+    background:repeating-linear-gradient(135deg,var(--accent-bg),var(--accent-bg) 10px, #fff 10px, #fff 20px);
+    border:2.5px solid var(--accent);
+    border-radius:16px;
+    padding:14px 18px;
+    box-shadow:2px 2px 0 var(--accent-light);
+  }
+  .column-title{
+    font-weight:800;
+    color:var(--accent-dark);
+    font-size:15.5px;
+    margin-bottom:6px;
+  }
+  .column-box p{margin:0;font-size:13.5px;color:var(--ink-soft);}
+
+  /* フッター豆知識 */
+  .knowledge{
+    margin-top:34px;
+    background:linear-gradient(135deg,#fff3ec,#eafbfd 60%,#f1fbf1);
+    border-radius:20px;
+    padding:20px;
+    border:2px solid #ffe0b2;
+  }
+  .knowledge-title{
+    font-size:19px;font-weight:800;color:var(--red-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px;
+  }
+  .know-item{
+    background:#fff;
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.05);
+    border-left:6px solid var(--yellow-dark);
+    font-size:14px;
+  }
+  .know-item:last-child{margin-bottom:0;}
+  .know-item .kt{font-weight:800;color:var(--orange-dark);margin-right:4px;}
+
+  /* ===== ルートマップ ===== */
+  .map-section{margin-top:34px;}
+  .map-title{
+    font-size:19px;font-weight:800;color:var(--red-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px;
+  }
+  .map-svg-wrap{
+    background:#fff;
+    border-radius:20px;
+    padding:16px;
+    border:2px solid #ffe0b2;
+    box-shadow:0 4px 0 rgba(255,152,0,0.2), 0 6px 14px rgba(0,0,0,0.06);
+  }
+  .map-svg-wrap svg{
+    width:100%;
+    height:auto;
+    max-width:100%;
+    display:block;
+    border-radius:14px;
+  }
+
+  footer.credit{
+    text-align:center;
+    margin-top:26px;
+    font-size:12px;
+    color:#9e8a7c;
+  }
+
+  @media print{
+    @page{ size:A4; margin:12mm; }
+    body{
+      background:var(--cream) !important;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+      line-height:1.4;
+    }
+    .wrap{max-width:100%;}
+    .hero,.day-ribbon,.tl-card,.info-card,.column-box,.knowledge,.map-svg-wrap{box-shadow:none !important;}
+
+    /* カード・箱物は途中で分断しない */
+    .tl-item, .tl-card, .info-card, .column-box, .knowledge, .know-item, .route-strip, .map-section{
+      page-break-inside:avoid;
+      break-inside:avoid;
+    }
+
+    /* 見出しの直後で改ページしない（見出しだけ取り残さない） */
+    .day-ribbon, .section-title, .knowledge-title, .column-title, .catch, .map-title{
+      page-break-after:avoid;
+      break-after:avoid;
+    }
+
+    /* 1日1ページ：各DAYは新ページ先頭から開始 */
+    .day1, .day2, .day3{
+      page-break-before:always;
+      break-before:always;
+    }
+    /* 豆知識コラムはDAY3の後ろで独立ページへ（ルートマップと同じ最終ページに同居） */
+    .knowledge{
+      page-break-before:always;
+      break-before:always;
+    }
+
+    /* 印刷時の圧縮：DAYの工程を1ページに収める */
+    .day-section{margin-top:0;}
+    .tl-item{margin-bottom:6px;}
+    .tl-item:last-child{margin-bottom:2px;}
+    .tl-card{padding:7px 12px;}
+    .tl-card-head{margin-bottom:2px;gap:8px;}
+    .tl-emoji{font-size:19px;}
+    .tl-card-head h3{font-size:14.5px;}
+    .badge-major{font-size:10px;padding:1px 8px;}
+    .catch{font-size:12.5px;margin:1px 0 3px;}
+    .body-text{font-size:12px;line-height:1.3;margin:2px 0 4px;}
+    .meta-row{margin-top:3px;gap:4px;}
+    .meta-tag{font-size:10.5px;padding:2px 8px;}
+    .route-strip{margin:6px 0 8px;padding:6px 10px;font-size:12px;white-space:normal;overflow-x:visible;line-height:1.5;}
+    .column-box{margin-top:6px;padding:8px 12px;}
+    .column-title{font-size:13.5px;margin-bottom:3px;}
+    .column-box p{font-size:11.5px;}
+    .knowledge{margin-top:0;padding:14px;}
+    .know-item{padding:9px 12px;margin-bottom:7px;font-size:12.5px;}
+    .section-title{margin:14px 0 8px;}
+    .info-card{padding:9px 12px;}
+    .hero{padding:16px 22px 14px;margin-bottom:10px;}
+    .day-ribbon{padding:6px 18px 6px 14px;}
+    .day-ribbon .d-num{font-size:18px;}
+    .day-ribbon .d-date,.day-ribbon .d-sub{font-size:11.5px;}
+    .timeline{padding-left:20px;margin-left:6px;}
+    .tl-dot{left:-32px;width:13px;height:13px;top:4px;}
+    .tl-time{font-size:12px;padding:1px 10px;margin-bottom:4px;}
+    .move-card{padding:4px 12px;font-size:11.5px;}
+    .move-card .tl-emoji{font-size:14px;}
+
+    /* ルートマップは最終ページ（豆知識の直後に自然フロー） */
+    .map-section{margin-top:0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-emoji-band">🏖 ⛩ 🎨 👺 🏯 🍜</div>
+    <h1>鳥取・島根 旅のしおり</h1>
+    <div class="sub">2泊3日 るるぶ風トラベルガイド</div>
+    <div class="dates">📅 2026年8月1日(土)〜8月3日(月)</div>
+  </div>
+
+  <div class="section-title"><span class="bar"></span>旅の基本情報</div>
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="ic-icon">📅</span><span class="ic-label">期間</span>
+      <div class="ic-body">2026年8月1日(土)〜8月3日(月) 2泊3日</div>
+    </div>
+    <div class="info-card">
+      <span class="ic-icon">🚗</span><span class="ic-label">移動</span>
+      <div class="ic-body">レンタカー／鳥取駅で借りて、出雲空港で乗り捨て返却</div>
+    </div>
+    <div class="info-card">
+      <span class="ic-icon">🚃</span><span class="ic-label">往路</span>
+      <div class="ic-body">東京駅7:39発→電車→鳥取駅 8/1 12:59着</div>
+    </div>
+    <div class="info-card">
+      <span class="ic-icon">✈️</span><span class="ic-label">復路</span>
+      <div class="ic-body">出雲空港 8/3 19:05発 → 羽田 20:35着</div>
+    </div>
+    <div class="info-card">
+      <span class="ic-icon">🏨</span><span class="ic-label">宿泊</span>
+      <div class="ic-body">1泊目：鳥取市内／2泊目：松江市内（いずれも予約済み）</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><b>アイコンの見方</b></span>
+    <span>⏱ 所要時間</span>
+    <span>🕘 営業時間</span>
+    <span>💰 料金</span>
+    <span>📍 場所メモ</span>
+  </div>
+
+  <!-- ===================== DAY1 ===================== -->
+  <div class="day-section day1">
+    <div class="day-ribbon">
+      <span class="d-num">DAY 1</span>
+      <span class="d-date">8/1(土)</span>
+      <span class="d-sub">鳥取到着〜砂丘</span>
+    </div>
+    <div class="route-strip">
+      <span class="rlabel">今日のルート</span>🚃鳥取駅 → 🍴昼食 → 🎨砂の美術館 → 🏖鳥取砂丘 → 🏨宿（鳥取市内）
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-time">12:59</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-emoji">🚃</span><h3>鳥取駅 着 → レンタカー手続き</h3></div>
+          <p class="catch">いよいよ鳥取・島根の旅がスタート！</p>
+          <p class="body-text">到着したらまずレンタカーの手続きを。ここから3日間の相棒となる愛車と対面です。到着後すぐに出発できるよう、身支度を整えておきましょう。</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">13:45</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-emoji">🍴</span><h3>昼食（駅周辺・海鮮など）</h3></div>
+          <p class="catch">旅の初日は鳥取の海の幸で腹ごしらえ</p>
+          <p class="body-text">鳥取駅周辺で新鮮な海鮮グルメを堪能しましょう。この後の観光に備えて、さくっと約45分ほどで済ませるのがおすすめです。</p>
+          <div class="meta-row"><span class="meta-tag">⏱ 約45分</span></div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">14:45</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card major">
+          <div class="tl-card-head"><span class="tl-emoji">🎨</span><h3>砂の美術館</h3><span class="badge-major">必見</span></div>
+          <p class="catch">砂で描く、儚くも壮大なアート</p>
+          <p class="body-text">世界の砂像作家が手がける迫力満点の砂像を、屋内でじっくり鑑賞できます。夏の炎天下を避けつつ涼しく過ごせる、猛暑期にうれしいスポットです。</p>
+          <div class="meta-row">
+            <span class="meta-tag">🕘 9:00〜18:00（最終入館17:30）</span>
+            <span class="meta-tag">💰 800円</span>
+            <span class="meta-tag">📍 屋内展示・冷房完備</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">16:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card major">
+          <div class="tl-card-head"><span class="tl-emoji">🏖</span><h3>鳥取砂丘 散策・リフト</h3><span class="badge-major">必見</span></div>
+          <p class="catch">日本最大級の砂の楽園を歩く</p>
+          <p class="body-text">見渡す限りの砂丘は圧巻の景色。日が傾き始める夕方は気温も少し落ち着き、快適に散策やリフトからの眺めを楽しめます。馬の背からの夕景もおすすめです。</p>
+          <div class="meta-row">
+            <span class="meta-tag">💰 リフト片道300円／往復500円</span>
+            <span class="meta-tag">📍 夕方が快適な時間帯</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">18:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-emoji">🏨</span><h3>鳥取市内の宿へ・夕食</h3></div>
+          <p class="catch">1日目の締めくくりは海の幸ディナー</p>
+          <p class="body-text">鳥取市内の宿にチェックインし、旅の初日はゆっくりと海の幸を堪能しながら乾杯を。明日に備えて早めの休息もお忘れなく。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="column-box">
+      <div class="column-title">💡 コラム：猛暑対策をお忘れなく</div>
+      <p>8月上旬の鳥取・島根は40℃近い猛暑になることもあります。日陰のない鳥取砂丘は日中の滞在を避け、まず屋内で涼しい砂の美術館へ、そして日が傾く夕方に砂丘本体を歩くこの順番がおすすめです。こまめな水分補給を忘れずに、無理のないペースで楽しみましょう。</p>
+    </div>
+  </div>
+
+  <!-- ===================== DAY2 ===================== -->
+  <div class="day-section day2">
+    <div class="day-ribbon">
+      <span class="d-num">DAY 2</span>
+      <span class="d-date">8/2(日)</span>
+      <span class="d-sub">鳥取→松江（足立美術館・境港）</span>
+    </div>
+    <div class="route-strip">
+      <span class="rlabel">今日のルート</span>🏨鳥取市内 → 🎨足立美術館(安来) → 🍴昼食 → 👺水木しげるロード(境港) → 🌉江島大橋 → 🏨松江の宿
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item move">
+        <div class="tl-dot"></div>
+        <div class="move-card"><span class="tl-emoji">🚗</span>8:00　宿を出発（涼しい朝のうちに西へ）／約1時間45分</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">9:45</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card major">
+          <div class="tl-card-head"><span class="tl-emoji">🎨</span><h3>足立美術館（安来）</h3><span class="badge-major">必見</span></div>
+          <p class="catch">日本一の庭園美に息をのむ</p>
+          <p class="body-text">米国の日本庭園専門誌で日本一に選ばれ続ける名庭と、横山大観をはじめとする日本画コレクションが自慢の美術館です。窓一面が額縁のように庭を切り取る「生の額絵」もぜひチェックを。滞在の目安は約2時間です。</p>
+          <div class="meta-row">
+            <span class="meta-tag">🕘 9:00〜17:30</span>
+            <span class="meta-tag">⏱ 滞在約2時間</span>
+            <span class="meta-tag">📍 日本庭園＋横山大観コレクション</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">12:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-emoji">🍴</span><h3>昼食（安来・米子方面）</h3></div>
+          <p class="catch">中海エリアのグルメでひと休み</p>
+          <p class="body-text">美術館鑑賞のあとは安来・米子エリアでランチタイム。ご当地グルメを味わいながら、午後の水木しげるロード散策に備えましょう。</p>
+          <div class="meta-row"><span class="meta-tag">⏱ 約1時間</span></div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">13:30</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card major">
+          <div class="tl-card-head"><span class="tl-emoji">👺</span><h3>境港・水木しげるロード</h3><span class="badge-major">必見</span></div>
+          <p class="catch">妖怪たちがお出迎えする商店街</p>
+          <p class="body-text">『ゲゲゲの鬼太郎』の作者・水木しげるゆかりの商店街には、鬼太郎や目玉おやじなど妖怪ブロンズ像が約180体並びます。記念撮影やお土産探しを楽しみながら散策を。滞在の目安は約2時間です。</p>
+          <div class="meta-row">
+            <span class="meta-tag">🕘 記念館 9:30〜17:00</span>
+            <span class="meta-tag">⏱ 滞在約2時間</span>
+            <span class="meta-tag">📍 妖怪ブロンズ像の商店街</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">15:45</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-emoji">🌉</span><h3>江島大橋（ベタ踏み坂）で記念撮影</h3></div>
+          <p class="catch">SNS映え確約の絶景急勾配</p>
+          <p class="body-text">CMで一躍有名になった急勾配の橋。遠近感で実際以上に急に見える撮影スポットとして人気です。写真を撮ったら、そのまま松江方面へ向かいましょう。</p>
+          <div class="meta-row"><span class="meta-tag">🚗 松江へ向かう道中に立ち寄り</span></div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">16:30</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-emoji">🏨</span><h3>松江の宿へ・宍道湖の夕日・夕食</h3></div>
+          <p class="catch">日本の夕日百選、宍道湖に染まるひととき</p>
+          <p class="body-text">松江の宿にチェックインしたら、18:30頃に見頃を迎える宍道湖の夕日を眺めてほっとひと息。夕方はゆったりと過ごし、旅の疲れを癒やしましょう。</p>
+          <div class="meta-row"><span class="meta-tag">🌇 宍道湖の夕日 目安18:30頃</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== DAY3 ===================== -->
+  <div class="day-section day3">
+    <div class="day-ribbon">
+      <span class="d-num">DAY 3</span>
+      <span class="d-date">8/3(月)</span>
+      <span class="d-sub">松江→出雲大社→出雲空港</span>
+    </div>
+    <div class="route-strip">
+      <span class="rlabel">今日のルート</span>🏯松江城 → 🍜出雲そば → 🌊稲佐の浜 → ⛩出雲大社 → 🛍神門通り → ✈出雲空港
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-time">9:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card major">
+          <div class="tl-card-head"><span class="tl-emoji">🏯</span><h3>松江城・堀川めぐり</h3><span class="badge-major">必見</span></div>
+          <p class="catch">国宝天守がそびえる水の都</p>
+          <p class="body-text">現存12天守のひとつであり国宝にも指定されている松江城。天守からの眺めを楽しんだら、堀川めぐりの遊覧船でお堀からお城の姿を仰ぎ見るのもおすすめです。滞在の目安は約2時間です。</p>
+          <div class="meta-row">
+            <span class="meta-tag">🕘 開門 9:00</span>
+            <span class="meta-tag">⏱ 滞在約2時間</span>
+            <span class="meta-tag">📍 国宝天守＋堀川遊覧船</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item move">
+        <div class="tl-dot"></div>
+        <div class="move-card"><span class="tl-emoji">🚗</span>11:15　出雲へ移動／約1時間</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">12:15</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-emoji">🍜</span><h3>神門通りで出雲そば 昼食</h3></div>
+          <p class="catch">出雲名物、三段重ねの割子そば</p>
+          <p class="body-text">出雲大社の参道・神門通りで、地元名物の割子そばをいただきましょう。香り高い出雲そばで、午後の参拝に向けて力を蓄えます。</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">13:15</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-emoji">🌊</span><h3>稲佐の浜</h3></div>
+          <p class="catch">神々が集う、清らかな渚</p>
+          <p class="body-text">旧暦10月に全国の神々が出雲に集う際、最初に降り立つとされる神聖な浜です。出雲大社参拝の前に、こちらでお清めの砂をいただいておくのが古くからの作法とされています。</p>
+          <div class="meta-row"><span class="meta-tag">⛩ 参拝前のお清め砂を採取</span></div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">14:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card major">
+          <div class="tl-card-head"><span class="tl-emoji">⛩</span><h3>出雲大社 じっくり参拝</h3><span class="badge-major">必見</span></div>
+          <p class="catch">縁結びの聖地で、ご縁を祈願</p>
+          <p class="body-text">日本一とも称される巨大な注連縄が圧巻の神楽殿、荘厳な御本殿、そして稲佐の浜の砂を納める素鵞社、ムスビの御神像まで、見どころを時間をかけて巡りましょう。滞在の目安は約2時間です。</p>
+          <div class="meta-row">
+            <span class="meta-tag">⏱ 滞在約2時間</span>
+            <span class="meta-tag">📍 神楽殿・御本殿・素鵞社・ムスビの御神像</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">16:00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-emoji">🛍</span><h3>神門通りで買い物・休憩</h3></div>
+          <p class="catch">お土産探しにぜんざいで、ひと休み</p>
+          <p class="body-text">参道沿いのお店でお土産を選びながら、ぜんざい発祥の地といわれる出雲ならではの一杯でほっとひと息。旅の余韻を楽しむゆとりの時間です。</p>
+        </div>
+      </div>
+
+      <div class="tl-item move">
+        <div class="tl-dot"></div>
+        <div class="move-card"><span class="tl-emoji">✈</span>17:30　出発 → 出雲空港 17:55着</div>
+      </div>
+
+      <div class="tl-item move">
+        <div class="tl-dot"></div>
+        <div class="move-card"><span class="tl-emoji">🚗</span>18:00　レンタカー返却・保安検査</div>
+      </div>
+
+      <div class="tl-item move">
+        <div class="tl-dot"></div>
+        <div class="move-card"><span class="tl-emoji">✈</span>19:05　出雲空港 発 → 20:35 羽田着　おつかれさまでした</div>
+      </div>
+    </div>
+
+    <div class="column-box">
+      <div class="column-title">💡 コラム：空港への逆算をお忘れなく</div>
+      <p>17:30に出雲大社周辺を出発すれば、レンタカー返却・保安検査を経ても19:05発の便には余裕を持って間に合います。名残惜しい気持ちになっても、16:00を過ぎたら少しずつ空港方面を意識した行動を心がけましょう。</p>
+    </div>
+  </div>
+
+  <!-- ===================== 豆知識 ===================== -->
+  <div class="knowledge">
+    <div class="knowledge-title">📝 出雲大社の豆知識コラム</div>
+    <div class="know-item">
+      <span class="kt">参拝作法：</span>出雲大社の参拝作法は、一般的な神社の「二礼二拍手一礼」とは異なり、「二礼四拍手一礼」です。多く柏手を打つことで、より深い敬意を表すとされています。お参りの際はぜひ思い出してください。
+    </div>
+    <div class="know-item">
+      <span class="kt">お砂の習わし：</span>稲佐の浜でいただいたお清めの砂は、出雲大社境内の「素鵞社（そがのやしろ）」の床下に納められている砂と交換して持ち帰るのが古くからの習わしです。交換した砂は御守りとして大切にされています。
+    </div>
+  </div>
+
+  <!-- ===================== ルートマップ ===================== -->
+  <div class="map-section">
+    <div class="map-title">🗺 旅のルートマップ</div>
+    <div class="map-svg-wrap">
+      <svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="鳥取・島根 旅のルートマップ">
+        <defs>
+          <marker id="rmArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#5d4037"/>
+          </marker>
+          <filter id="softShadow" x="-60%" y="-60%" width="220%" height="220%">
+            <feDropShadow dx="1.5" dy="2.5" stdDeviation="1.4" flood-color="#000" flood-opacity="0.25"/>
+          </filter>
+        </defs>
+
+        <!-- 海 -->
+        <rect x="0" y="0" width="1000" height="560" fill="#cfeaf5"/>
+
+        <!-- 陸地（デフォルメ） -->
+        <path d="M 30 260
+                 C 70 260 110 190 150 190
+                 C 200 190 250 230 300 230
+                 C 340 230 380 190 420 190
+                 C 466.7 190 513.3 140 560 140
+                 C 590 140 620 230 650 230
+                 C 700 230 750 200 800 200
+                 C 856.7 200 913.3 260 970 260
+                 L 970 500 L 30 500 Z"
+              fill="#f0e4c8" stroke="#d8c69a" stroke-width="2.5"/>
+
+        <!-- 宍道湖・中海 -->
+        <ellipse cx="350" cy="320" rx="70" ry="30" fill="#cfeaf5" stroke="#a8d8e8" stroke-width="1.5"/>
+        <ellipse cx="520" cy="300" rx="55" ry="35" fill="#cfeaf5" stroke="#a8d8e8" stroke-width="1.5"/>
+        <text x="350" y="324" text-anchor="middle" font-size="10.5" fill="#4f8fa8" opacity="0.8">宍道湖</text>
+        <text x="520" y="304" text-anchor="middle" font-size="10.5" fill="#4f8fa8" opacity="0.8">中海</text>
+
+        <!-- 県境（点線） -->
+        <path d="M 545 150 C 560 250 520 380 545 500" fill="none" stroke="#bcae94" stroke-width="1.5" stroke-dasharray="3 4"/>
+        <text x="280" y="470" text-anchor="middle" font-size="14" fill="#8d7a63" opacity="0.55">島根県</text>
+        <text x="760" y="470" text-anchor="middle" font-size="14" fill="#8d7a63" opacity="0.55">鳥取県</text>
+
+        <!-- 方位 -->
+        <path d="M 452,42 Q 458,38 464,42 Q 470,46 476,42" fill="none" stroke="#4fc3f7" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+        <text x="500" y="45" text-anchor="middle" font-size="16" font-weight="800" fill="#0288d1" opacity="0.85">日本海</text>
+        <text x="70" y="112" text-anchor="middle" font-size="14" font-weight="700" fill="#5d4037">← 西</text>
+        <text x="930" y="112" text-anchor="middle" font-size="14" font-weight="700" fill="#5d4037">東 →</text>
+
+        <!-- 行程順ルート（点線＋矢印） -->
+        <g fill="none" stroke="#5d4037" stroke-width="2.5" stroke-dasharray="7 6" opacity="0.75" marker-end="url(#rmArrow)">
+          <path d="M 860 245 L 520 355"/>
+          <path d="M 520 355 L 560 175"/>
+          <path d="M 560 175 L 390 235"/>
+          <path d="M 390 235 L 140 225"/>
+          <path d="M 140 225 L 230 330"/>
+        </g>
+
+        <!-- スポットピン -->
+        <!-- 1: 鳥取砂丘・鳥取駅 -->
+        <g>
+          <circle cx="860" cy="245" r="16" fill="#ff7043" stroke="#fff" stroke-width="3" filter="url(#softShadow)"/>
+          <text x="860" y="250" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">1</text>
+          <g transform="translate(860,214)">
+            <circle cx="6" cy="-8" r="4.5" fill="#ffa726"/>
+            <path d="M -12,8 Q -6,-3 0,3 Q 6,-6 12,7 L12,11 L-12,11 Z" fill="#dba64f" stroke="#9c6e2e" stroke-width="1.4"/>
+            <path d="M -8,7 Q -3,5 2,7" fill="none" stroke="#9c6e2e" stroke-width="1" stroke-linecap="round"/>
+          </g>
+          <rect x="821" y="265" width="78" height="34" rx="8" fill="#fff" stroke="#ff7043" stroke-width="1.5" stroke-dasharray="3 2" filter="url(#softShadow)"/>
+          <text x="860" y="279" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">鳥取砂丘</text>
+          <text x="860" y="293" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">鳥取駅</text>
+        </g>
+
+        <!-- 2: 足立美術館（安来） -->
+        <g>
+          <circle cx="520" cy="355" r="16" fill="#26c6da" stroke="#fff" stroke-width="3" filter="url(#softShadow)"/>
+          <text x="520" y="360" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">2</text>
+          <g transform="translate(520,324)">
+            <ellipse cx="0" cy="0" rx="11" ry="8" fill="#f3c98a" stroke="#b8874a" stroke-width="1.2"/>
+            <ellipse cx="5" cy="4" rx="2.6" ry="2.2" fill="#f0e4c8"/>
+            <circle cx="-5" cy="-4" r="1.6" fill="#e53935"/>
+            <circle cx="0" cy="-6" r="1.6" fill="#1e88e5"/>
+            <circle cx="5" cy="-3" r="1.6" fill="#fdd835"/>
+            <circle cx="-6" cy="2" r="1.6" fill="#43a047"/>
+          </g>
+          <rect x="474" y="375" width="92" height="34" rx="8" fill="#fff" stroke="#26c6da" stroke-width="1.5" stroke-dasharray="3 2" filter="url(#softShadow)"/>
+          <text x="520" y="389" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">足立美術館</text>
+          <text x="520" y="403" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">（安来）</text>
+        </g>
+
+        <!-- 3: 境港 水木しげるロード -->
+        <g>
+          <circle cx="560" cy="175" r="16" fill="#26c6da" stroke="#fff" stroke-width="3" filter="url(#softShadow)"/>
+          <text x="560" y="180" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">3</text>
+          <g transform="translate(560,144)">
+            <circle cx="0" cy="0" r="9" fill="#ffffff" stroke="#7e57c2" stroke-width="2"/>
+            <circle cx="0" cy="0" r="4" fill="#212121"/>
+            <circle cx="-1.5" cy="-1.5" r="1.2" fill="#ffffff"/>
+          </g>
+          <rect x="494" y="195" width="132" height="34" rx="8" fill="#fff" stroke="#26c6da" stroke-width="1.5" stroke-dasharray="3 2" filter="url(#softShadow)"/>
+          <text x="560" y="209" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">境港</text>
+          <text x="560" y="223" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">水木しげるロード</text>
+        </g>
+
+        <!-- 4: 松江城・宍道湖 -->
+        <g>
+          <circle cx="390" cy="235" r="16" fill="#26a69a" stroke="#fff" stroke-width="3" filter="url(#softShadow)"/>
+          <text x="390" y="240" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">4</text>
+          <g transform="translate(390,204)">
+            <polygon points="-11,2 0,-6 11,2" fill="#263238"/>
+            <rect x="-8" y="2" width="16" height="9" fill="#37474f"/>
+            <polygon points="-7,-4 0,-10 7,-4" fill="#263238"/>
+            <rect x="-5" y="-4" width="10" height="6" fill="#455a64"/>
+            <rect x="-1" y="4" width="2" height="3" fill="#eceff1"/>
+          </g>
+          <rect x="356" y="255" width="68" height="34" rx="8" fill="#fff" stroke="#26a69a" stroke-width="1.5" stroke-dasharray="3 2" filter="url(#softShadow)"/>
+          <text x="390" y="269" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">松江城</text>
+          <text x="390" y="283" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">宍道湖</text>
+        </g>
+
+        <!-- 5: 出雲大社・稲佐の浜 -->
+        <g>
+          <circle cx="140" cy="225" r="16" fill="#66bb6a" stroke="#fff" stroke-width="3" filter="url(#softShadow)"/>
+          <text x="140" y="230" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">5</text>
+          <g transform="translate(140,194)">
+            <rect x="-8" y="-8" width="2.6" height="17" fill="#d32f2f"/>
+            <rect x="5.4" y="-8" width="2.6" height="17" fill="#d32f2f"/>
+            <rect x="-11" y="-11" width="22" height="3" rx="1" fill="#c62828"/>
+            <rect x="-9" y="-6.5" width="18" height="2.2" fill="#b71c1c"/>
+          </g>
+          <rect x="99" y="245" width="82" height="34" rx="8" fill="#fff" stroke="#66bb6a" stroke-width="1.5" stroke-dasharray="3 2" filter="url(#softShadow)"/>
+          <text x="140" y="259" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">出雲大社</text>
+          <text x="140" y="273" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">稲佐の浜</text>
+        </g>
+
+        <!-- 6: 出雲空港 -->
+        <g>
+          <circle cx="230" cy="330" r="16" fill="#66bb6a" stroke="#fff" stroke-width="3" filter="url(#softShadow)"/>
+          <text x="230" y="335" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">6</text>
+          <g transform="translate(230,299) rotate(-12)">
+            <polygon points="-11,0 7,-1.3 12,0 7,1.3" fill="#455a64"/>
+            <polygon points="-1,-0.8 4,-9 6.5,-9 1.5,-0.8" fill="#78909c"/>
+            <polygon points="-1,0.8 4,9 6.5,9 1.5,0.8" fill="#78909c"/>
+            <polygon points="-9,-0.8 -6,-6 -4.5,-6 -7,-0.8" fill="#78909c"/>
+          </g>
+          <rect x="192" y="350" width="76" height="22" rx="8" fill="#fff" stroke="#66bb6a" stroke-width="1.5" stroke-dasharray="3 2" filter="url(#softShadow)"/>
+          <text x="230" y="365" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3e2723">出雲空港</text>
+        </g>
+
+        <!-- 凡例 -->
+        <g>
+          <rect x="758" y="463" width="205" height="82" rx="10" fill="#fff" stroke="#ffe0b2" stroke-width="1.5" filter="url(#softShadow)"/>
+          <circle cx="778" cy="484" r="7" fill="#ff7043"/>
+          <text x="793" y="488" font-size="12.5" font-weight="700" fill="#3e2723">DAY1 鳥取（砂丘）</text>
+          <circle cx="778" cy="505" r="7" fill="#26c6da"/>
+          <text x="793" y="509" font-size="12.5" font-weight="700" fill="#3e2723">DAY2 安来・境港・松江</text>
+          <circle cx="778" cy="526" r="7" fill="#66bb6a"/>
+          <text x="793" y="530" font-size="12.5" font-weight="700" fill="#3e2723">DAY3 松江・出雲</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <footer class="credit">鳥取・島根 旅のしおり ｜ 2026.8.1（土）〜8.3（月） 2泊3日</footer>
+
+</div>
+</body>
+</html>
