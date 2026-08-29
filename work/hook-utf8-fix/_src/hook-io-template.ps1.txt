@@ -1,0 +1,197 @@
+# =============================================================================
+# hook-io-template.ps1（入出力ヘルパの雛形 / 写経用）
+#
+# 【これは何か】
+# UserPromptSubmit / PreToolUse / PostToolUse など各フックへ「写経」する前提の
+# 参考実装＋設計理由の文書である。dot-source で複数フックから共有することは
+# しない（単一障害点になるうえ、settings.json の "&" 呼び出し形での
+# $PSScriptRoot 解決が本番実測で未検証のため）。フックを1本書くたびに、
+# 下記 Read-StdinUtf8 / Write-StdoutUtf8 の2関数をそのファイルへコピーせよ。
+#
+# 【この雛形の出自】
+# C:\Users\topge\.claude\hooks\block-dangerous.ps1（是正済みの「正解の型」）の
+# 冒頭コメントと Write-RawUtf8 / Write-StdoutUtf8 の設計思想を引き継いでいる。
+# ただし exit 2 に関する部分（Deny-AndExit・[System.Environment]::Exit(2) 周り）
+# は引き継がない。exit 2 の意味はイベント種別ごとに異なり、本雛形の対象6本は
+# いずれも exit 2 を必要としないためである（詳細は本ファイル末尾の表を見よ）。
+#
+# 【本番環境の実測前提（信玄が実機で採取。推論ではない）】
+# ・起動形: pwsh.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass
+#           -Command "& \"<script path>\""（親は claude.exe）
+# ・pwsh 7.6.5 Core で動く。ただし Windows PowerShell 5.1 で起動される可能性を
+#   排除できないため、5.1 でも動く .NET API のみで本雛形を構成する
+#   （pwsh 7 専用の -Encoding utf8BOM 等は使わない）。
+# ・[Console]::OutputEncoding = shift_jis(CP932) ← 出力文字化けの直接原因
+# ・[Console]::InputEncoding  = shift_jis(CP932) ← 入力文字化けの直接原因
+# ・$OutputEncoding は utf-8 だが、これだけ見て安全と判断してはならない。
+#   stdout に実際に効くのは [Console]::OutputEncoding の方である。
+# ・カレントディレクトリ = C:\Users\topge\OneDrive\ドキュメント\GitHub
+#   （日本語「ドキュメント」を含む。CP932 の「ダメ文字」で誤読される実例が
+#   block-dangerous.ps1 の旧版事故として実際に起きている）
+# ・Claude Code は stdin へ UTF-8 の JSON を書く（実測）。
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# 【最重要の注意】読み取り専用の自動変数と同名の変数を作るな
+# -----------------------------------------------------------------------------
+# PowerShell の自動変数は大文字小文字を区別しない。少なくとも以下の名前は
+# 変数として代入禁止（読み取り専用または定数のため、代入すると例外が飛ぶ）:
+#   $PSEdition  $PSScriptRoot  $PSVersionTable  $PSCommandPath  $PID
+#   $HOME  $PSCulture  $true  $false  $null
+# この他にも $Host / $Error / $Args / $Input / $MyInvocation / $PWD /
+# $PSBoundParameters / $ExecutionContext / $ErrorActionPreference（これは
+# 代入可だが特別な意味を持つ）等、about_Automatic_Variables に載っている
+# 名前は極力避け、独自のプレフィックスを付けた変数名（例: $ioStdin,
+# $ioBytes）を使うこと。
+#
+# 【現に起きた事故】
+# 信玄が実機で「$psEdition = 'N/A'」とだけ書いたところ、$PSEdition は
+# 読み取り専用の自動変数のため代入時に例外が発生し、外側の catch {} が
+# それを握り潰して「フックが無言で死ぬ」事故が起きた。診断コメントを
+# 埋めるつもりの1行が、フック自体を無力化した。写経時は変数名を
+# 一つひとつ自動変数リストと照合すること。
+# -----------------------------------------------------------------------------
+
+
+# =============================================================================
+# 1. Read-StdinUtf8 : stdin を UTF-8 の生バイトとして読み、文字列へ復元する
+# =============================================================================
+#
+# 【なぜ [Console]::In.ReadToEnd() を使わないか】
+# [Console]::In は内部で [Console]::InputEncoding（本番実測で CP932）を使って
+# バイト→文字列変換を行う。Claude Code が UTF-8 で書いた JSON を CP932 として
+# 誤読するため、cwd の「ドキュメント」のような日本語パスを含む値でバイト列が
+# ズレ、JSON のエスケープが壊れて ConvertFrom-Json が失敗する
+# （block-dangerous.ps1 旧版で実際に発生した事故）。
+#
+# 【設計】
+# ・[Console]::OpenStandardInput() で生のバイトストリームを取得し、
+#   MemoryStream に読み切ってからバイト配列として確定する
+#   （Read() は一度の呼び出しで全バイトを返す保証がないため、ループで読む）。
+# ・BOM(EF BB BF) は自前で検出して読み飛ばす。BOM 有無どちらの入力でも
+#   同じ文字列に復元できることを保証する。
+# ・UTF8Encoding のコンストラクタ第2引数を $false にし、不正なバイト列を
+#   例外ではなく U+FFFD（置換文字）へ変換する。JSON の構造文字（{ } " : , 等）
+#   はすべて ASCII のため、値の一部が化けても JSON パース自体は継続できる。
+#   例外で落として fail-safe に倒すより、判定を続行できる方が安全側である
+#   （block-dangerous.ps1 の設計方針を踏襲）。
+# ・stdin が空（0 バイト）でも例外を投げず空文字列 '' を返す。
+# ・ストリーム取得や読み取り自体で例外が出た場合も空文字列を返す
+#   （呼び出し側の ConvertFrom-Json が失敗して null 扱いになる、という
+#   従来どおりの fail-safe 経路に自然に合流させるため）。
+#
+function Read-StdinUtf8 {
+  try {
+    $ioStdinStream = [Console]::OpenStandardInput()
+    $ioMemStream = New-Object System.IO.MemoryStream
+    $ioBuffer = New-Object byte[] 8192
+    while ($true) {
+      $ioReadCount = $ioStdinStream.Read($ioBuffer, 0, $ioBuffer.Length)
+      if ($ioReadCount -le 0) { break }
+      $ioMemStream.Write($ioBuffer, 0, $ioReadCount)
+    }
+    $ioAllBytes = $ioMemStream.ToArray()
+  } catch {
+    return ''
+  }
+
+  if ($ioAllBytes.Length -eq 0) { return '' }
+
+  # BOM(EF BB BF) の手動検出。StreamReader の自動 BOM 検出（第3引数 $true）に
+  # 頼らず、生バイト読み取りの流儀に合わせて自前で先頭3バイトを見る。
+  $ioStartOffset = 0
+  if ($ioAllBytes.Length -ge 3 -and
+      $ioAllBytes[0] -eq 0xEF -and $ioAllBytes[1] -eq 0xBB -and $ioAllBytes[2] -eq 0xBF) {
+    $ioStartOffset = 3
+  }
+  $ioByteCount = $ioAllBytes.Length - $ioStartOffset
+  if ($ioByteCount -le 0) { return '' }
+
+  # UTF8Encoding($false, $false)
+  #   第1引数 $false: GetBytes 側で BOM を出力しない（GetString には無関係だが
+  #                    Write-StdoutUtf8 と対で覚えるための明示）
+  #   第2引数 $false: throwOnInvalidBytes を無効化 → 不正バイトは例外ではなく
+  #                    U+FFFD へ置換される
+  $ioDecoder = New-Object System.Text.UTF8Encoding($false, $false)
+  return $ioDecoder.GetString($ioAllBytes, $ioStartOffset, $ioByteCount)
+}
+
+
+# =============================================================================
+# 2. Write-StdoutUtf8 : stdout へ UTF-8 の生バイトを直接書く（BOM なし）
+# =============================================================================
+#
+# 【なぜ Write-Output / Write-Host を使わないか】
+# PowerShell の通常の出力パイプラインは [Console]::OutputEncoding（本番実測で
+# CP932）を経由して文字列をバイト化する。したがって Write-Output で日本語や
+# JSON を出しても、CP932 として再エンコードされ Claude Code 側で文字化けする。
+# [Console]::OpenStandardOutput() で取得した生ストリームへ直接バイトを書けば、
+# [Console]::OutputEncoding にも $OutputEncoding にも PSVersion（5.1/7 の差）
+# にも一切左右されない。
+#
+# 【BOM を絶対に前置しない理由（公式契約）】
+# UserPromptSubmit は exit 0 のとき、stdout の先頭文字が '{' であれば JSON
+# として解析し、それ以外なら平文としてそのままコンテキストに追加する。
+# BOM(EF BB BF) を先頭に出すと文字列の先頭が U+FEFF になり '{' と一致しなく
+# なるため、JSON としての解釈が丸ごと黙殺される。UTF8Encoding のコンストラクタ
+# 第1引数を $false にしておけば GetBytes() は常に BOM なしのバイト列を返す
+# ため、通常の使い方であれば BOM は混入しない。ここでは「BOM を前置しない」
+# という契約を明示するためにあえて $false を書いている。
+# ※ここでいう BOM は「stdout ストリームの先頭」の話であり、.ps1 ファイル
+#   自体の先頭 BOM（ファイルの文字コード表明）とは別物である。ファイルの
+#   BOM は pwsh 5.1 対応のために必要（後述）なので混同しないこと。
+#
+# 【Flush() を必ず呼ぶ理由】
+# バッファリングされたまま [System.Environment]::Exit() 等でプロセスが
+# 即時終了すると、書き込んだはずのバイトが実際には出力されずに消える事故が
+# 起こり得る（block-dangerous.ps1 冒頭コメント【F-1】参照）。書き込みの都度
+# Flush() し、バッファに滞留させたまま関数を抜けないようにする。
+#
+function Write-StdoutUtf8([string]$ioText) {
+  $ioEncoder = New-Object System.Text.UTF8Encoding($false)
+  $ioBytes = $ioEncoder.GetBytes($ioText)
+  $ioStdoutStream = [Console]::OpenStandardOutput()
+  $ioStdoutStream.Write($ioBytes, 0, $ioBytes.Length)
+  $ioStdoutStream.Flush()
+}
+
+
+# =============================================================================
+# 3. 終了処理の指針 : exit 2 の意味はイベントごとに違う。安易に写経するな
+# =============================================================================
+#
+# block-dangerous.ps1（PreToolUse）は deny を終了コード2で返すために
+# [System.Environment]::Exit(2) を使っている。これは「PreToolUse というイベント
+# においては exit 2 が allow ルールより優先してツール呼び出しをブロックする」
+# という、そのイベント固有の契約に基づく設計である。他のイベントへ
+# そのまま持ち込んでよい理由にはならない。
+#
+#   イベント          | exit 2 の意味                                | 本雛形6本での扱い
+#   ------------------|-----------------------------------------------|--------------------------------
+#   PreToolUse        | ツール呼び出しをブロックする。allow ルールにも| 対象外（block-dangerous.ps1 側の話。
+#                      | 優先する（公式ドキュメント確定・実装実績あり）| 本雛形の写経先には含まれない）
+#   UserPromptSubmit  | プロンプト処理そのものをブロックし、          | 絶対に使うな。何があっても exit 0。
+#                      | 入力したプロンプトを消去する（公式ドキュメント| inject-context 等はコンテキストを
+#                      | 確定）。                                       | 追加できないだけで実害は小さいのに
+#                      |                                                 | 対し、exit 2 は殿の入力そのものを
+#                      |                                                 | 消してしまう非対称に重い副作用。
+#   その他             | 本雛形作成時点で未調査。PostToolUse /          | 写経前に必ず公式ドキュメント
+#   (PostToolUse等)    | Stop / SubagentStop / Notification 等はイベント| （https://code.claude.com/docs/en/
+#                      | ごとに exit 2 の意味・有無が異なる可能性が高い | hooks 等）でそのイベントの契約を
+#                      | が、本雛形の作成時点では原文を確認していない。 | 確認してから exit コードを決めよ。
+#
+# 【本雛形の6本フックへの適用方針】
+# 今回写経対象の6本（inject-context を含む）はいずれも「失敗しても実害が
+# コンテキスト追加を諦める程度」の非致命的なフックであり、exit 2 を必要と
+# しない。したがって:
+#   ・正常終了時: exit 0（PowerShell の exit 文でよい。block-dangerous.ps1の
+#     【F-1】実測は「非ゼロの exit コードが & 呼び出し形で 1 に丸められる」
+#     問題であり、exit 0 はそのまま 0 として伝わる。0 の場合に化ける事故は
+#     確認されていない）。
+#   ・異常終了時（例外発生・入力不正等）: JSON も平文も一切 stdout へ出さず
+#     に exit 0（半端な出力を出す方が Claude Code 側の解析を誤らせ有害）。
+#   ・[System.Environment]::Exit(2) をこの雛形からの写経で安易に使うな。
+#     使うべきかどうかは、写経先イベントの公式契約を個別に確認した上で
+#     判断すること。
+# =============================================================================

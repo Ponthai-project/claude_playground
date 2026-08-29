@@ -30,3 +30,6 @@ replay_pid*
 !.claude/
 !.claude/agents/
 !.claude/agents/*.md
+
+# 検証・レンダリング試行で生成した使い捨てスクリーンショット
+work/**/*.png

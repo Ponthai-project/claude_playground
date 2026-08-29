@@ -1,0 +1,394 @@
+﻿=============================================================================
+ block-dangerous.ps1 検証ハーネス (test-hook-utf8.ps1)
+=============================================================================
+ harness host        : 7.6.5 (Core)
+ hook path           : C:\Users\topge\.claude\hooks\block-dangerous.ps1
+ hook size / head    : 29689 bytes / EF BB BF (BOM 確認済み)
+ work dir for child  : C:\Users\topge\.claude\hooks
+ timeout per case    : 20000 ms
+ self-check          : OK (Japanese literal code points, hook BOM, payload raw bytes)
+ cp932 encoder       : available
+ cases               : 75  x  targets 4  =  300 実行
+
+--- 起動形（第2の軸）と実際に発行するコマンドライン -------------------------
+ [WinPS5.1/A ] -File 起動
+     C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "C:\Users\topge\.claude\hooks\block-dangerous.ps1"
+ [WinPS5.1/B ] -Command & 起動【本番同型】
+     C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "& 'C:\Users\topge\.claude\hooks\block-dangerous.ps1'"
+ [PS7/A      ] -File 起動
+     C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.5.0_x64__8wekyb3d8bbwe\pwsh.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "C:\Users\topge\.claude\hooks\block-dangerous.ps1"
+ [PS7/B      ] -Command & 起動【本番同型】
+     C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.5.0_x64__8wekyb3d8bbwe\pwsh.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "& 'C:\Users\topge\.claude\hooks\block-dangerous.ps1'"
+ ※ 上の1行は実物である。引用符の入れ子が壊れていればここで目視できる。
+    壊れていると全ケースが偽 NG になるため、集計より先にこの行を検分すること。
+
+ 凡例: [OK]/[NG] = 合否判定, [REC] = 記録のみ（合否に算入しない）
+       BOM:yes は致命傷（stdout 先頭 3 バイトが EF BB BF）
+       moji:yes = 理由文に U+FFFD を含む、または期待する日本語部分文字列を含まない
+       ※ 日本語の合否判定は文字列比較で機械的に行う。コンソール表示の化けは判定に無関係。
+
+ 【最重要】形B（-Command & 起動）が本番同型である。
+   本番 settings.json のフック起動指定は "& \"$HOME\\.claude\\hooks\\block-dangerous.ps1\"" ＝ & 呼び出し形。
+   .ps1 を & で呼ぶと script 内の exit N がホストに伝わらず 1 に化けることが実測されている
+   （[System.Environment]::Exit(N) なら伝わる）。exit 1 は Claude Code にとって
+   non-blocking error であり、ツール呼び出しはそのまま進む＝ブロックが効かない。
+   ゆえに【形B で deny の exit code が 2 でなければ、それだけで RESULT: FAIL】である。
+   形A が全合格でも形B が落ちていれば本番は破れている。集計は必ず形B を先に見よ。
+
+ 【切り分けの目安】形B だけ全ケースが ask（理由文が「標準入力が空」）になった場合、
+   それはフックの欠陥ではなく、-Command 起動側が stdin を先に消費している疑いである。
+   その場合は上に出した形B のコマンドライン（引用符の入れ子）を疑うこと。
+
+-----------------------------------------------------------------------------
+ target: WinPS5.1/A   -File 起動
+   C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "C:\Users\topge\.claude\hooks\block-dangerous.ps1"
+-----------------------------------------------------------------------------
+[OK]  WinPS5.1/A  | A1 prodcwd-JP deny : git -C . reset --hard HEA | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | A2 prodcwd-JP ask  : cat .env                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | A3 prodcwd-JP safe : ls -la                    | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/A  | A4 prodcwd-JP + JP command (echo)              | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/A  | A5 prodcwd-JP + JP arg on deny cmd             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B1 payload with leading UTF-8 BOM (deny cmd)   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B2 stdin = 0 byte (empty)                      | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B3 stdin = BOM only (3 byte)                   | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B4 stdin = whitespace only                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B5 broken JSON (truncated)                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B6 broken JSON (missing brace)                 | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B7 not JSON at all                             | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B8 no tool_input key                           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B9 tool_input without command                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B10 command = empty string                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B11 command = null                             | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B12 command = whitespace only                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B13 payload is JSON array (deny cmd)           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B14 payload is JSON array (safe cmd)           | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/A  | B15 payload is empty JSON array                | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B16 CP932 bytes, prodcwd-JP, safe cmd          | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/A  | B17 CP932 bytes, prodcwd-JP, deny cmd          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B18 CP932 bytes, dame-moji cwd (SO)            | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | B19 raw invalid UTF-8 byte injection           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C01 rm -rf /                                   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C02 git reset --hard HEAD                      | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C03 git -C . reset --hard HEAD                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C04 git -C /p -c u=x push --force              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C05 git push -f origin main                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C06 git clean -fd                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C07 git checkout -- .                          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C08 git restore .                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C09 mkfs.ext4 /dev/sda                         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C10 dd if=/dev/zero of=/dev/sda                | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C11 FOO=bar ls                                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C12 ls ; rm -rf x                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C13 git commit -n -m x                         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C14 find . -name x -delete                     | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C15 cat ~/.ssh/id_rsa                          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C16 git -c core.pager=x log                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | C17 fork bomb                                  | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | D1 cat .env                                    | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | D2 msedge --headless                           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | D3 echo x > ~/.claude/settings.json            | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | D4 New-Item .claude/hooks/foo.ps1              | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | E1 ls -la                                      | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/A  | E2 git status                                  | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/A  | E3 git log --oneline                           | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/A  | E4 cat README.md                               | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[REC] WinPS5.1/A  | F1 REC git log --grep=(quoted danger word)     | 期待(-,-)                  | 実測((none),0)             | BOM:no  | moji:n/a
+[REC] WinPS5.1/A  | F2 REC commit message contains danger word     | 期待(-,-)                  | 実測(deny,2)               | BOM:no  | moji:no
+[REC] WinPS5.1/A  | F3 REC echo of danger word in quotes           | 期待(-,-)                  | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | F4 gap fixed: --no-verify long form            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | F5 gap fixed: git branch -D                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | F6 gap fixed: git -C . branch -D               | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G01 R-2 git -C "My Folder" reset --hard        | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G02 R-2 git -C "My Folder" branch -D           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G03 R-1 git -c core.hookspath=... status       | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G04 R-1 git -c core.PAGER=evil log             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G05 M-4 git --config-env=core.pager=EVIL       | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G06 M-4 git --no-pager reset --hard            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G07 M-2 git commit -nm "msg"                   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G08 R-4 git filter-branch --all                | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G09 R-4 git rm -r x                            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G10 R-4 git mv a b                             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G11 R-4 git checkout -f                        | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G12 R-4 git update-ref -d refs/heads/x         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G13 R-4 git config user.name x (書込形)           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G14 -C prefixed: filter-branch                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G15 -C prefixed: update-ref -d                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G16 -C prefixed: config 書込形                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G17 -C prefixed: commit -nm                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/A  | G18 git config --get user.name (読取)            | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/A  | G19 git config --list (読取)                     | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/A  | G20 git -C . config --get user.name (読取)       | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+
+-----------------------------------------------------------------------------
+ target: WinPS5.1/B   -Command & 起動【本番同型】
+   C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "& 'C:\Users\topge\.claude\hooks\block-dangerous.ps1'"
+-----------------------------------------------------------------------------
+[OK]  WinPS5.1/B  | A1 prodcwd-JP deny : git -C . reset --hard HEA | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | A2 prodcwd-JP ask  : cat .env                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | A3 prodcwd-JP safe : ls -la                    | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/B  | A4 prodcwd-JP + JP command (echo)              | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/B  | A5 prodcwd-JP + JP arg on deny cmd             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B1 payload with leading UTF-8 BOM (deny cmd)   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B2 stdin = 0 byte (empty)                      | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B3 stdin = BOM only (3 byte)                   | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B4 stdin = whitespace only                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B5 broken JSON (truncated)                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B6 broken JSON (missing brace)                 | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B7 not JSON at all                             | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B8 no tool_input key                           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B9 tool_input without command                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B10 command = empty string                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B11 command = null                             | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B12 command = whitespace only                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B13 payload is JSON array (deny cmd)           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B14 payload is JSON array (safe cmd)           | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/B  | B15 payload is empty JSON array                | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B16 CP932 bytes, prodcwd-JP, safe cmd          | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/B  | B17 CP932 bytes, prodcwd-JP, deny cmd          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B18 CP932 bytes, dame-moji cwd (SO)            | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | B19 raw invalid UTF-8 byte injection           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C01 rm -rf /                                   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C02 git reset --hard HEAD                      | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C03 git -C . reset --hard HEAD                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C04 git -C /p -c u=x push --force              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C05 git push -f origin main                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C06 git clean -fd                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C07 git checkout -- .                          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C08 git restore .                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C09 mkfs.ext4 /dev/sda                         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C10 dd if=/dev/zero of=/dev/sda                | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C11 FOO=bar ls                                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C12 ls ; rm -rf x                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C13 git commit -n -m x                         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C14 find . -name x -delete                     | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C15 cat ~/.ssh/id_rsa                          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C16 git -c core.pager=x log                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | C17 fork bomb                                  | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | D1 cat .env                                    | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | D2 msedge --headless                           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | D3 echo x > ~/.claude/settings.json            | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | D4 New-Item .claude/hooks/foo.ps1              | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | E1 ls -la                                      | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/B  | E2 git status                                  | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/B  | E3 git log --oneline                           | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/B  | E4 cat README.md                               | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[REC] WinPS5.1/B  | F1 REC git log --grep=(quoted danger word)     | 期待(-,-)                  | 実測((none),0)             | BOM:no  | moji:n/a
+[REC] WinPS5.1/B  | F2 REC commit message contains danger word     | 期待(-,-)                  | 実測(deny,2)               | BOM:no  | moji:no
+[REC] WinPS5.1/B  | F3 REC echo of danger word in quotes           | 期待(-,-)                  | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | F4 gap fixed: --no-verify long form            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | F5 gap fixed: git branch -D                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | F6 gap fixed: git -C . branch -D               | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G01 R-2 git -C "My Folder" reset --hard        | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G02 R-2 git -C "My Folder" branch -D           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G03 R-1 git -c core.hookspath=... status       | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G04 R-1 git -c core.PAGER=evil log             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G05 M-4 git --config-env=core.pager=EVIL       | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G06 M-4 git --no-pager reset --hard            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G07 M-2 git commit -nm "msg"                   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G08 R-4 git filter-branch --all                | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G09 R-4 git rm -r x                            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G10 R-4 git mv a b                             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G11 R-4 git checkout -f                        | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G12 R-4 git update-ref -d refs/heads/x         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G13 R-4 git config user.name x (書込形)           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G14 -C prefixed: filter-branch                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G15 -C prefixed: update-ref -d                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G16 -C prefixed: config 書込形                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G17 -C prefixed: commit -nm                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  WinPS5.1/B  | G18 git config --get user.name (読取)            | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/B  | G19 git config --list (読取)                     | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  WinPS5.1/B  | G20 git -C . config --get user.name (読取)       | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+
+-----------------------------------------------------------------------------
+ target: PS7/A   -File 起動
+   C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.5.0_x64__8wekyb3d8bbwe\pwsh.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "C:\Users\topge\.claude\hooks\block-dangerous.ps1"
+-----------------------------------------------------------------------------
+[OK]  PS7/A       | A1 prodcwd-JP deny : git -C . reset --hard HEA | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | A2 prodcwd-JP ask  : cat .env                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | A3 prodcwd-JP safe : ls -la                    | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/A       | A4 prodcwd-JP + JP command (echo)              | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/A       | A5 prodcwd-JP + JP arg on deny cmd             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | B1 payload with leading UTF-8 BOM (deny cmd)   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | B2 stdin = 0 byte (empty)                      | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B3 stdin = BOM only (3 byte)                   | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B4 stdin = whitespace only                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B5 broken JSON (truncated)                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B6 broken JSON (missing brace)                 | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B7 not JSON at all                             | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B8 no tool_input key                           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B9 tool_input without command                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B10 command = empty string                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B11 command = null                             | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B12 command = whitespace only                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B13 payload is JSON array (deny cmd)           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | B14 payload is JSON array (safe cmd)           | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/A       | B15 payload is empty JSON array                | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B16 CP932 bytes, prodcwd-JP, safe cmd          | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/A       | B17 CP932 bytes, prodcwd-JP, deny cmd          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | B18 CP932 bytes, dame-moji cwd (SO)            | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | B19 raw invalid UTF-8 byte injection           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | C01 rm -rf /                                   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C02 git reset --hard HEAD                      | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C03 git -C . reset --hard HEAD                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C04 git -C /p -c u=x push --force              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C05 git push -f origin main                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C06 git clean -fd                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C07 git checkout -- .                          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C08 git restore .                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C09 mkfs.ext4 /dev/sda                         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C10 dd if=/dev/zero of=/dev/sda                | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C11 FOO=bar ls                                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C12 ls ; rm -rf x                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C13 git commit -n -m x                         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C14 find . -name x -delete                     | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C15 cat ~/.ssh/id_rsa                          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C16 git -c core.pager=x log                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | C17 fork bomb                                  | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | D1 cat .env                                    | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | D2 msedge --headless                           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | D3 echo x > ~/.claude/settings.json            | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | D4 New-Item .claude/hooks/foo.ps1              | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/A       | E1 ls -la                                      | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/A       | E2 git status                                  | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/A       | E3 git log --oneline                           | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/A       | E4 cat README.md                               | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[REC] PS7/A       | F1 REC git log --grep=(quoted danger word)     | 期待(-,-)                  | 実測((none),0)             | BOM:no  | moji:n/a
+[REC] PS7/A       | F2 REC commit message contains danger word     | 期待(-,-)                  | 実測(deny,2)               | BOM:no  | moji:no
+[REC] PS7/A       | F3 REC echo of danger word in quotes           | 期待(-,-)                  | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | F4 gap fixed: --no-verify long form            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | F5 gap fixed: git branch -D                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | F6 gap fixed: git -C . branch -D               | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G01 R-2 git -C "My Folder" reset --hard        | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G02 R-2 git -C "My Folder" branch -D           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G03 R-1 git -c core.hookspath=... status       | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G04 R-1 git -c core.PAGER=evil log             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G05 M-4 git --config-env=core.pager=EVIL       | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G06 M-4 git --no-pager reset --hard            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G07 M-2 git commit -nm "msg"                   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G08 R-4 git filter-branch --all                | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G09 R-4 git rm -r x                            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G10 R-4 git mv a b                             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G11 R-4 git checkout -f                        | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G12 R-4 git update-ref -d refs/heads/x         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G13 R-4 git config user.name x (書込形)           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G14 -C prefixed: filter-branch                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G15 -C prefixed: update-ref -d                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G16 -C prefixed: config 書込形                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G17 -C prefixed: commit -nm                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/A       | G18 git config --get user.name (読取)            | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/A       | G19 git config --list (読取)                     | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/A       | G20 git -C . config --get user.name (読取)       | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+
+-----------------------------------------------------------------------------
+ target: PS7/B   -Command & 起動【本番同型】
+   C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.5.0_x64__8wekyb3d8bbwe\pwsh.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "& 'C:\Users\topge\.claude\hooks\block-dangerous.ps1'"
+-----------------------------------------------------------------------------
+[OK]  PS7/B       | A1 prodcwd-JP deny : git -C . reset --hard HEA | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | A2 prodcwd-JP ask  : cat .env                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | A3 prodcwd-JP safe : ls -la                    | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/B       | A4 prodcwd-JP + JP command (echo)              | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/B       | A5 prodcwd-JP + JP arg on deny cmd             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | B1 payload with leading UTF-8 BOM (deny cmd)   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | B2 stdin = 0 byte (empty)                      | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B3 stdin = BOM only (3 byte)                   | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B4 stdin = whitespace only                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B5 broken JSON (truncated)                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B6 broken JSON (missing brace)                 | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B7 not JSON at all                             | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B8 no tool_input key                           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B9 tool_input without command                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B10 command = empty string                     | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B11 command = null                             | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B12 command = whitespace only                  | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B13 payload is JSON array (deny cmd)           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | B14 payload is JSON array (safe cmd)           | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/B       | B15 payload is empty JSON array                | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B16 CP932 bytes, prodcwd-JP, safe cmd          | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/B       | B17 CP932 bytes, prodcwd-JP, deny cmd          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | B18 CP932 bytes, dame-moji cwd (SO)            | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | B19 raw invalid UTF-8 byte injection           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | C01 rm -rf /                                   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C02 git reset --hard HEAD                      | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C03 git -C . reset --hard HEAD                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C04 git -C /p -c u=x push --force              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C05 git push -f origin main                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C06 git clean -fd                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C07 git checkout -- .                          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C08 git restore .                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C09 mkfs.ext4 /dev/sda                         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C10 dd if=/dev/zero of=/dev/sda                | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C11 FOO=bar ls                                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C12 ls ; rm -rf x                              | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C13 git commit -n -m x                         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C14 find . -name x -delete                     | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C15 cat ~/.ssh/id_rsa                          | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C16 git -c core.pager=x log                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | C17 fork bomb                                  | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | D1 cat .env                                    | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | D2 msedge --headless                           | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | D3 echo x > ~/.claude/settings.json            | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | D4 New-Item .claude/hooks/foo.ps1              | 期待(ask,0)                | 実測(ask,0)                | BOM:no  | moji:no
+[OK]  PS7/B       | E1 ls -la                                      | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/B       | E2 git status                                  | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/B       | E3 git log --oneline                           | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/B       | E4 cat README.md                               | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[REC] PS7/B       | F1 REC git log --grep=(quoted danger word)     | 期待(-,-)                  | 実測((none),0)             | BOM:no  | moji:n/a
+[REC] PS7/B       | F2 REC commit message contains danger word     | 期待(-,-)                  | 実測(deny,2)               | BOM:no  | moji:no
+[REC] PS7/B       | F3 REC echo of danger word in quotes           | 期待(-,-)                  | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | F4 gap fixed: --no-verify long form            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | F5 gap fixed: git branch -D                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | F6 gap fixed: git -C . branch -D               | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G01 R-2 git -C "My Folder" reset --hard        | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G02 R-2 git -C "My Folder" branch -D           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G03 R-1 git -c core.hookspath=... status       | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G04 R-1 git -c core.PAGER=evil log             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G05 M-4 git --config-env=core.pager=EVIL       | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G06 M-4 git --no-pager reset --hard            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G07 M-2 git commit -nm "msg"                   | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G08 R-4 git filter-branch --all                | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G09 R-4 git rm -r x                            | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G10 R-4 git mv a b                             | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G11 R-4 git checkout -f                        | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G12 R-4 git update-ref -d refs/heads/x         | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G13 R-4 git config user.name x (書込形)           | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G14 -C prefixed: filter-branch                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G15 -C prefixed: update-ref -d                 | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G16 -C prefixed: config 書込形                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G17 -C prefixed: commit -nm                    | 期待(deny,2)               | 実測(deny,2)               | BOM:no  | moji:no
+[OK]  PS7/B       | G18 git config --get user.name (読取)            | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/B       | G19 git config --list (読取)                     | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+[OK]  PS7/B       | G20 git -C . config --get user.name (読取)       | 期待((none),0)             | 実測((none),0)             | BOM:no  | moji:n/a
+
+=============================================================================
+ 集計（シェル × 起動形）
+=============================================================================
+ WinPS5.1/A   : 合格  72 / 判定対象  72   （記録のみ 3 件, スキップ 0 件）  -File 起動
+ WinPS5.1/B   : 合格  72 / 判定対象  72   （記録のみ 3 件, スキップ 0 件）  -Command & 起動【本番同型】  <= 本番同型
+ PS7/A        : 合格  72 / 判定対象  72   （記録のみ 3 件, スキップ 0 件）  -File 起動
+ PS7/B        : 合格  72 / 判定対象  72   （記録のみ 3 件, スキップ 0 件）  -Command & 起動【本番同型】  <= 本番同型
+
+=============================================================================
+ 【最重要】本番同型（形B）で deny の exit code が 2 でなかったケース
+=============================================================================
+ （なし）本番同型の起動形で deny がすべて exit 2 を返している。
+
+=============================================================================
+ 記録のみのケース（合否を出していない実測値。仕様判断の材料）
+=============================================================================
+ - WinPS5.1/A | F1 REC git log --grep=(quoted danger word) | 実測 ((none),0) | BOM:no | reason=
+ - WinPS5.1/A | F2 REC commit message contains danger word | 実測 (deny,2) | BOM:no | reason=危険コマンド検知によりブロック: git reset --hard [一致箇所: git reset --hard]
+ - WinPS5.1/A | F3 REC echo of danger word in quotes | 実測 (deny,2) | BOM:no | reason=危険コマンド検知によりブロック: rm -rf [一致箇所: rm -rf]
+ - WinPS5.1/B | F1 REC git log --grep=(quoted danger word) | 実測 ((none),0) | BOM:no | reason=
+ - WinPS5.1/B | F2 REC commit message contains danger word | 実測 (deny,2) | BOM:no | reason=危険コマンド検知によりブロック: git reset --hard [一致箇所: git reset --hard]
+ - WinPS5.1/B | F3 REC echo of danger word in quotes | 実測 (deny,2) | BOM:no | reason=危険コマンド検知によりブロック: rm -rf [一致箇所: rm -rf]
+ - PS7/A | F1 REC git log --grep=(quoted danger word) | 実測 ((none),0) | BOM:no | reason=
+ - PS7/A | F2 REC commit message contains danger word | 実測 (deny,2) | BOM:no | reason=危険コマンド検知によりブロック: git reset --hard [一致箇所: git reset --hard]
+ - PS7/A | F3 REC echo of danger word in quotes | 実測 (deny,2) | BOM:no | reason=危険コマンド検知によりブロック: rm -rf [一致箇所: rm -rf]
+ - PS7/B | F1 REC git log --grep=(quoted danger word) | 実測 ((none),0) | BOM:no | reason=
+ - PS7/B | F2 REC commit message contains danger word | 実測 (deny,2) | BOM:no | reason=危険コマンド検知によりブロック: git reset --hard [一致箇所: git reset --hard]
+ - PS7/B | F3 REC echo of danger word in quotes | 実測 (deny,2) | BOM:no | reason=危険コマンド検知によりブロック: rm -rf [一致箇所: rm -rf]
+
+=============================================================================
+ NG 一覧
+=============================================================================
+ （なし）

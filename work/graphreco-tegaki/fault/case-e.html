@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>グラレコ：Claude Opus 5 登場</title>
+<style>
+  :root{
+    --paper:#F3ECDD;
+    --card:#F7F1E3;
+    --ink:#2A2723;
+    --terracotta:#C15F3C;
+    --teal:#3E6B6E;
+    --highlight:#EED9A0;
+    --shadow:rgba(42,39,35,0.12);
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0; width:100%; overflow-x:hidden;
+    background-color:var(--paper);
+    background-image:
+      repeating-linear-gradient(transparent 0 31px, rgba(42,39,35,0.035) 31px 32px),
+      radial-gradient(rgba(42,39,35,0.03) 1px, transparent 1.2px);
+    background-size: auto, 7px 7px;
+    color:var(--ink);
+    font-family:"Candara","UD Digi Kyokasho N","Yu Gothic",sans-serif;
+    line-height:1.7;
+  }
+  img,svg{ max-width:100%; height:auto; }
+  .page{ max-width:min(960px,92vw); margin:0 auto; }
+
+  /* ---------- 番号見出し ---------- */
+  .sec-head{ display:flex; align-items:flex-start; gap:16px; margin-bottom:14px; }
+  .sec-num{
+    flex-shrink:0;
+    font-size:clamp(1.9rem,5vw,2.8rem);
+    font-weight:bold;
+    color:var(--terracotta);
+    line-height:1;
+    text-shadow: 1.5px 1.5px 0 rgba(193,95,60,0.20);
+  }
+  .section-title{
+    display:inline-block;
+    font-size:clamp(1.3rem,3.2vw,1.9rem);
+    letter-spacing:0.04em;
+    position:relative;
+    padding-bottom:6px;
+    background-image: linear-gradient(120deg, rgba(193,95,60,0.35), rgba(193,95,60,0.35));
+    background-repeat:no-repeat;
+    background-size:100% 0.42em;
+    background-position:0 92%;
+  }
+  .sec-sub{ margin:6px 0 0 0; color:#6b6660; font-size:0.9rem; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:0.85rem; color:var(--teal); font-weight:bold;
+    letter-spacing:0.08em;
+    margin-bottom:10px;
+  }
+
+  /* ---------- セクション & カード ---------- */
+  .section{ padding:56px 0; }
+  .card{
+    padding:32px clamp(18px,4vw,40px);
+    position:relative;
+    z-index:0;
+  }
+  /* 枠線・背景だけを描く専用レイヤー。テキストは本体(.card)側の通常フローに置き、
+     このレイヤーにだけ揺らぎフィルタを掛けるため、文字は一切歪まない。 */
+  .card::before{
+    content:"";
+    position:absolute; inset:0; z-index:-1;
+    background:var(--card);
+    border:2.4px solid var(--ink);
+    border-radius: 16px 20px 15px 22px / 20px 15px 22px 16px;
+    box-shadow: 0 6px 14px var(--shadow);
+    filter:url(#hand-wobble-l);
+  }
+
+  /* ---------- 補足表 ---------- */
+  .info-table{ width:100%; border-collapse:collapse; margin:18px 0 6px; font-size:0.86rem; }
+  .info-table th,.info-table td{ border:1.5px solid var(--ink); padding:9px 12px; text-align:left; vertical-align:top; }
+  .info-table th{ background:var(--highlight); font-weight:bold; white-space:nowrap; }
+  .info-table tr:nth-child(even) td{ background:rgba(62,107,110,0.07); }
+
+  /* ---------- 厚い解説文 ---------- */
+  .explain{ margin-top:14px; font-size:0.92rem; line-height:1.9; }
+  .explain strong{ color:var(--terracotta); }
+
+  /* ---------- 付箋「ポイントまとめ」 ---------- */
+  .sticky-note{
+    padding:16px 20px;
+    position:relative;
+    margin-top:22px;
+    font-weight:bold;
+    z-index:0;
+  }
+  .sticky-note::before{
+    content:""; position:absolute; inset:0; z-index:-1;
+    background:var(--highlight); border-radius:2px 5px 3px 6px;
+    box-shadow:3px 5px 9px var(--shadow);
+    filter:url(#hand-wobble-m);
+  }
+  .sticky-note::after{
+    content:""; position:absolute; top:0; right:0; width:22px; height:22px;
+    background:linear-gradient(135deg, transparent 50%, rgba(42,39,35,0.18) 52%);
+    border-bottom-left-radius:5px;
+  }
+
+  /* ---------- 手描きマーカー・囲み（装飾例外：微傾き許容） ---------- */
+  .marker{
+    background-image: linear-gradient(120deg, rgba(193,95,60,0.32), rgba(193,95,60,0.32));
+    background-repeat:no-repeat;
+    background-size:100% 0.55em;
+    background-position:0 82%;
+    font-weight:bold;
+  }
+  .circled{ position:relative; display:inline-block; padding:0 0.35em; }
+  .circled::before{
+    content:""; position:absolute; inset:-6px -10px;
+    border:2.5px solid var(--terracotta);
+    border-radius:48% 52% 45% 55% / 55% 45% 58% 42%;
+    transform: rotate(-1deg);
+    pointer-events:none;
+  }
+
+  /* ---------- 大きな手書き数字 ---------- */
+  .big-num{
+    font-size:clamp(2.4rem,7vw,4.2rem);
+    font-weight:bold;
+    color:var(--terracotta);
+    text-shadow: 1.5px 1.5px 0 rgba(193,95,60,0.22), -1px -1px 0 rgba(62,107,110,0.16);
+    line-height:1;
+    display:inline-block;
+  }
+  .big-num small{ font-size:0.35em; color:var(--ink); font-weight:normal; }
+
+  /* ---------- フクロウ博士 ---------- */
+  .owl{ display:block; flex-shrink:0; }
+  .owl-row{ display:flex; align-items:center; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
+  .bubble{
+    position:relative;
+    background:#fff9ec;
+    border:2px solid var(--ink);
+    border-radius:16px;
+    padding:10px 16px;
+    font-size:0.95rem;
+    max-width:340px;
+  }
+  .bubble::before{
+    content:"";
+    position:absolute; left:-14px; top:18px;
+    border:8px solid transparent;
+    border-right-color:var(--ink);
+  }
+  .bubble::after{
+    content:"";
+    position:absolute; left:-11px; top:19px;
+    border:7px solid transparent;
+    border-right-color:#fff9ec;
+  }
+
+  /* ---------- 手描きチェック / 矢印アイコン ---------- */
+  .check-icon{ display:inline-block; vertical-align:middle; flex-shrink:0; margin-top:2px; }
+
+  /* ---------- 吹き出し3つ（ひとことで言うと） ---------- */
+  .quote-row{ display:flex; gap:20px; flex-wrap:wrap; justify-content:center; align-items:stretch; margin-top:20px; }
+  .quote-cloud{
+    flex:1 1 220px;
+    display:flex; flex-direction:column; justify-content:center;
+    background:var(--highlight);
+    border:2.5px solid var(--ink);
+    border-radius: 12px;
+    padding:22px 20px;
+    text-align:center;
+    font-weight:bold;
+    font-size:0.98rem;
+    max-width:260px;
+    box-shadow:0 6px 14px var(--shadow);
+  }
+
+  /* ---------- ベンチマーク行 ---------- */
+  .bench-row{ margin:30px 0; }
+  .bench-head{ display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+  .bench-name{ font-weight:bold; font-size:1.05rem; }
+  .bench-vs{ font-size:0.82rem; color:var(--teal); font-weight:bold; }
+  .bar-track{
+    background:var(--paper); border:2px solid var(--ink); border-radius:999px;
+    height:32px; position:relative; overflow:hidden;
+    box-shadow: inset 0 2px 5px rgba(42,39,35,0.10);
+  }
+  .bar-fill{
+    height:100%; border-radius:999px;
+    background:linear-gradient(90deg, var(--terracotta), #d97b52);
+    display:flex; align-items:center; padding-left:12px;
+    color:#fff9ec; font-size:0.78rem; font-weight:bold;
+    white-space:nowrap;
+  }
+  .bar-fill.teal{ background:linear-gradient(90deg, var(--teal), #558f92); }
+  .bar-fill.uncertain{
+    background:repeating-linear-gradient(45deg, var(--terracotta) 0 10px, #d97b52 10px 20px);
+    border-right:3px dashed var(--ink);
+  }
+  .bar-label-row{ display:flex; justify-content:space-between; font-size:0.75rem; margin-top:4px; color:var(--ink); opacity:0.8; }
+  .badge-circle{
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    width:92px; height:92px; padding:6px;
+    border:3px solid var(--ink);
+    border-radius:50%;
+    background:var(--highlight);
+    font-weight:bold; font-size:0.82rem; line-height:1.2;
+    box-shadow:0 5px 10px var(--shadow);
+    flex-shrink:0;
+  }
+  .bench-flex{ display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+  .bench-bars{ flex:1 1 260px; min-width:0; }
+
+  /* ---------- 散布図 ---------- */
+  .scatter-wrap{ text-align:center; margin-top:10px; }
+  .scatter-note{ font-size:0.85rem; margin-top:10px; color:var(--teal); font-weight:bold; }
+
+  /* ---------- 働き方の変化（Before/After・逸話） ---------- */
+  .flow-wrap{ display:flex; gap:16px; align-items:stretch; flex-wrap:wrap; margin-top:22px; }
+  .flow-box{
+    flex:1 1 240px; display:flex; flex-direction:column;
+    border:2px solid var(--ink); border-radius:14px; padding:18px 20px;
+  }
+  .flow-box.before{ background:#eee3d2; }
+  .flow-box.after{ background:var(--card); border-color:var(--teal); border-width:2.5px; }
+  .flow-label{ font-weight:bold; font-size:0.78rem; color:var(--teal); letter-spacing:0.05em; margin-bottom:6px; }
+  .flow-title{ font-weight:bold; font-size:1.05rem; margin-bottom:8px; }
+  .flow-desc{ font-size:0.88rem; margin-top:auto; }
+  .flow-arrow-wrap{ display:flex; align-items:center; justify-content:center; flex:0 0 56px; }
+  @media (max-width:700px){
+    .flow-arrow-wrap{ flex-basis:36px; }
+  }
+  .episode-list{ display:flex; flex-direction:column; gap:16px; margin-top:24px; }
+  .episode-card{
+    display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;
+    border:2px dashed var(--ink); border-radius:14px; padding:16px 20px; background:var(--paper);
+  }
+  .episode-num{
+    flex-shrink:0; font-weight:bold; font-size:1.2rem; color:var(--terracotta);
+    background:var(--highlight); border:2px solid var(--ink); border-radius:50%;
+    width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+  }
+  .episode-body{ flex:1 1 200px; min-width:0; }
+  .episode-title{ font-weight:bold; margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .episode-star{
+    font-size:0.68rem; background:var(--terracotta); color:#fff9ec; padding:2px 8px;
+    border-radius:999px; font-weight:bold;
+  }
+
+  /* ---------- 科学セクション ---------- */
+  .sci-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; margin-top:20px; align-items:stretch; }
+  .sci-item{ text-align:center; }
+  .sci-bar-wrap{ display:flex; align-items:flex-end; justify-content:center; gap:10px; height:160px; margin-bottom:10px; }
+  .sci-bar{
+    width:56px; background:linear-gradient(180deg, var(--teal), var(--terracotta));
+    border:2px solid var(--ink); border-radius:8px 8px 3px 3px;
+    position:relative;
+    display:flex; align-items:flex-start; justify-content:center;
+  }
+  .sci-bar span{
+    position:absolute; top:-30px; font-weight:bold; color:var(--terracotta);
+    font-size:1.15rem; white-space:nowrap;
+  }
+
+  /* ---------- 新機能カード ---------- */
+  .feat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; margin-top:20px; align-items:stretch; }
+  .feat-card{
+    background:var(--paper); border:2px dashed var(--ink); border-radius:14px;
+    padding:20px; position:relative;
+    display:flex; flex-direction:column;
+  }
+  .beta-tag{
+    display:inline-block; background:var(--teal); color:#fff9ec; font-size:0.7rem;
+    padding:3px 10px; border-radius:999px; font-weight:bold; margin-bottom:8px;
+    align-self:flex-start;
+  }
+  .feat-card p{ margin-top:auto; }
+
+  /* ---------- 7領域グリッド ---------- */
+  .domain-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:20px; margin-top:22px; text-align:center; align-items:stretch; }
+  .domain-item{
+    background:var(--highlight); border:2px solid var(--ink);
+    border-radius:12px; padding:16px 8px;
+    box-shadow:0 5px 10px var(--shadow);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .domain-icon{ font-size:1.8rem; display:block; margin-bottom:6px; }
+
+  /* ---------- 価格タグ ---------- */
+  .price-row{ display:flex; gap:20px; flex-wrap:wrap; justify-content:center; align-items:stretch; margin-top:26px; }
+  .price-tag{
+    position:relative; background:var(--highlight); border:2.5px solid var(--ink);
+    padding:18px 26px 18px 40px; font-weight:bold; font-size:1.4rem;
+    clip-path: polygon(0 50%, 18% 0, 100% 0, 100% 100%, 18% 100%);
+    box-shadow:0 6px 12px var(--shadow);
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .price-tag::before{
+    content:""; position:absolute; left:22px; top:50%; transform:translateY(-50%);
+    width:10px; height:10px; border-radius:50%;
+    background:var(--paper); border:2px solid var(--ink);
+  }
+  .price-tag small{ display:block; font-size:0.62rem; font-weight:normal; margin-top:2px; }
+  .fast-row{ display:flex; gap:20px; flex-wrap:wrap; justify-content:center; align-items:stretch; margin-top:22px; }
+  .fast-badge{
+    background:var(--card); border:3px solid var(--teal); border-radius:999px;
+    padding:12px 22px; font-weight:bold; box-shadow:0 5px 10px var(--shadow);
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ---------- 安全性 ---------- */
+  .safety-list{ list-style:none; margin:20px 0 0 0; padding:0; }
+  .safety-list li{ display:flex; gap:10px; align-items:flex-start; margin-bottom:12px; font-weight:bold; }
+  .caveat-card{
+    margin-top:24px; background:#f4e3d3; border:2.5px solid var(--terracotta);
+    border-radius:12px; padding:16px 20px; font-size:0.88rem;
+  }
+
+  /* ---------- まとめ ---------- */
+  .summary-list{ margin:20px 0; padding-left:0; list-style:none; }
+  .summary-list li{ margin-bottom:12px; padding-left:34px; position:relative; font-weight:bold; }
+  .summary-list li::before{ content:"◎"; position:absolute; left:0; color:var(--terracotta); }
+  .note-box{
+    background:var(--paper); border:2px dashed var(--ink); border-radius:10px;
+    padding:12px 16px; font-size:0.82rem; margin-top:18px;
+  }
+  .platform-chips{ display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  .chip{
+    background:var(--teal); color:#fff9ec; padding:6px 14px; border-radius:999px;
+    font-size:0.82rem; font-weight:bold;
+  }
+  footer.source{
+    text-align:center; font-size:0.78rem; opacity:0.75; padding:20px 0 50px;
+  }
+  footer.source a{ color:var(--teal); }
+
+  .hero{ text-align:center; padding-top:40px; }
+  .hero .section-title{ font-size:clamp(1.8rem,6vw,3rem); }
+  .hero-sub{ font-size:clamp(1rem,2.6vw,1.3rem); margin-top:14px; }
+  .hero-date{
+    display:inline-block; margin-top:20px; background:var(--terracotta); color:#fff9ec;
+    padding:8px 20px; border-radius:999px; font-weight:bold;
+    box-shadow:0 5px 10px var(--shadow);
+  }
+
+  /* ---------- 図解ブロック（方針書「図解の内容連動化」第3章。.sec-head直後・本文/補足表の前） ---------- */
+  .fig-block{
+    display:block; float:none; width:100%;
+    margin:16px auto 18px;
+    min-height:200px;
+    overflow:visible;
+  }
+  .fig-illust{
+    display:block; width:100%; max-width:760px; margin:0 auto;
+    max-height:340px;
+  }
+  .fig-part{ flex-shrink:0; }
+  .fig-2col{
+    display:grid;
+    grid-template-columns:minmax(280px,1fr) 1fr;
+    gap:20px; align-items:center;
+  }
+  @media (max-width:700px){
+    .fig-2col{ grid-template-columns:1fr; }
+  }
+  .deco-icon{ width:clamp(32px,4vw,56px); height:auto; flex-shrink:0; }
+  .fig-label{ font-size:max(12px,0.75rem); filter:none; }
+
+  /* ---------- 図解T4用：見出し直下の横一列キャプション（02節）。バー群の横幅は一切狭めない ---------- */
+  .fig-caption-row{ display:flex; align-items:center; gap:16px; margin-bottom:18px; }
+  .fig-caption-text{ margin:0; flex:1; font-weight:bold; font-size:0.85rem; line-height:1.5; }
+
+  /* ---------- 図解T1用：対比フロー内の部品配置（04節） ---------- */
+  .flow-box .fig-part{ display:block; margin:0 auto 10px; }
+</style>
+</head>
+<body>
+
+<!-- 再利用シンボル定義 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- 手描き揺らぎフィルタ（線画SVGすべてに既定適用。文字には掛けない） -->
+  <!-- 揺らぎフィルタは「対象が置かれた座標系の単位」で効くため、大きさの帯ごとに4本用意する -->
+  <filter id="hand-wobble-xs" x="-40%" y="-40%" width="180%" height="180%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.25 0.31" numOctaves="2" seed="7" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.67" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="hand-wobble-s" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.055 0.07" numOctaves="2" seed="7" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.0" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="hand-wobble-m" x="-15%" y="-15%" width="130%" height="130%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.010 0.013" numOctaves="1" seed="7" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.0" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="hand-wobble-l" x="-5%" y="-15%" width="110%" height="130%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.005 0.007" numOctaves="1" seed="7" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.0" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+
+  <symbol id="owl-doc" viewBox="0 0 100 100">
+    <g filter="url(#hand-wobble-s)">
+      <ellipse cx="50" cy="58" rx="34" ry="32" fill="#EED9A0" stroke="#2A2723" stroke-width="3.0"/>
+      <path d="M28 30 Q34 8 44 27" fill="none" stroke="#2A2723" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M72 30 Q66 8 56 27" fill="none" stroke="#2A2723" stroke-width="2.6" stroke-linecap="round"/>
+      <circle cx="38" cy="52" r="12" fill="#F7F1E3" stroke="#2A2723" stroke-width="2.4"/>
+      <circle cx="62" cy="52" r="12" fill="#F7F1E3" stroke="#2A2723" stroke-width="2.4"/>
+      <line x1="49" y1="51" x2="51" y2="51" stroke="#2A2723" stroke-width="1.8"/>
+      <circle cx="38" cy="52" r="4.2" fill="#2A2723"/>
+      <circle cx="62" cy="52" r="4.2" fill="#2A2723"/>
+      <path d="M50 60 L45 69 L55 69 Z" fill="#C15F3C" stroke="#2A2723" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M17 66 Q8 76 19 87" fill="none" stroke="#2A2723" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M83 66 Q92 76 81 87" fill="none" stroke="#2A2723" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+  </symbol>
+  <symbol id="check-mark" viewBox="0 0 18 16">
+    <g filter="url(#hand-wobble-xs)">
+      <path d="M2 8 L7 13 L16 3" stroke="#3E6B6E" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="hand-arrow" viewBox="0 0 80 32">
+    <g filter="url(#hand-wobble-s)">
+      <path d="M3 16 Q40 8 64 16" fill="none" stroke="#2A2723" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M64 16 L53 9 M64 16 L53 23" fill="none" stroke="#2A2723" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+  </symbol>
+  <symbol id="magnifier" viewBox="0 0 80 80">
+    <g filter="url(#hand-wobble-s)">
+      <circle cx="34" cy="34" r="20" fill="#F7F1E3" stroke="#2A2723" stroke-width="3.0"/>
+      <line x1="48" y1="48" x2="68" y2="68" stroke="#2A2723" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M24 30 Q30 22 40 26" fill="none" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.5"/>
+    </g>
+  </symbol>
+  <symbol id="talking-person" viewBox="0 0 80 80">
+    <g filter="url(#hand-wobble-s)">
+      <circle cx="30" cy="26" r="12" fill="#EED9A0" stroke="#2A2723" stroke-width="2.6"/>
+      <path d="M14 68 Q14 46 30 46 Q46 46 46 68" fill="#F7F1E3" stroke="#2A2723" stroke-width="3.0" stroke-linejoin="round"/>
+      <path d="M48 14 Q70 14 70 30 Q70 44 54 44 L54 52 L46 42 Q46 42 46 30 Q46 14 48 14 Z"
+            fill="#F7F1E3" stroke="#2A2723" stroke-width="2.6" stroke-linejoin="round"/>
+      <line x1="54" y1="24" x2="64" y2="24" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+      <line x1="54" y1="31" x2="60" y2="31" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+    </g>
+  </symbol>
+  <symbol id="flask" viewBox="0 0 80 80">
+    <g filter="url(#hand-wobble-s)">
+      <path d="M33 12 L33 32 Q33 34 32 36 L16 62 Q13 68 20 68 L60 68 Q67 68 64 62 L48 36 Q47 34 47 32 L47 12"
+            fill="#F7F1E3" stroke="#2A2723" stroke-width="3.0" stroke-linejoin="round"/>
+      <line x1="28" y1="12" x2="52" y2="12" stroke="#2A2723" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M22 52 Q40 44 58 52 L64 62 Q67 68 60 68 L20 68 Q13 68 16 62 Z" fill="#3E6B6E" opacity="0.85"/>
+      <circle cx="36" cy="46" r="2.4" fill="#EED9A0" stroke="#2A2723" stroke-width="1.8"/>
+      <circle cx="44" cy="58" r="2" fill="#EED9A0" stroke="#2A2723" stroke-width="1.8"/>
+    </g>
+  </symbol>
+</svg>
+
+<div class="page">
+
+  <!-- ヒーロー -->
+  <section class="section hero">
+    <div class="card">
+      <svg class="owl" width="90" height="90" style="margin:0 auto 12px;"><use href="#owl-doc"/></svg>
+      <div class="section-title">Claude Opus 5、登場</div>
+      <p class="hero-sub">
+        <span class="marker">Fable 5 のフロンティア知能</span>に、<span class="circled">半額</span>で迫る<br>
+        思慮深く（thoughtful）積極的（proactive）なモデル
+      </p>
+      <div class="hero-date">発表日：2026年7月24日</div>
+    </div>
+  </section>
+
+  <!-- 01. ひとことで言うと -->
+  <section class="section">
+    <div class="card">
+      <div class="sec-head">
+        <span class="sec-num">01</span>
+        <div>
+          <h2 class="section-title">ひとことで言うと</h2>
+          <p class="sec-sub">3つのフレーズで要約すると、こうなる。</p>
+        </div>
+      </div>
+      <div class="quote-row">
+        <div class="quote-cloud">💬 Claude Max の<br>新デフォルトモデル</div>
+        <div class="quote-cloud">💬 Claude Pro で<br>最強のモデル</div>
+        <div class="quote-cloud">💬 思慮深く（thoughtful）<br>積極的（proactive）</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. ベンチマーク一気見 -->
+  <section class="section">
+    <div class="card">
+      <div class="owl-row">
+        <svg class="owl" width="52" height="52"><use href="#owl-doc"/></svg>
+        <div class="bubble">ベンチマーク、一気に見せるぞ！</div>
+      </div>
+      <div class="sec-head">
+        <span class="sec-num">02</span>
+        <div>
+          <h2 class="section-title">ベンチマーク一気見</h2>
+          <p class="sec-sub">5つの主要ベンチで、進化の幅を見る。</p>
+        </div>
+      </div>
+
+      <!-- 図解（T4：比率／量）。5ベンチ全表示・倍率バッジ・比較対象明示は改訂前のまま一切削らない。
+           magnifierは「何を測っているか＝ベンチマークで比較する」ことを示す部品として、
+           バー群の横幅を一切削らずに済む位置（節見出し直下・横一列のキャプション行）にのみ添える。
+           軸線の視覚的描画は追加していない（各行が vs 表記で比較対象を明示しており、
+           軸線を新設すると5行×2本のバー全てに手を入れることになり改変リスクが増すため見送った）。 -->
+      <div class="fig-block" data-fig-type="比率">
+        <div class="fig-caption-row">
+          <svg class="fig-part" width="92" height="92" aria-hidden="true"><use href="#magnifier"/></svg>
+          <p class="fig-caption-text">5つのベンチで「何倍・何%」を測る。バー＝相対スコア、円バッジ＝倍率の目安、vs表記＝比較対象。</p>
+        </div>
+
+      </div>
+
+      <!-- 補足表 -->
+      <table class="info-table">
+        <tr><th>ベンチ</th><th>何を測る指標か</th></tr>
+        <tr><td>Frontier-Bench v0.1</td><td>新規の未知問題を解く力（Opus 4.8の2倍超・全モデル中トップ・タスク当たり低コスト）</td></tr>
+        <tr><td>Zapier AutomationBench</td><td>ビジネスタスクを最初から最後まで完遂できるか</td></tr>
+        <tr><td>OSWorld 2.0</td><td>コンピュータ操作（GUI操作）ベンチ</td></tr>
+        <tr><td>ARC-AGI 3</td><td>新規問題解決能力</td></tr>
+        <tr><td>CursorBench 3.2</td><td>全力を尽くした際の性能。Fable 5 のピークと0.5%以内・半コスト</td></tr>
+      </table>
+      <p class="explain">いずれの数値も<strong>「超・約・≈」</strong>のような原文の曖昧表現をそのまま残し、断定的な目盛りは描いていない。すべての行に<strong>比較対象（vs Opus 4.8／次点モデル／Fable 5）</strong>を併記した。</p>
+    </div>
+  </section>
+
+  <!-- 03. コスト対性能 -->
+  <section class="section">
+    <div class="card">
+      <div class="sec-head">
+        <span class="sec-num">03</span>
+        <div>
+          <h2 class="section-title">コスト対性能</h2>
+          <p class="sec-sub">同等以上の性能を、より低いコストで。</p>
+        </div>
+      </div>
+      <div class="scatter-wrap">
+        <svg viewBox="0 0 420 320" width="100%" style="max-width:460px;">
+          <!-- 線画・図形はgでまとめて揺らぎフィルタを適用。text要素はgの外に置き可読性を保つ。
+               viewBoxの一辺が420単位なので中帯を当てる -->
+          <g filter="url(#hand-wobble-m)">
+            <!-- 軸 -->
+            <path d="M50 20 L50 280 L400 280" fill="none" stroke="#2A2723" stroke-width="3.0" stroke-linecap="round"/>
+            <path d="M50 20 L44 30 M50 20 L56 30" fill="none" stroke="#2A2723" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M400 280 L390 274 M400 280 L390 286" fill="none" stroke="#2A2723" stroke-width="2.4" stroke-linecap="round"/>
+
+            <!-- 次点モデル：左下 -->
+            <circle cx="120" cy="230" r="9" fill="#3E6B6E" stroke="#2A2723" stroke-width="2.2"/>
+
+            <!-- Opus5：中央やや左下 -->
+            <circle cx="230" cy="120" r="10" fill="#C15F3C" stroke="#2A2723" stroke-width="2.6"/>
+
+            <!-- Fable5：右上 -->
+            <circle cx="330" cy="70" r="10" fill="#EED9A0" stroke="#2A2723" stroke-width="2.6"/>
+
+            <!-- 破線矢印：Fable5→Opus5 -->
+            <path d="M320 78 Q270 100 240 116" fill="none" stroke="#2A2723" stroke-width="2.4" stroke-dasharray="6 4" stroke-linecap="round"/>
+            <path d="M240 116 L232 108 M240 116 L248 112" fill="none" stroke="#2A2723" stroke-width="2.2" stroke-linecap="round"/>
+          </g>
+
+          <text class="fig-label" x="405" y="284" font-size="13" fill="#2A2723" font-weight="bold">コスト→</text>
+          <text class="fig-label" x="8" y="18" font-size="13" fill="#2A2723" font-weight="bold">性能↑</text>
+          <text class="fig-label" x="95" y="252" font-size="13" fill="#2A2723" font-weight="bold">次点モデル</text>
+          <text class="fig-label" x="240" y="115" font-size="14" fill="#C15F3C" font-weight="bold">Opus 5</text>
+          <text class="fig-label" x="300" y="55" font-size="14" fill="#2A2723" font-weight="bold">Fable 5</text>
+          <text class="fig-label" x="252" y="98" font-size="13" fill="#C15F3C" font-weight="bold">←半額</text>
+        </svg>
+        <p class="scatter-note">※ OSWorld 2.0 では Fable 5 の 1/3 コスト</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. 働き方の変化（目玉） -->
+  <section class="section">
+    <div class="card">
+      <div class="sec-head">
+        <span class="sec-num">04</span>
+        <div>
+          <h2 class="section-title">働き方の変化</h2>
+          <p class="sec-sub">「言われたことをやる」から「検証してやり切る」へ。</p>
+        </div>
+      </div>
+      <!-- 図解（T1：対比）。左＝指示を聞くだけの人物（受動）、右＝検証の道具（能動）。
+           中央のhand-arrowが「これまで→これから」の転換を示す対立記号 -->
+      <div class="fig-block" data-fig-type="対比">
+        <div class="flow-wrap">
+          <div class="flow-box before">
+            <svg class="fig-part" width="92" height="92" aria-hidden="true"><use href="#talking-person"/></svg>
+            <div class="flow-label">BEFORE：これまでのAI</div>
+            <div class="flow-title">表面だけ直して完了報告</div>
+          </div>
+          <div class="flow-arrow-wrap"><svg class="fig-part" width="120" height="48" aria-hidden="true"><use href="#hand-arrow"/></svg></div>
+          <div class="flow-box after">
+            <svg class="fig-part" width="92" height="92" aria-hidden="true"><use href="#flask"/></svg>
+            <div class="flow-label">AFTER：Claude Opus 5</div>
+            <div class="flow-title">自作でテストして検証、直るまで反復</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="explain">原文：<strong>“much stronger at verifying its work and iterating carefully until it succeeds”</strong>（自分の仕事を検証し、成功するまで丁寧に反復する）<br>
+      BEFORE：見た目を整えて「できました」と報告するに留まりがち。／AFTER：自分の仕事を検証し、成功するまで丁寧に反復する。</p>
+
+      <div class="episode-list">
+        <div class="episode-card">
+          <div class="episode-num">①</div>
+          <div class="episode-body">
+            <div class="episode-title">機械部品の3Dモデル再構築 <span class="episode-star">代表的な実例</span></div>
+            <div>Frontier-Bench のタスクで、機械部品の図面から FreeCAD の3Dモデルを作れと指示されると、Opus 5 は<strong>自前のコンピュータビジョン・パイプラインを書いて生ピクセルから幾何を抽出し、部品全体を再構築</strong>した。</div>
+          </div>
+        </div>
+        <div class="episode-card">
+          <div class="episode-num">②</div>
+          <div class="episode-body">
+            <div class="episode-title">OSSパッケージマネージャの実バグ修正</div>
+            <div>根本原因を特定し、<strong>コミュニティのパッチが見逃したエッジケース</strong>を修正した。</div>
+          </div>
+        </div>
+        <div class="episode-card">
+          <div class="episode-num">③</div>
+          <div class="episode-body">
+            <div class="episode-title">取引所マーケットデータフィード構築</div>
+            <div>ある取引企業のエンジニアが1セッションでフィードを構築。検証用のライブフィードが無い中、<strong>Opus 5 は自作のテストハーネスまで構築</strong>した。</div>
+          </div>
+        </div>
+        <div class="episode-card">
+          <div class="episode-num">④</div>
+          <div class="episode-body">
+            <div class="episode-title">ゲノミクス分析</div>
+            <div>CEO（Alfredo Andere）談：「<strong>これまで動かしたどのモデルより慎重な科学者のように振る舞い</strong>、交絡因子を排除する適切な統計テストを選ぶ」。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sticky-note">ポイント：Opus 5 は「やったつもり」で終わらせない。自己検証ループが実務品質を底上げする。</div>
+    </div>
+  </section>
+
+  <!-- 05. 科学でひと伸び -->
+  <section class="section">
+    <div class="card">
+      <div class="sec-head">
+        <span class="sec-num">05</span>
+        <div>
+          <h2 class="section-title">科学でひと伸び 🧪</h2>
+          <p class="sec-sub">生命科学の評価全体で Opus 4.8 を上回る。</p>
+        </div>
+      </div>
+      <p style="font-size:0.85rem; color:var(--teal); font-weight:bold;">vs Opus 4.8（差分のみ表示）</p>
+      <div class="sci-grid">
+        <div class="sci-item">
+          <div class="sci-bar-wrap">
+            <div class="sci-bar" style="height:120px;"><span>↑ +10.2 pt</span></div>
+          </div>
+          <div style="font-weight:bold;">有機化学タスク</div>
+        </div>
+        <div class="sci-item">
+          <div class="sci-bar-wrap">
+            <div class="sci-bar" style="height:95px;"><span>↑ +7.7 pt</span></div>
+          </div>
+          <div style="font-weight:bold;">タンパク質タスク</div>
+        </div>
+      </div>
+      <p class="explain">生命科学分野の全評価で Opus 4.8 を上回った。<strong>有機化学</strong>は分光データから分子構造を推定するタスクで <strong>+10.2ポイント</strong>、<strong>タンパク質タスク</strong>で <strong>+7.7ポイント</strong>の伸び。</p>
+    </div>
+  </section>
+
+  <!-- 06. 新機能（β） -->
+  <section class="section">
+    <div class="card">
+      <div class="sec-head">
+        <span class="sec-num">06</span>
+        <div>
+          <h2 class="section-title">新機能（β）</h2>
+          <p class="sec-sub">使い勝手を底上げする2つのベータ機能。</p>
+        </div>
+      </div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <span class="beta-tag">Claude Platform beta</span>
+          <h3>会話中のツール変更</h3>
+          <p>Mid-conversation tool changes：会話の途中で Claude が使えるツールを変えても、<strong>プロンプトキャッシュを壊さずに</strong>継続できる。</p>
+        </div>
+        <div class="feat-card">
+          <span class="beta-tag">API beta</span>
+          <h3>自動フォールバック</h3>
+          <p>Automatic fallbacks：安全分類器に引っかかったリクエストを、<strong>自動的に別モデルへルーティング</strong>し可用性を確保する。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. 得意な7領域 -->
+  <section class="section">
+    <div class="card">
+      <div class="sec-head">
+        <span class="sec-num">07</span>
+        <div>
+          <h2 class="section-title">得意な7領域</h2>
+          <p class="sec-sub">現場で頼れる守備範囲。</p>
+        </div>
+      </div>
+      <div class="domain-grid">
+        <div class="domain-item"><span class="domain-icon">&lt;/&gt;</span>ソフトウェア<br>エンジニアリング</div>
+        <div class="domain-item"><span class="domain-icon">📚</span>知識業務</div>
+        <div class="domain-item"><span class="domain-icon">💡</span>問題解決</div>
+        <div class="domain-item"><span class="domain-icon">🧪</span>科学研究</div>
+        <div class="domain-item"><span class="domain-icon">🎨</span>視覚的出力</div>
+        <div class="domain-item"><span class="domain-icon">🔎</span>コード分析</div>
+        <div class="domain-item"><span class="domain-icon">⚖️</span>法務</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. 価格とスピード -->
+  <section class="section">
+    <div class="card">
+      <div class="sec-head">
+        <span class="sec-num">08</span>
+        <div>
+          <h2 class="section-title">価格とスピード</h2>
+          <p class="sec-sub">Opus 4.8 と同額、Fastモードも選べる。</p>
+        </div>
+      </div>
+      <div class="price-row">
+        <div class="price-tag">$5<small>入力／百万トークン</small></div>
+        <div class="price-tag">$25<small>出力／百万トークン</small></div>
+      </div>
+      <p style="text-align:center; font-size:0.82rem; margin-top:10px;">※ Opus 4.8 と同額</p>
+      <div class="fast-row">
+        <div class="fast-badge">⚡ 約2.5倍速</div>
+        <div class="fast-badge">💰 基本の2倍額</div>
+      </div>
+      <p style="text-align:center; font-size:0.78rem; margin-top:8px; color:var(--teal); font-weight:bold;">Fastモード（vs 通常モード）</p>
+    </div>
+  </section>
+
+  <!-- 09. 安全性 -->
+  <section class="section">
+    <div class="card">
+      <div class="owl-row">
+        <svg class="owl" width="52" height="52"><use href="#owl-doc"/></svg>
+        <div class="bubble">ここは正直に言うぞ</div>
+      </div>
+      <div class="sec-head">
+        <span class="sec-num">09</span>
+        <div>
+          <h2 class="section-title">安全性</h2>
+          <p class="sec-sub">強みも弱みも、正直に。</p>
+        </div>
+      </div>
+      <ul class="safety-list">
+        <li><svg class="check-icon" width="20" height="18"><use href="#check-mark"/></svg> 自動行動監査で「これまでで最も整列」（most aligned to date）</li>
+        <li><svg class="check-icon" width="20" height="18"><use href="#check-mark"/></svg> Claude's Constitution への遵守度が Opus 4.8／Sonnet 5／Fable 5 より高い</li>
+        <li><svg class="check-icon" width="20" height="18"><use href="#check-mark"/></svg> 最低の欺瞞行為率</li>
+        <li><svg class="check-icon" width="20" height="18"><use href="#check-mark"/></svg> 悪用への耐性が最高</li>
+        <li><svg class="check-icon" width="20" height="18"><use href="#check-mark"/></svg> サイバー分類器の介入頻度：Fable 5 比 <span class="circled">約85%削減</span></li>
+      </ul>
+      <p class="explain">サイバー分類器は Fable 5 より制限が緩く、<strong>ソースコードの脆弱性特定は許容</strong>しつつ、<strong>バイナリベースのスキャンは遮断</strong>する設計。</p>
+      <div class="caveat-card">
+        <strong>ただし正直に：</strong> Mythos 5 と比べ、脆弱性の特定能力は同等だが「エクスプロイト開発」のスコアは大きく劣後する。<span class="marker">生物学・攻撃的サイバーセキュリティでは劣後</span>する分野があることも隠さない。
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. まとめ＆出典 -->
+  <section class="section">
+    <div class="card">
+      <div class="sec-head">
+        <span class="sec-num">10</span>
+        <div>
+          <h2 class="section-title">まとめ</h2>
+          <p class="sec-sub">半額でフロンティア級、そして誠実な報告。</p>
+        </div>
+      </div>
+      <ul class="summary-list">
+        <li>半額で Fable 5 級の性能に迫る</li>
+        <li>科学タスクと安全性に強い</li>
+        <li>Claude Max の新デフォルト、Claude Pro の最強モデル</li>
+        <li>API・Claude.ai・Code・Cowork・Platform で利用可能</li>
+      </ul>
+      <div class="platform-chips">
+        <span class="chip">Claude API</span>
+        <span class="chip">Claude.ai</span>
+        <span class="chip">Claude Code</span>
+        <span class="chip">Claude Cowork</span>
+        <span class="chip">Claude Platform</span>
+      </div>
+      <div class="note-box">
+        ※「2倍超」「約85%」「≈1.5倍」は原文表現をそのまま採用。倍率は概算を含み、断定的な数値ではありません。
+      </div>
+    </div>
+  </section>
+
+  <footer class="source">
+    出典：Anthropic 公式発表（2026-07-24） <a href="https://www.anthropic.com/news/claude-opus-5">https://www.anthropic.com/news/claude-opus-5</a>
+  </footer>
+
+</div>
+</body>
+</html>

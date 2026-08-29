@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><title>wobble band test</title>
+<style>
+  body{ background:#FAF6EC; color:#2A2723; font-family:"Candara","UD Digi Kyokasho N","Yu Gothic",sans-serif; margin:0; padding:24px 40px; }
+  h2{ font-size:20px; margin:26px 0 10px; border-bottom:2px solid #2A2723; }
+  .lab{ font-size:14px; font-weight:bold; margin:14px 0 4px; }
+  .row{ display:flex; align-items:flex-end; gap:28px; }
+  .frame{ width:900px; height:110px; position:relative; margin-bottom:16px; z-index:0; }
+  .frame::before{ content:""; position:absolute; inset:0; z-index:-1; background:#FFFDF6;
+     border:2.4px solid #2A2723; border-radius:16px 20px 15px 22px / 20px 15px 22px 16px; }
+  .frame span{ display:block; padding:12px 18px; font-size:14px; }
+  .box{ width:320px; height:120px; position:relative; z-index:0; }
+  .box::before{ content:""; position:absolute; inset:0; z-index:-1; background:#FFFDF6;
+     border:2.4px solid #2A2723; border-radius:14px 18px 13px 20px / 18px 13px 20px 14px; }
+  .f_l1::before{ filter:url(#w-l1); } .f_l2::before{ filter:url(#w-l2); }
+  .f_l3::before{ filter:url(#w-l3); } .f_l4::before{ filter:url(#w-l4); }
+  .f_l5::before{ filter:url(#w-l5); }
+  .f_m1::before{ filter:url(#w-m1); } .f_m2::before{ filter:url(#w-m2); } .f_m3::before{ filter:url(#w-m3); }
+</style></head><body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- 小アイコン帯（symbol の user space = 80単位で効く） -->
+  <filter id="w-s1" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.02 0.03" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.0" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="w-s2" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.04 0.05" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="w-s3" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.055 0.07" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.0" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="w-s4" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.08 0.09" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="w-s5" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.06 0.075" numOctaves="1" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+
+  <!-- 大枠帯（CSSピクセル空間で効く） -->
+  <filter id="w-l1" x="-5%" y="-20%" width="110%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.02 0.03" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.0" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="w-l2" x="-5%" y="-20%" width="110%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.006 0.008" numOctaves="1" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.0" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="w-l3" x="-5%" y="-20%" width="110%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.004 0.005" numOctaves="1" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="4.0" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="w-l4" x="-5%" y="-20%" width="110%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.008 0.010" numOctaves="1" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="w-l5" x="-5%" y="-20%" width="110%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.003 0.004" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5.0" xChannelSelector="R" yChannelSelector="G"/></filter>
+
+  <!-- 中図版帯（CSSピクセル空間 200〜400px） -->
+  <filter id="w-m1" x="-10%" y="-20%" width="120%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.016" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="w-m2" x="-10%" y="-20%" width="120%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.018 0.022" numOctaves="1" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.0" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="w-m3" x="-10%" y="-20%" width="120%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.010 0.013" numOctaves="1" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.0" xChannelSelector="R" yChannelSelector="G"/></filter>
+
+  <!-- 素体（フィルタ違いで5枚複製） -->
+  <symbol id="p0" viewBox="0 0 80 80"><g>
+      <circle cx="30" cy="26" r="12" fill="#EED9A0" stroke="#2A2723" stroke-width="2.6"/>
+      <path d="M14 68 Q14 46 30 46 Q46 46 46 68" fill="#F7F1E3" stroke="#2A2723" stroke-width="3.0" stroke-linejoin="round"/>
+      <path d="M48 14 Q70 14 70 30 Q70 44 54 44 L54 52 L46 42 Q46 42 46 30 Q46 14 48 14 Z" fill="#F7F1E3" stroke="#2A2723" stroke-width="2.6" stroke-linejoin="round"/>
+      <line x1="54" y1="24" x2="64" y2="24" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+      <line x1="54" y1="31" x2="60" y2="31" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/></g></symbol>
+  <symbol id="p1" viewBox="0 0 80 80"><g filter="url(#w-s1)">
+      <circle cx="30" cy="26" r="12" fill="#EED9A0" stroke="#2A2723" stroke-width="2.6"/>
+      <path d="M14 68 Q14 46 30 46 Q46 46 46 68" fill="#F7F1E3" stroke="#2A2723" stroke-width="3.0" stroke-linejoin="round"/>
+      <path d="M48 14 Q70 14 70 30 Q70 44 54 44 L54 52 L46 42 Q46 42 46 30 Q46 14 48 14 Z" fill="#F7F1E3" stroke="#2A2723" stroke-width="2.6" stroke-linejoin="round"/>
+      <line x1="54" y1="24" x2="64" y2="24" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+      <line x1="54" y1="31" x2="60" y2="31" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/></g></symbol>
+  <symbol id="p2" viewBox="0 0 80 80"><g filter="url(#w-s2)">
+      <circle cx="30" cy="26" r="12" fill="#EED9A0" stroke="#2A2723" stroke-width="2.6"/>
+      <path d="M14 68 Q14 46 30 46 Q46 46 46 68" fill="#F7F1E3" stroke="#2A2723" stroke-width="3.0" stroke-linejoin="round"/>
+      <path d="M48 14 Q70 14 70 30 Q70 44 54 44 L54 52 L46 42 Q46 42 46 30 Q46 14 48 14 Z" fill="#F7F1E3" stroke="#2A2723" stroke-width="2.6" stroke-linejoin="round"/>
+      <line x1="54" y1="24" x2="64" y2="24" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+      <line x1="54" y1="31" x2="60" y2="31" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/></g></symbol>
+  <symbol id="p3" viewBox="0 0 80 80"><g filter="url(#w-s3)">
+      <circle cx="30" cy="26" r="12" fill="#EED9A0" stroke="#2A2723" stroke-width="2.6"/>
+      <path d="M14 68 Q14 46 30 46 Q46 46 46 68" fill="#F7F1E3" stroke="#2A2723" stroke-width="3.0" stroke-linejoin="round"/>
+      <path d="M48 14 Q70 14 70 30 Q70 44 54 44 L54 52 L46 42 Q46 42 46 30 Q46 14 48 14 Z" fill="#F7F1E3" stroke="#2A2723" stroke-width="2.6" stroke-linejoin="round"/>
+      <line x1="54" y1="24" x2="64" y2="24" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+      <line x1="54" y1="31" x2="60" y2="31" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/></g></symbol>
+  <symbol id="p4" viewBox="0 0 80 80"><g filter="url(#w-s4)">
+      <circle cx="30" cy="26" r="12" fill="#EED9A0" stroke="#2A2723" stroke-width="2.6"/>
+      <path d="M14 68 Q14 46 30 46 Q46 46 46 68" fill="#F7F1E3" stroke="#2A2723" stroke-width="3.0" stroke-linejoin="round"/>
+      <path d="M48 14 Q70 14 70 30 Q70 44 54 44 L54 52 L46 42 Q46 42 46 30 Q46 14 48 14 Z" fill="#F7F1E3" stroke="#2A2723" stroke-width="2.6" stroke-linejoin="round"/>
+      <line x1="54" y1="24" x2="64" y2="24" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+      <line x1="54" y1="31" x2="60" y2="31" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/></g></symbol>
+  <symbol id="p5" viewBox="0 0 80 80"><g filter="url(#w-s5)">
+      <circle cx="30" cy="26" r="12" fill="#EED9A0" stroke="#2A2723" stroke-width="2.6"/>
+      <path d="M14 68 Q14 46 30 46 Q46 46 46 68" fill="#F7F1E3" stroke="#2A2723" stroke-width="3.0" stroke-linejoin="round"/>
+      <path d="M48 14 Q70 14 70 30 Q70 44 54 44 L54 52 L46 42 Q46 42 46 30 Q46 14 48 14 Z" fill="#F7F1E3" stroke="#2A2723" stroke-width="2.6" stroke-linejoin="round"/>
+      <line x1="54" y1="24" x2="64" y2="24" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+      <line x1="54" y1="31" x2="60" y2="31" stroke="#2A2723" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/></g></symbol>
+</svg>
+
+<h2>A. 小アイコン帯 — 48px 表示</h2>
+<div class="row">
+  <div><div class="lab">s0 なし</div><svg width="48" height="48"><use href="#p0"/></svg></div>
+  <div><div class="lab">s1 現行 .02/.03 n2 s2.0</div><svg width="48" height="48"><use href="#p1"/></svg></div>
+  <div><div class="lab">s2 .04/.05 n2 s2.5</div><svg width="48" height="48"><use href="#p2"/></svg></div>
+  <div><div class="lab">s3 .055/.07 n2 s3.0</div><svg width="48" height="48"><use href="#p3"/></svg></div>
+  <div><div class="lab">s4 .08/.09 n2 s2.5</div><svg width="48" height="48"><use href="#p4"/></svg></div>
+  <div><div class="lab">s5 .06/.075 n1 s3.5</div><svg width="48" height="48"><use href="#p5"/></svg></div>
+</div>
+
+<h2>A'. 同じ素体 — 120px 表示（拡大して線の破綻を見る）</h2>
+<div class="row">
+  <div><div class="lab">s0</div><svg width="120" height="120"><use href="#p0"/></svg></div>
+  <div><div class="lab">s1</div><svg width="120" height="120"><use href="#p1"/></svg></div>
+  <div><div class="lab">s2</div><svg width="120" height="120"><use href="#p2"/></svg></div>
+  <div><div class="lab">s3</div><svg width="120" height="120"><use href="#p3"/></svg></div>
+  <div><div class="lab">s4</div><svg width="120" height="120"><use href="#p4"/></svg></div>
+  <div><div class="lab">s5</div><svg width="120" height="120"><use href="#p5"/></svg></div>
+</div>
+
+<h2>B. 大枠帯 — 900px カード枠（border 2.4px）</h2>
+<div class="lab">l0 フィルタなし</div>
+<div class="frame"><span>l0 フィルタなし</span></div>
+<div class="lab">l1 現行 .02/.03 n2 s2.0（段差が出るはずの現行値）</div>
+<div class="frame f_l1"><span>l1 現行値</span></div>
+<div class="lab">l2 .006/.008 n1 s3.0</div>
+<div class="frame f_l2"><span>l2</span></div>
+<div class="lab">l3 .004/.005 n1 s4.0</div>
+<div class="frame f_l3"><span>l3</span></div>
+<div class="lab">l4 .008/.010 n1 s2.5</div>
+<div class="frame f_l4"><span>l4</span></div>
+<div class="lab">l5 .003/.004 n2 s5.0</div>
+<div class="frame f_l5"><span>l5</span></div>
+
+<h2>C. 中図版帯 — 320px ボックス</h2>
+<div class="row">
+  <div><div class="lab">m0 なし</div><div class="box"><span></span></div></div>
+  <div><div class="lab">m1 .012/.016 n2 s2.2</div><div class="box f_m1"></div></div>
+  <div><div class="lab">m2 .018/.022 n1 s2.0</div><div class="box f_m2"></div></div>
+  <div><div class="lab">m3 .010/.013 n1 s3.0</div><div class="box f_m3"></div></div>
+</div>
+
+</body></html>
