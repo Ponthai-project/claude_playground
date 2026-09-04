@@ -31,5 +31,8 @@ replay_pid*
 !.claude/agents/
 !.claude/agents/*.md
 
+# 入れ子のgit worktreeは追跡しない（誤ってサブモジュール参照としてコミットされGitHub Pagesビルドを壊すため）
+.claude/worktrees/
+
 # 検証・レンダリング試行で生成した使い捨てスクリーンショット
 work/**/*.png
